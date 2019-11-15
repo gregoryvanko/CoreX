@@ -46,13 +46,9 @@ class CoreXLogin {
                     document.getElementById("LoginErrorMsg").innerHTML = this.response;
                 }
             }
-            if (me._Site == "null") {
-                xhttp.open("POST", "login", true)
-            } else {
-                xhttp.open("POST", "loginAdmin", true)
-            }
+            xhttp.open("POST", "login", true)
             xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-            xhttp.send(JSON.stringify({Login:document.getElementById('LoginLoginValue').value, Pass:document.getElementById('LoginPswValue').value}))
+            xhttp.send(JSON.stringify({Site:me._Site, Login:document.getElementById('LoginLoginValue').value, Pass:document.getElementById('LoginPswValue').value}))
         }
     }
 

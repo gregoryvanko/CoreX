@@ -77,6 +77,37 @@ class corex {
             res.send(me.GetInitialSecuredHTML("admin"))
         })
 
+        // Creation d'un route pour le login via Post
+		this._Express.post('/login', function (req, res){
+            me.Log("Receive Post Login: " + JSON.stringify(req.body))
+            res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
+
+            //let Mongo = require('./Mongo.js').Mongo
+            //const Query = { [me._MongoLoginUserItem]: req.body.Login }
+            //const Projection = { projection:{ _id: 1, [me._MongoLoginPassItem]: 1, [me._MongoLoginRoleItem]:1}}
+            //Mongo.FindPromise(Query,Projection, me._MongoLoginCollection, me._MongoUrl, me._MongoDbName).then((reponse)=>{
+            //    if(reponse.length == 0){
+            //        me.Log("Login non valide, pas de row en db pour ce user")
+            //        res.json({Error: true, ErrorMsg:"Login Error", Token: "", User: ""})
+            //    } else if (reponse.length == 1){
+            //        if (reponse[0][me._MongoLoginPassItem] == req.body.Pass){
+            //            me.Log("Login valide")
+            //            delete reponse[0][me._MongoLoginPassItem]
+            //            res.json({Error: false, ErrorMsg:"", Token: me.EncryptDataToken(reponse[0]), User: req.body.Login})
+            //        } else {
+            //            me.Log("Login non valide, le pass est different du password en db")
+            //            res.json({Error: true, ErrorMsg:"Login Error", Token: "", User: ""})
+            //        }
+            //    } else {
+            //        me.Log("Login non valide, trop de row en db pour ce user")
+            //        res.json({Error: true, ErrorMsg:"DB Error", Token: "", User: ""})
+            //    }
+            //},(erreur)=>{
+            //    me.Log("Login non valide, erreur dans le call à la db : " + erreur)
+            //    res.json({Error: true, ErrorMsg:"DB Error", Token: "", User: ""})
+            //})
+        })
+
 
         
         // Creation d'un route pour l'icone
