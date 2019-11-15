@@ -17,7 +17,7 @@ class CoreXLoader {
             this.InitSocketIoMessage()
             // pour ouvir le socket il faut executer les deux commandes ci-dessous
             //this._SocketIo.io.opts.query = {token: this._LoginToken}
-            //this._SocketIo.open()
+            //this._SocketIo.open() 
         }
     }
     set Site(val){

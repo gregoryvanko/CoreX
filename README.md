@@ -1,6 +1,6 @@
 # CoreX
 
-A Node.js package part of CoreX. 
+A Node.js package part of CoreX.
 
 ## Usage
 

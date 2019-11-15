@@ -1,4 +1,3 @@
-
 class Mongo {
 
     /* Check if collection exist */

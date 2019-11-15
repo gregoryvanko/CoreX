@@ -12,7 +12,7 @@ class CoreXLogin {
         }
     }
 
-    /* Ajout des event listener du screen login */
+    /* Ajout des event listener du screen login */ 
     AddEventListener(){
         let self = this
         document.getElementById("LoginLoginValue").addEventListener("keyup", ()=>{self.InputKeyUp(event)})

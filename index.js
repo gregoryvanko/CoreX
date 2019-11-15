@@ -1,4 +1,3 @@
-
 class corex {
     constructor({AppName = "MyApp", Port=3000, Secret="EncryptSecret", MongoUrl="mongodb://localhost:27017"} = {}){
         // Variable externe indispensable de la class
