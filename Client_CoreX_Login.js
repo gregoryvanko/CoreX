@@ -51,7 +51,6 @@ class CoreXLogin {
             } else {
                 xhttp.open("POST", "loginAdmin", true)
             }
-            
             xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
             xhttp.send(JSON.stringify({Login:document.getElementById('LoginLoginValue').value, Pass:document.getElementById('LoginPswValue').value}))
         }

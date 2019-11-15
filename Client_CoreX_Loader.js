@@ -139,5 +139,4 @@ class CoreXLoader {
         }
         location.reload()
     }
-
 }
