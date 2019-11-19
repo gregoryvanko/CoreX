@@ -68,7 +68,9 @@ class corex {
             if (me._AppIsSecured) {
                 res.send(me.GetInitialSecuredHTML("app"))
             } else {
-                res.send("app not secured")
+                // Envoyer l'App
+                // ToDo
+                res.send("ToDo envoyer l'app")
             }
         })
 
@@ -92,6 +94,21 @@ class corex {
                 default:
                     res.json({Error: true, ErrorMsg:"No login for site: " + req.body.Site, Token: ""})
                     break
+            }
+        })
+
+        // Creation d'une route pour loader l'application
+		this._Express.post('/LoadApp', function(req, res, next){
+            me.Log("Start loading App")
+            // validation du Token
+            let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
+            console.log(JSON.stringify(DecryptTokenReponse))
+            if (DecryptTokenReponse.TokenValide) {
+                // verifier pour le site req.body.Site si la collection dans DecryptTokenReponse.TokenData.data.LoginCollection
+                // ToDo
+                res.json({Error: true, ErrorMsg:"ToDo verifier site et collection", CodeApp: ""})
+            } else {
+                res.json({Error: true, ErrorMsg:"Token non valide", CodeApp: ""})
             }
         })
 
@@ -304,7 +321,10 @@ class corex {
                 if (reponse[0][this._MongoLoginPassItem] == Pass){
                     this.Log("Login valide")
                     delete reponse[0][this._MongoLoginPassItem]
-                    res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(reponse[0])})
+                    let MyToken = new Object()
+                    MyToken.UserData = reponse[0]
+                    MyToken.LoginCollection = LoginCollection
+                    res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(MyToken)})
                 } else {
                     this.Log("Login non valide, le Pass est different du password en db")
                     res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
@@ -331,13 +351,19 @@ class corex {
 
     /* Decript et valide un JWT */
     DecryptDataToken(token){
-        let reponse = null
-        let tokenJwt = this.Decrypt(token)
-        let jwt = require('jsonwebtoken')
-        try {
-            reponse = jwt.verify(tokenJwt, this._Secret)
-        } catch(err) {
-            this.Log(err)
+        let reponse = new Object()
+        reponse.TokenValide = false
+        reponse.TokenData = ""
+        let DecryptReponse = this.Decrypt(token)
+        if(DecryptReponse.decryptedValide){
+            //let tokenJwt = this.Decrypt(token)
+            let jwt = require('jsonwebtoken')
+            try {
+                reponse.TokenData = jwt.verify(DecryptReponse.decryptedData, this._Secret)
+                reponse.TokenValide = true
+            } catch(err) {
+                this.Log("jsonwebtoken non valide")
+            }
         }
         return reponse
     }
@@ -352,10 +378,18 @@ class corex {
 
     /* Decrypte un string en Json */
     Decrypt(text){
-        const Cryptr = require('cryptr')
-        const cryptr = new Cryptr(this._Secret)
-        const decryptedString = cryptr.decrypt(text)
-        return decryptedString
+        let reponse = new Object()
+        reponse.decryptedValide = false
+        reponse.decryptedData = ""
+        let Cryptr = require('cryptr')
+        let cryptr = new Cryptr(this._Secret)
+        try {
+            reponse.decryptedData = cryptr.decrypt(text)
+            reponse.decryptedValide = true
+        } catch (error) {
+            this.Log("cryptr non valide")
+        }
+        return reponse
     }
 }
 module.exports.corex = corex

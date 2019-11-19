@@ -105,7 +105,7 @@ class CoreXLoader {
     Start(){
         this._LoginToken = this.GetTokenLogin() 
         if(this._LoginToken != null){
-            console.log("Token exist. Start loading App process with token")
+            console.log("Token exist")
             this.LoadApp()
         } else {
             const OptionCoreXLogin = {Site:this._Site, CallBackLogedIn:this.LoginDone.bind(this), Color: this._Color}
@@ -142,11 +142,35 @@ class CoreXLoader {
 
     /* Start loading application */
     LoadApp(){
+        // afficher le message de loading
         let LoadingText = /*html*/`
             <div style="display: flex; flex-direction: column; justify-content:space-between; align-content:center; align-items: center;">
                 <div style="margin: 1%;">Loading App...</div>
+                <div id="LoadingErrorMsg" style="color: red"></div>
             </div>`
         document.body.innerHTML = LoadingText
-        // ToDo
+        
+        // appeler le serveur
+        console.log("Start loading App")
+        let me = this
+        var xhttp = new XMLHttpRequest()
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                let reponse = JSON.parse(this.responseText)
+                if (reponse.Error) {
+                    console.log('Loading App Error : ' + reponse.ErrorMsg)
+                    document.getElementById("LoadingErrorMsg").innerHTML=reponse.ErrorMsg
+                } else {
+                    console.log('App Loaded')
+                    document.body.innerHTML = "App Loaded"
+                    // ToDo Add app in HTML
+                }
+            } else {
+                document.getElementById("LoadingErrorMsg").innerHTML = this.response;
+            }
+        }
+        xhttp.open("POST", "LoadApp", true)
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+        xhttp.send(JSON.stringify({Site:me._Site, Token:me.GetTokenLogin()}))
     }
 }
