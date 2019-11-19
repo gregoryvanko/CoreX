@@ -66,7 +66,7 @@ class corex {
         // Creation d'une route de base pour l'application
 		this._Express.get('/', function(req, res, next){
             if (me._AppIsSecured) {
-                res.send(me.GetInitialSecuredHTML(null))
+                res.send(me.GetInitialSecuredHTML("app"))
             } else {
                 res.send("app not secured")
             }
@@ -80,36 +80,21 @@ class corex {
         // Creation d'un route pour le login via Post
 		this._Express.post('/login', function (req, res){
             me.Log("Receive Post Login: " + JSON.stringify(req.body))
-            res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
 
-            //let Mongo = require('./Mongo.js').Mongo
-            //const Query = { [me._MongoLoginUserItem]: req.body.Login }
-            //const Projection = { projection:{ _id: 1, [me._MongoLoginPassItem]: 1, [me._MongoLoginRoleItem]:1}}
-            //Mongo.FindPromise(Query,Projection, me._MongoLoginCollection, me._MongoUrl, me._MongoDbName).then((reponse)=>{
-            //    if(reponse.length == 0){
-            //        me.Log("Login non valide, pas de row en db pour ce user")
-            //        res.json({Error: true, ErrorMsg:"Login Error", Token: "", User: ""})
-            //    } else if (reponse.length == 1){
-            //        if (reponse[0][me._MongoLoginPassItem] == req.body.Pass){
-            //            me.Log("Login valide")
-            //            delete reponse[0][me._MongoLoginPassItem]
-            //            res.json({Error: false, ErrorMsg:"", Token: me.EncryptDataToken(reponse[0]), User: req.body.Login})
-            //        } else {
-            //            me.Log("Login non valide, le pass est different du password en db")
-            //            res.json({Error: true, ErrorMsg:"Login Error", Token: "", User: ""})
-            //        }
-            //    } else {
-            //        me.Log("Login non valide, trop de row en db pour ce user")
-            //        res.json({Error: true, ErrorMsg:"DB Error", Token: "", User: ""})
-            //    }
-            //},(erreur)=>{
-            //    me.Log("Login non valide, erreur dans le call à la db : " + erreur)
-            //    res.json({Error: true, ErrorMsg:"DB Error", Token: "", User: ""})
-            //})
+            // analyse du login en fonction du site
+            switch (req.body.Site) {
+                case "app":
+                    me.VerifyLogin(res, me._MongoLoginClientCollection, req.body.Login,req.body.Pass)
+                    break
+                case "admin":
+                    me.VerifyLogin(res, me._MongoLoginAdminCollection, req.body.Login,req.body.Pass)
+                    break
+                default:
+                    res.json({Error: true, ErrorMsg:"No login for site: " + req.body.Site, Token: ""})
+                    break
+            }
         })
 
-
-        
         // Creation d'un route pour l'icone
         this._Express.get('/apple-icon.png', function (req, res) {
             me.Log("me._Icon: " + me._Icon)
@@ -166,35 +151,35 @@ class corex {
             })
             
             this._io.on('connection', function(socket){	
-                // Get Token
-                let Token = {data:"Not Secured app"}
-                if (me._AppIsSecured){
-                    // Get Token
+            //    // Get Token
+            //    let Token = {data:"Not Secured app"}
+            //    if (me._AppIsSecured){
+            //        // Get Token
             //        Token = me.DecryptDataToken(socket.handshake.query.token)
-                }
-                // Count user connected
-                me._NumClientConnected ++	
-                // Le socket rejoint la room securisee
-                socket.join(me._RoomName);
-                // Envoie au client le code de l'application
+            //    }
+            //    // Count user connected
+            //    me._NumClientConnected ++	
+            //    // Le socket rejoint la room securisee
+            //    socket.join(me._RoomName);
+            //    // Envoie au client le code de l'application
             //    socket.emit('LoadingApp', me.GetCode(Token.data))
-                // Log du nombre de user
+            //    // Log du nombre de user
             //    me.Log('user connected, nb user :' + me.UserCount());
 
-                // Reception du message client de déconnection
-                socket.on('disconnect', () => {
-                    // Count User Connected
-                    me._NumClientConnected --
+            //    // Reception du message client de déconnection
+            //    socket.on('disconnect', () => {
+            //        // Count User Connected
+            //        me._NumClientConnected --
                     // Log du nombre de user
             //        me.Log('user disconnected, nb user: ' + me.UserCount());
-                })
+            //    })
 
-                // Reception du message de changement de config
+            //    // Reception du message de changement de config
             //    socket.on('UserConfig', (Message) => {
             //        me.ChangeUserConfig(socket, Token.data._id, Message)
             //    })
 
-                // Reception des autres messages du client via un callbalck
+            //    // Reception des autres messages du client via un callbalck
             //    if(me._ServerMessage != null){
             //        me._ServerMessage(socket)
             //    }
@@ -304,6 +289,73 @@ class corex {
     </body>
 </html>`
         return HTMLStart + SocketIO + HTML1 + CoreXLoaderJsScript + os.EOL + CoreXLoginJsScript + os.EOL + HTML2 + LoadScript + HTMLEnd
+    }
+
+    /* Verification du login */
+    VerifyLogin(res, LoginCollection, Login, Pass){
+        let Mongo = require('./Mongo.js').Mongo
+        const Query = { [this._MongoLoginUserItem]: Login}
+        const Projection = { projection:{ _id: 1, [this._MongoLoginPassItem]: 1}}
+        Mongo.FindPromise(Query,Projection, LoginCollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+            if(reponse.length == 0){
+                this.Log("Login non valide, pas de row en db pour ce user")
+                res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
+            } else if (reponse.length == 1){
+                if (reponse[0][this._MongoLoginPassItem] == Pass){
+                    this.Log("Login valide")
+                    delete reponse[0][this._MongoLoginPassItem]
+                    res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(reponse[0])})
+                } else {
+                    this.Log("Login non valide, le Pass est different du password en db")
+                    res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
+                }
+            } else {
+                this.Log("Login non valide, trop de row en db pour ce user")
+                res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
+            }
+        },(erreur)=>{
+            this.Log("Login non valide, erreur dans le call à la db : " + erreur)
+            res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
+        })
+    }
+
+    /* genère et encrypt un Json Web Token */
+    EncryptDataToken(DBData){
+        // creation d'un JWT
+        let jwt = require('jsonwebtoken');
+        var token = jwt.sign({ data: DBData }, this._Secret);
+        // encrytion du JWT
+        let Encrypttoken = this.Encrypt(token)
+        return Encrypttoken
+    }
+
+    /* Decript et valide un JWT */
+    DecryptDataToken(token){
+        let reponse = null
+        let tokenJwt = this.Decrypt(token)
+        let jwt = require('jsonwebtoken')
+        try {
+            reponse = jwt.verify(tokenJwt, this._Secret)
+        } catch(err) {
+            this.Log(err)
+        }
+        return reponse
+    }
+
+    /* Encrypte un JSON? */
+    Encrypt(text){
+        const Cryptr = require('cryptr');
+        const cryptr = new Cryptr(this._Secret);
+        const encryptedString = cryptr.encrypt(text);
+        return encryptedString
+    }
+
+    /* Decrypte un string en Json */
+    Decrypt(text){
+        const Cryptr = require('cryptr')
+        const cryptr = new Cryptr(this._Secret)
+        const decryptedString = cryptr.decrypt(text)
+        return decryptedString
     }
 }
 module.exports.corex = corex

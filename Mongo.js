@@ -27,7 +27,7 @@ class Mongo {
         return new Promise((resolve, reject)=>{
             let MongoClient = require('mongodb').MongoClient
             let url = Url+ "/" + DbName
-            MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
+            MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
                 if(err) reject(err)
                 else {
                     const LoginCollection = client.db(DbName).collection(Collection)
@@ -47,7 +47,7 @@ class Mongo {
     static InsertOne(Data, Collection, Url, DbName, DoneCallback, ErrorCallback){
         let MongoClient = require('mongodb').MongoClient
         let url = Url+ "/" + DbName
-        MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
+        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
             if(err) {
                 ErrorCallback(err)
             }
@@ -66,7 +66,7 @@ class Mongo {
     static FindQuerryProjection(Querry, Projection, Collection, Url, DbName, DoneCallback, ErrorCallback){
         let MongoClient = require('mongodb').MongoClient
         let url = Url+ "/" + DbName
-        MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
+        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
             if(err) {
                 ErrorCallback(err)
             }
@@ -85,7 +85,7 @@ class Mongo {
     static FindAll(Collection, Url, DbName, DoneCallback, ErrorCallback){
         let MongoClient = require('mongodb').MongoClient
         let url = Url+ "/" + DbName
-        MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
+        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
             if(err) {
                 ErrorCallback(err)
             }
@@ -106,7 +106,7 @@ class Mongo {
         let ObjectID = require('mongodb').ObjectID
         let Query = {"_id": new ObjectID(Id)}   
         let url = Url+ "/" + DbName
-        MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
+        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
             if(err) {
                 ErrorCallback(err)
             }
@@ -127,7 +127,7 @@ class Mongo {
         let ObjectID = require('mongodb').ObjectID
         let Query = {"_id": new ObjectID(Id)}   
         let url = Url+ "/" + DbName
-        MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
+        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
             if(err) {
                 ErrorCallback(err)
             }

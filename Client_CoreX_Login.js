@@ -36,7 +36,7 @@ class CoreXLogin {
                     } else {
                         console.log('Login OK, Set Token')
                         if(me._CallBackLogedIn != null){
-                            me._CallBackLogedIn(reponse.Token, reponse.User)
+                            me._CallBackLogedIn(reponse.Token)
                         } else {
                             document.body.innerHTML = "Error : no CallBack fonction define after loged In"
                         }

@@ -106,7 +106,7 @@ class CoreXLoader {
         this._LoginToken = this.GetTokenLogin() 
         if(this._LoginToken != null){
             console.log("Token exist. Start loading App process with token")
-            console.log("TokenLogin= " + this._LoginToken)
+            this.LoadApp()
         } else {
             const OptionCoreXLogin = {Site:this._Site, CallBackLogedIn:this.LoginDone.bind(this), Color: this._Color}
             let MyLogin = new CoreXLogin(OptionCoreXLogin) // afficher le UI de login
@@ -138,5 +138,15 @@ class CoreXLoader {
             CodeJs.parentNode.removeChild(CodeJs)
         }
         location.reload()
+    }
+
+    /* Start loading application */
+    LoadApp(){
+        let LoadingText = /*html*/`
+            <div style="display: flex; flex-direction: column; justify-content:space-between; align-content:center; align-items: center;">
+                <div style="margin: 1%;">Loading App...</div>
+            </div>`
+        document.body.innerHTML = LoadingText
+        // ToDo
     }
 }
