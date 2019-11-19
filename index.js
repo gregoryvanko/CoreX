@@ -69,8 +69,7 @@ class corex {
                 res.send(me.GetInitialSecuredHTML("app"))
             } else {
                 // Envoyer l'App
-                // ToDo
-                res.send("ToDo envoyer l'app")
+                res.send(me.GetAppCode())
             }
         })
 
@@ -102,11 +101,27 @@ class corex {
             me.Log("Start loading App")
             // validation du Token
             let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
-            console.log(JSON.stringify(DecryptTokenReponse))
             if (DecryptTokenReponse.TokenValide) {
-                // verifier pour le site req.body.Site si la collection dans DecryptTokenReponse.TokenData.data.LoginCollection
-                // ToDo
-                res.json({Error: true, ErrorMsg:"ToDo verifier site et collection", CodeApp: ""})
+                // Analyse de la logincollection en fonction du site
+                switch (req.body.Site) {
+                    case "app":
+                        if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoLoginClientCollection) {
+                            res.json({Error: false, ErrorMsg:"", CodeApp: me.GetAppCode()})
+                        } else {
+                            res.json({Error: true, ErrorMsg:"LoginCollection not correct for site: " + req.body.Site, CodeApp: ""})
+                        }
+                        break
+                    case "admin":
+                        if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoLoginAdminCollection) {
+                            res.json({Error: false, ErrorMsg:"", CodeApp: me.GetAdminAppCode()})
+                        } else {
+                            res.json({Error: true, ErrorMsg:"LoginCollection not correct for site: " + req.body.Site, CodeApp: ""})
+                        }
+                        break
+                    default:
+                        res.json({Error: true, ErrorMsg:"No LoginCollection for site: " + req.body.Site, CodeApp: ""})
+                        break
+                }
             } else {
                 res.json({Error: true, ErrorMsg:"Token non valide", CodeApp: ""})
             }
@@ -258,6 +273,15 @@ class corex {
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title>` + this._AppName + `</title>
         <style>
+            :root {
+                --CoreX-color: `+ this._CSS.Color.Normale +`;
+                --CoreX-font-size : `+ this._CSS.FontSize.TexteNomrale +`;
+                --CoreX-Iphone-font-size : `+ this._CSS.FontSize.TexteIphone +`;
+                --CoreX-Max-font-size : `+ this._CSS.FontSize.TexteMax +`;
+                --CoreX-Titrefont-size : `+ this._CSS.FontSize.TitreNormale +`;
+                --CoreX-TitreIphone-font-size : `+ this._CSS.FontSize.TitreIphone +`;
+                --CoreX-TitreMax-font-size : `+ this._CSS.FontSize.TitreMax +`;
+            }
             body{
                 margin: 0;
                 padding: 0;
@@ -293,7 +317,6 @@ class corex {
             let OptionCoreXLoader = {Usesocketio: ` + this._Usesocketio + `, Color: "` + this._CSS.Color.Normale + `"}
             let MyCoreXLoader = new CoreXLoader(OptionCoreXLoader)
             function GlobalLogout(){MyCoreXLoader.LogOut()}
-            function GlobalGetCss(){return ` + JSON.stringify(this._CSS) + `}
             onload = function() {
                 MyCoreXLoader.Site = "` + Site + `"
                 MyCoreXLoader.Start()
@@ -389,6 +412,22 @@ class corex {
         } catch (error) {
             this.Log("cryptr non valide")
         }
+        return reponse
+    }
+
+    /* Recuperer le code de l'App */
+    GetAppCode(){
+        return "app code"
+    }
+
+    /* Recuperer le code de l'Admin App */
+    GetAdminAppCode(){
+        let fs = require('fs')
+        let os = require('os');
+        let reponse = ""
+        // Ajout de la classe ClientSecuredApp
+        reponse += fs.readFileSync(__dirname + "/Client_CoreX_AdminApp.js", 'utf8')
+        reponse += os.EOL
         return reponse
     }
 }

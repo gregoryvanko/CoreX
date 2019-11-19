@@ -9,7 +9,7 @@ class CoreXLoader {
         this._Site = null
 
         // Variable interne de la class
-        this._DBTokenName = "CoreXLoginToken"
+        this._DbKeyLogin = ""
 
         // Variable SocketIO
         if (this._Usesocketio){
@@ -82,27 +82,12 @@ class CoreXLoader {
                 <div style='margin-top: 5%; display: flex; justify-content: center;'><button style='width: 30%; font-size: 3vw; cursor: pointer; border: 1px solid rgb(44,1,21); border-radius: 20px; text-align: center; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7); background: white; outline: none;' onclick="location.reload();">Reload</button></div>
                 `
         })
-
-        // Init des messages LoadingApp socket io
-        this._SocketIo.on('LoadingApp', (data) =>{
-           // if (document.scripts.namedItem("CodeJs") == null){
-           //     console.log('SocketIo.on LoadingApp : load the app')
-           //     // effacer le contenu du body
-           //     document.body.innerHTML = ""
-           //     // Load de l'application
-           //     var JS = document.createElement('script')
-           //     JS.type = 'text/javascript'
-           //     JS.id = 'CodeJs'
-           //     JS.innerHTML = data
-           //     document.getElementsByTagName('head')[0].appendChild(JS)
-           // } else {
-           //     console.log('SocketIo.on LoadingApp : app already loaded')
-           // }
-        })
     }
     
     /* Fonction lancee au debut du chargement de la page */
     Start(){
+        // Set du nom de la key DB qui contiendra le token du site
+        this._DbKeyLogin = "CoreXLoginToken" + this._Site
         this._LoginToken = this.GetTokenLogin() 
         if(this._LoginToken != null){
             console.log("Token exist")
@@ -116,21 +101,21 @@ class CoreXLoader {
 
     /* Recuperer le token login de la BD du browser */
     GetTokenLogin(){
-        let Token = localStorage.getItem(this._DBTokenName) // Recuperer le token de la DB du browser
+        let Token = localStorage.getItem(this._DbKeyLogin) // Recuperer le token de la DB du browser
         return Token
     }
 
     /* Enregistrement du token login */
     LoginDone(Token){
         this._LoginToken = Token // Enregistrer le token dans la class
-        localStorage.setItem(this._DBTokenName, this._LoginToken) // Enregistrer le token en BD du browser
+        localStorage.setItem(this._DbKeyLogin, this._LoginToken) // Enregistrer le token en BD du browser
         this.Start()
     }
 
     /* Logout de l'application */
     LogOut(){
         this._LoginToken = null
-        localStorage.removeItem(this._DBTokenName)
+        localStorage.removeItem(this._DbKeyLogin)
         if (this._Usesocketio){this._SocketIo.disconnect()}
         // Effacer l'anienne application
         if (document.getElementById("CodeJs")) {
@@ -144,12 +129,42 @@ class CoreXLoader {
     LoadApp(){
         // afficher le message de loading
         let LoadingText = /*html*/`
+            <style>
+                .Loadingtext{
+                    font-size: var(--CoreX-font-size);
+                }
+                .LoadingError{
+                    color: red;
+                    font-size: var(--CoreX-font-size);
+                }
+                @media only screen
+                and (min-device-width: 375px) 
+                and (max-device-width: 667px) 
+                and (-webkit-min-device-pixel-ratio: 2)
+                    and (orientation: portrait),
+                    only screen 
+                and (min-device-width: 414px) 
+                and (max-device-width: 736px) 
+                and (-webkit-min-device-pixel-ratio: 3)
+                and (orientation: portrait),
+                    screen 
+                    and (max-width: 700px)
+                {
+                .Loadingtext{font-size: var(--CoreX-Iphone-font-size);}
+                .LoadingError{font-size: var(--CoreX-Iphone-font-size);}
+                }
+
+                @media screen and (min-width: 1200px)
+                {
+                .Loadingtext{font-size: var(--CoreX-Max-font-size);}
+                .LoadingError{font-size: var(--CoreX-Max-font-size);}
+                }
+            </style>
             <div style="display: flex; flex-direction: column; justify-content:space-between; align-content:center; align-items: center;">
-                <div style="margin: 1%;">Loading App...</div>
-                <div id="LoadingErrorMsg" style="color: red"></div>
+                <div style="margin: 1%;" class="Loadingtext">Loading App...</div>
+                <div id="LoadingErrorMsg" class="LoadingError"></div>
             </div>`
         document.body.innerHTML = LoadingText
-        
         // appeler le serveur
         console.log("Start loading App")
         let me = this
@@ -160,10 +175,18 @@ class CoreXLoader {
                 if (reponse.Error) {
                     console.log('Loading App Error : ' + reponse.ErrorMsg)
                     document.getElementById("LoadingErrorMsg").innerHTML=reponse.ErrorMsg
+                    me._LoginToken = null
+                    localStorage.removeItem(me._DbKeyLogin)
                 } else {
                     console.log('App Loaded')
-                    document.body.innerHTML = "App Loaded"
-                    // ToDo Add app in HTML
+                    // effacer le contenu du body
+                    document.body.innerHTML = ""
+                    // Load de l'application
+                    var JS = document.createElement('script')
+                    JS.type = 'text/javascript'
+                    JS.id = 'CodeJs'
+                    JS.innerHTML = reponse.CodeApp
+                    document.getElementsByTagName('head')[0].appendChild(JS)
                 }
             } else {
                 document.getElementById("LoadingErrorMsg").innerHTML = this.response;

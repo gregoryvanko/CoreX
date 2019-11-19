@@ -100,18 +100,10 @@ class CoreXLogin {
         return /*html*/`
         <style>
             /*Titre du login*/
-            :root {
-                --Login-color: `+ this._Color +`;
-                --Login-font-size :2vw;
-                --Login-Iphone-font-size :6vw;
-                --Login-Max-font-size :22px;
-            }
-
-            /*Titre du login*/
             #LoginTitre{
                 margin: 1%;
-                font-size: 5vw;
-                color: var(--Login-color);
+                font-size: var(--CoreX-Titrefont-size);
+                color: var(--CoreX-color);
             }
 
             /*Box du login*/
@@ -125,7 +117,7 @@ class CoreXLogin {
             /*Message d'erreur de l'application*/
             .LoginError{
                 color: red;
-                font-size: var(--Login-font-size);
+                font-size: var(--CoreX-font-size);
             }
 
             /*Boutton Login*/
@@ -137,7 +129,7 @@ class CoreXLogin {
                 border-radius: 20px;
                 text-align: center;
                 display: inline-block;
-                font-size: var(--Login-font-size);
+                font-size: var(--CoreX-font-size);
                 box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7);
                 color: rgb(44,1,21);
                 background: white;
@@ -152,7 +144,7 @@ class CoreXLogin {
             /*Type Input du login*/
             .LoginInput {
                 width: 70%;
-                font-size: var(--Login-font-size);
+                font-size: var(--CoreX-font-size);
                 padding: 2vh;
                 border: solid 0px #dcdcdc;
                 border-bottom: solid 1px #dcdcdc;
@@ -163,7 +155,7 @@ class CoreXLogin {
                 outline: none;
                 border: solid 0px #707070;
                 border-bottom-width: 1px;
-                border-color: var(--Login-color);
+                border-color: var(--CoreX-color);
             }
 
             @media only screen
@@ -179,20 +171,20 @@ class CoreXLogin {
                 screen 
                 and (max-width: 700px)
             {
-            #LoginTitre{font-size: 10vw;}
+            #LoginTitre{font-size: var(--CoreX-TitreIphone-font-size);}
             #LoginBox{width: 90%;}
-            .LoginInput {font-size: var(--Login-Iphone-font-size);}
-            .LoginError{font-size: var(--Login-Iphone-font-size);}
-            .LoginButton{font-size: var(--Login-Iphone-font-size); border-radius: 40px;}
+            .LoginInput {font-size: var(--CoreX-Iphone-font-size);}
+            .LoginError{font-size: var(--CoreX-Iphone-font-size);}
+            .LoginButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
             }
 
             @media screen and (min-width: 1200px)
             {
-            #LoginTitre{font-size: 50px;}
+            #LoginTitre{font-size: var(--CoreX-TitreMax-font-size);}
             #LoginBox{max-width: 500px;}
-            .LoginInput {font-size: var(--Login-Max-font-size);}
-            .LoginError{font-size: var(--Login-Max-font-size);}
-            .LoginButton{font-size: var(--Login-Max-font-size); border-radius: 40px;}
+            .LoginInput {font-size: var(--CoreX-Max-font-size);}
+            .LoginError{font-size: var(--CoreX-Max-font-size);}
+            .LoginButton{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
             }
         </style>
         `
