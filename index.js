@@ -76,6 +76,7 @@ class corex {
         // Creation d'une route vers l'application admin
 		this._Express.get('/admin', function(req, res, next){
             res.send(me.GetInitialSecuredHTML("admin"))
+            
         })
 
         // Creation d'un route pour le login via Post
