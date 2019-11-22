@@ -181,11 +181,23 @@ class CoreXLoader {
                     console.log('App Loaded')
                     // effacer le contenu du body
                     document.body.innerHTML = ""
-                    // Load de l'application
+                    // Load de l'application IMG
+                    var IMG = document.createElement('script')
+                    IMG.type = 'text/javascript'
+                    IMG.id = 'CodeIMG'
+                    IMG.innerHTML = reponse.CodeAppIMG
+                    document.getElementsByTagName('head')[0].appendChild(IMG)
+                    // Load de l'application CSS
+                    var CSS = document.createElement('style')
+                    CSS.type = 'text/css'
+                    CSS.id = 'CodeCSS'
+                    CSS.innerHTML = reponse.CodeAppCSS
+                    document.getElementsByTagName('head')[0].appendChild(CSS)
+                    // Load de l'application JS
                     var JS = document.createElement('script')
                     JS.type = 'text/javascript'
                     JS.id = 'CodeJs'
-                    JS.innerHTML = reponse.CodeApp
+                    JS.innerHTML = reponse.CodeAppJS
                     document.getElementsByTagName('head')[0].appendChild(JS)
                 }
             } else {

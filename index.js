@@ -12,6 +12,8 @@ class corex {
         this._AppIsSecured = true
         this._CSS = {FontSize:{TexteNomrale:"2vw", TexteIphone:"3vw", TexteMax:"20px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},Color:{Normale:"rgb(20, 163, 255)"}}
         this._Icon = __dirname + "/apple-icon-192x192.png"
+        this._ClientAppFolderRoot = __dirname
+        this._ClientAppFolder = "/Client_CoreX_DefaultApp"
         this._Usesocketio = false
 
         // Varaible interne MongoDB
@@ -45,6 +47,10 @@ class corex {
         var appRoot = process.cwd()
         this._Icon = appRoot + val
     }
+    set ClientAppFolder(val){
+        this._ClientAppFolderRoot = process.cwd()
+        this._ClientAppFolder = val
+    }
 
     /* Start du Serveur de l'application */
     Start(){
@@ -69,7 +75,7 @@ class corex {
                 res.send(me.GetInitialSecuredHTML("app"))
             } else {
                 // Envoyer l'App
-                res.send(me.GetAppCode())
+                res.send(me.GetInitialHTML())
             }
         })
 
@@ -107,24 +113,25 @@ class corex {
                 switch (req.body.Site) {
                     case "app":
                         if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoLoginClientCollection) {
-                            res.json({Error: false, ErrorMsg:"", CodeApp: me.GetAppCode()})
+                            let MyApp = me.GetAppCode()
+                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS:MyApp.CSS, CodeAppIMG:MyApp.IMG})
                         } else {
-                            res.json({Error: true, ErrorMsg:"LoginCollection not correct for site: " + req.body.Site, CodeApp: ""})
+                            res.json({Error: true, ErrorMsg:"LoginCollection not correct for site: " + req.body.Site})
                         }
                         break
                     case "admin":
                         if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoLoginAdminCollection) {
-                            res.json({Error: false, ErrorMsg:"", CodeApp: me.GetAdminAppCode()})
+                            res.json({Error: false, ErrorMsg:"", CodeAppJS: me.GetAdminAppCode(),CodeAppCSS:"", CodeAppIMG:""})
                         } else {
-                            res.json({Error: true, ErrorMsg:"LoginCollection not correct for site: " + req.body.Site, CodeApp: ""})
+                            res.json({Error: true, ErrorMsg:"LoginCollection not correct for site: " + req.body.Site})
                         }
                         break
                     default:
-                        res.json({Error: true, ErrorMsg:"No LoginCollection for site: " + req.body.Site, CodeApp: ""})
+                        res.json({Error: true, ErrorMsg:"No LoginCollection for site: " + req.body.Site})
                         break
                 }
             } else {
-                res.json({Error: true, ErrorMsg:"Token non valide", CodeApp: ""})
+                res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         })
 
@@ -257,7 +264,70 @@ class corex {
         Mongo.CollectionExist(this._MongoLoginAdminCollection, this._MongoUrl, this._MongoDbName, DoneCallback, ErrorCallback)
     }
 
-    /* Generation du fichier HTML de base de l'application cliente */
+    /* Generation du fichier HTML de base de l'application cliente securisée */
+    GetInitialHTML(){
+        let MyApp = this.GetAppCode()
+        let HTMLStart =`
+<!doctype html>
+<html>
+    <head>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="` + this._AppName + `">
+        <link rel="apple-touch-icon" href="apple-icon.png">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>` + this._AppName + `</title>
+        <style>
+            :root {
+                --CoreX-color: `+ this._CSS.Color.Normale +`;
+                --CoreX-font-size : `+ this._CSS.FontSize.TexteNomrale +`;
+                --CoreX-Iphone-font-size : `+ this._CSS.FontSize.TexteIphone +`;
+                --CoreX-Max-font-size : `+ this._CSS.FontSize.TexteMax +`;
+                --CoreX-Titrefont-size : `+ this._CSS.FontSize.TitreNormale +`;
+                --CoreX-TitreIphone-font-size : `+ this._CSS.FontSize.TitreIphone +`;
+                --CoreX-TitreMax-font-size : `+ this._CSS.FontSize.TitreMax +`;
+            }
+            body{
+                margin: 0;
+                padding: 0;
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none; 
+                -webkit-user-select: none;   
+                -khtml-user-select: none;    
+                -moz-user-select: none;      
+                -ms-user-select: none;      
+                user-select: none;  
+                cursor: default;
+                font-family: 'Myriad Set Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-synthesis: none;
+                letter-spacing: normal;
+                text-rendering: optimizelegibility;
+                height:100%;
+            }
+        </style>` 
+        let IMG =`
+        <script id="CodeIMG" type="text/javascript">
+        ` + MyApp.IMG + `
+        </script>`
+        let CSS = `
+        <style id="CodeCSS">
+        ` + MyApp.CSS + `
+        </style>`
+        let JS = `
+        <script id="CodeJS" type="text/javascript">
+        ` + MyApp.JS + `
+        </script>`
+        let HTMLEnd = ` 
+    </head>
+    <body> 
+    </body>
+    `+ JS +`
+</html>`
+        return HTMLStart + IMG + CSS + HTMLEnd
+    }
+
+    /* Generation du fichier HTML de base de l'application cliente securisée */
 	GetInitialSecuredHTML(Site){
         let fs = require('fs')
         let os = require('os');
@@ -418,7 +488,45 @@ class corex {
 
     /* Recuperer le code de l'App */
     GetAppCode(){
-        return "app code"
+        let MyApp = new Object()
+        MyApp.JS = ""
+        MyApp.CSS = ""
+        MyApp.IMG = ""
+
+        let fs = require('fs')
+        let path = require('path')
+        let os = require('os');
+
+        let folder = this._ClientAppFolderRoot + this._ClientAppFolder
+        var files = fs.readdirSync(folder)
+        for (var i in files){
+            if(fs.existsSync(folder + "/" + files[i])){
+                switch (path.extname(files[i])) {
+                    case ".js":
+                        MyApp.JS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
+                        break;
+                    case ".css":
+                        MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
+                        break;
+                    case ".png":
+                        let name = path.basename(files[i], '.png')
+                        let bitmap = fs.readFileSync(folder + "/" + files[i], 'utf8')
+                        MyApp.IMG += "var " + name + "= " + new Buffer(bitmap).toString('base64') + os.EOL
+                        break;
+                    case ".jpg":
+                        let name = path.basename(files[i], '.jpg')
+                        let bitmap = fs.readFileSync(folder + "/" + files[i], 'utf8')
+                        MyApp.IMG += "var " + name + "= " + new Buffer(bitmap).toString('base64') + os.EOL
+                        break;
+                    default:
+                        console.log("file extension not know: " + path.extname(files[i]))
+                        break;
+                }
+            } else {
+                console.log("file not found: " + this._ClientAppFolderRoot + files[i])
+            }
+        }
+        return MyApp
     }
 
     /* Recuperer le code de l'Admin App */
