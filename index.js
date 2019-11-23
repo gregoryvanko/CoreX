@@ -114,7 +114,7 @@ class corex {
                     case "app":
                         if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoLoginClientCollection) {
                             let MyApp = me.GetAppCode()
-                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS:MyApp.CSS, CodeAppIMG:MyApp.IMG})
+                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS:MyApp.CSS})
                         } else {
                             res.json({Error: true, ErrorMsg:"LoginCollection not correct for site: " + req.body.Site})
                         }
@@ -306,10 +306,6 @@ class corex {
                 height:100%;
             }
         </style>` 
-        let IMG =`
-        <script id="CodeIMG" type="text/javascript">
-        ` + MyApp.IMG + `
-        </script>`
         let CSS = `
         <style id="CodeCSS">
         ` + MyApp.CSS + `
@@ -324,7 +320,7 @@ class corex {
     </body>
     `+ JS +`
 </html>`
-        return HTMLStart + IMG + CSS + HTMLEnd
+        return HTMLStart + CSS + HTMLEnd
     }
 
     /* Generation du fichier HTML de base de l'application cliente securisée */
@@ -491,7 +487,6 @@ class corex {
         let MyApp = new Object()
         MyApp.JS = ""
         MyApp.CSS = ""
-        MyApp.IMG = ""
 
         let fs = require('fs')
         let path = require('path')
@@ -507,16 +502,6 @@ class corex {
                         break;
                     case ".css":
                         MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
-                        break;
-                    case ".png":
-                        let name = path.basename(files[i], '.png')
-                        let bitmap = fs.readFileSync(folder + "/" + files[i], 'utf8')
-                        MyApp.IMG += "var " + name + "= " + new Buffer(bitmap).toString('base64') + os.EOL
-                        break;
-                    case ".jpg":
-                        let name = path.basename(files[i], '.jpg')
-                        let bitmap = fs.readFileSync(folder + "/" + files[i], 'utf8')
-                        MyApp.IMG += "var " + name + "= " + new Buffer(bitmap).toString('base64') + os.EOL
                         break;
                     default:
                         console.log("file extension not know: " + path.extname(files[i]))

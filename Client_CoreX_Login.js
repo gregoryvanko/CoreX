@@ -158,33 +158,24 @@ class CoreXLogin {
                 border-color: var(--CoreX-color);
             }
 
-            @media only screen
-            and (min-device-width: 375px) 
-            and (max-device-width: 667px) 
-            and (-webkit-min-device-pixel-ratio: 2)
-                and (orientation: portrait),
-                only screen 
-            and (min-device-width: 414px) 
-            and (max-device-width: 736px) 
-            and (-webkit-min-device-pixel-ratio: 3)
-            and (orientation: portrait),
-                screen 
-                and (max-width: 700px)
+            @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
+            only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
+            screen and (max-width: 700px)
             {
-            #LoginTitre{font-size: var(--CoreX-TitreIphone-font-size);}
-            #LoginBox{width: 90%;}
-            .LoginInput {font-size: var(--CoreX-Iphone-font-size);}
-            .LoginError{font-size: var(--CoreX-Iphone-font-size);}
-            .LoginButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
+                #LoginTitre{font-size: var(--CoreX-TitreIphone-font-size);}
+                #LoginBox{width: 90%;}
+                .LoginInput {font-size: var(--CoreX-Iphone-font-size);}
+                .LoginError{font-size: var(--CoreX-Iphone-font-size);}
+                .LoginButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
             }
 
             @media screen and (min-width: 1200px)
             {
-            #LoginTitre{font-size: var(--CoreX-TitreMax-font-size);}
-            #LoginBox{max-width: 500px;}
-            .LoginInput {font-size: var(--CoreX-Max-font-size);}
-            .LoginError{font-size: var(--CoreX-Max-font-size);}
-            .LoginButton{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
+                #LoginTitre{font-size: var(--CoreX-TitreMax-font-size);}
+                #LoginBox{max-width: 500px;}
+                .LoginInput {font-size: var(--CoreX-Max-font-size);}
+                .LoginError{font-size: var(--CoreX-Max-font-size);}
+                .LoginButton{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
             }
         </style>
         `

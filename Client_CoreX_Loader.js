@@ -122,6 +122,11 @@ class CoreXLoader {
             var CodeJs = document.getElementById("CodeJs")
             CodeJs.parentNode.removeChild(CodeJs)
         }
+        // Effacer l'anienne application
+        if (document.getElementById("CodeCSS")) {
+            var CodeCSS = document.getElementById("CodeCSS")
+            CodeCSS.parentNode.removeChild(CodeCSS)
+        }
         location.reload()
     }
 
@@ -137,27 +142,17 @@ class CoreXLoader {
                     color: red;
                     font-size: var(--CoreX-font-size);
                 }
-                @media only screen
-                and (min-device-width: 375px) 
-                and (max-device-width: 667px) 
-                and (-webkit-min-device-pixel-ratio: 2)
-                    and (orientation: portrait),
-                    only screen 
-                and (min-device-width: 414px) 
-                and (max-device-width: 736px) 
-                and (-webkit-min-device-pixel-ratio: 3)
-                and (orientation: portrait),
-                    screen 
-                    and (max-width: 700px)
+                @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
+                only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
+                screen and (max-width: 700px)
                 {
-                .Loadingtext{font-size: var(--CoreX-Iphone-font-size);}
-                .LoadingError{font-size: var(--CoreX-Iphone-font-size);}
+                    .Loadingtext{font-size: var(--CoreX-Iphone-font-size);}
+                    .LoadingError{font-size: var(--CoreX-Iphone-font-size);}
                 }
-
                 @media screen and (min-width: 1200px)
                 {
-                .Loadingtext{font-size: var(--CoreX-Max-font-size);}
-                .LoadingError{font-size: var(--CoreX-Max-font-size);}
+                    .Loadingtext{font-size: var(--CoreX-Max-font-size);}
+                    .LoadingError{font-size: var(--CoreX-Max-font-size);}
                 }
             </style>
             <div style="display: flex; flex-direction: column; justify-content:space-between; align-content:center; align-items: center;">
@@ -181,12 +176,6 @@ class CoreXLoader {
                     console.log('App Loaded')
                     // effacer le contenu du body
                     document.body.innerHTML = ""
-                    // Load de l'application IMG
-                    var IMG = document.createElement('script')
-                    IMG.type = 'text/javascript'
-                    IMG.id = 'CodeIMG'
-                    IMG.innerHTML = reponse.CodeAppIMG
-                    document.getElementsByTagName('head')[0].appendChild(IMG)
                     // Load de l'application CSS
                     var CSS = document.createElement('style')
                     CSS.type = 'text/css'
