@@ -189,12 +189,13 @@ class CoreXLoader {
                     JS.innerHTML = reponse.CodeAppJS
                     document.getElementsByTagName('head')[0].appendChild(JS)
                 }
-            } else {
+            } else if (this.readyState == 4 && this.status != 200) {
                 document.getElementById("LoadingErrorMsg").innerHTML = this.response;
             }
-        }
-        xhttp.open("POST", "LoadApp", true)
+        } 
+        xhttp.open("POST", "loadApp", true)
         xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-        xhttp.send(JSON.stringify({Site:me._Site, Token:me.GetTokenLogin()}))
+        xhttp.send(JSON.stringify({Site:me._Site, Token:me.GetTokenLogin()})) 
+         
     }
 }

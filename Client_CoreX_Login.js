@@ -41,7 +41,7 @@ class CoreXLogin {
                             document.body.innerHTML = "Error : no CallBack fonction define after loged In"
                         }
                     }
-                } else {
+                } else if (this.readyState == 4 && this.status != 200){
                     document.getElementById('LoginButtonLogin').innerHTML = "Send"
                     document.getElementById("LoginErrorMsg").innerHTML = this.response;
                 }

@@ -9,6 +9,9 @@
     "debug": "node --inspect=192.168.10.21:9229 exemple.js",
     "nodemon": "nodemon —inspect exemple.js"
   },
+  "commands": {
+    "Start nodemon":"nodemon --inspect exemple.js"
+  },
   "author": "gregvanko",
   "license": "ISC",
   "dependencies": {

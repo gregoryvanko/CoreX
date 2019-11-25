@@ -104,7 +104,7 @@ class corex {
         })
 
         // Creation d'une route pour loader l'application
-		this._Express.post('/LoadApp', function(req, res, next){
+		this._Express.post('/loadApp', function(req, res, next){
             me.Log("Start loading App")
             // validation du Token
             let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
@@ -150,7 +150,7 @@ class corex {
         // Creation de la route 404
         this._Express.use(function(req, res, next) {
             console.log('Mauvaise route: ' + req.originalUrl)
-            res.status(404).send("Sorry, that route doesn't exist");
+            res.status(404).send("Sorry, the route " + req.originalUrl +" doesn't exist");
         })
 
         // Si on utilise Socket IO, alors on effectue une initialisation de socket io
