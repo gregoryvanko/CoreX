@@ -135,6 +135,27 @@ class corex {
             }
         })
 
+        // Creation d'une route pour API Admin l'application
+		this._Express.post('/apiadmin', function(req, res, next){
+            me.Log("API Admin Call")
+            // validation du Token
+            let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
+            if (DecryptTokenReponse.TokenValide) {
+                // Analyse de la logincollection en fonction du site
+                switch (req.body.FctName) {
+                    case "GetAllUser":
+                        let reponse = me.GetAllUsers(req.body.FctData)
+                        res.json({Error: reponse.Error, ErrorMsg: reponse.ErrorMsg, Data: reponse.Data})
+                        break
+                    default:
+                        res.json({Error: true, ErrorMsg:"No API Admin for FctName: " + req.body.FctName})
+                        break
+                }
+            } else {
+                res.json({Error: true, ErrorMsg:"Token non valide"})
+            }
+        })
+
         // Creation d'un route pour l'icone
         this._Express.get('/apple-icon.png', function (req, res) {
             me.Log("me._Icon: " + me._Icon)
@@ -384,9 +405,11 @@ class corex {
             let OptionCoreXLoader = {Usesocketio: ` + this._Usesocketio + `, Color: "` + this._CSS.Color.Normale + `"}
             let MyCoreXLoader = new CoreXLoader(OptionCoreXLoader)
             function GlobalLogout(){MyCoreXLoader.LogOut()}
+            var _GlobalToken = ""
             onload = function() {
                 MyCoreXLoader.Site = "` + Site + `"
                 MyCoreXLoader.Start()
+                _GlobalToken = MyCoreXLoader.GetTokenLogin()
             }
         </script>`
 
@@ -522,6 +545,16 @@ class corex {
         // Ajout de la classe ClientSecuredApp
         reponse += fs.readFileSync(__dirname + "/Client_CoreX_AdminApp.js", 'utf8')
         reponse += os.EOL
+        return reponse
+    }
+
+    /* Get list of all user */
+    GetAllUsers(type){
+        var reponse = new Object()
+        reponse.Error = true
+        reponse.ErrorMsg = "Init Reponse"
+        reponse.Data = ""
+        
         return reponse
     }
 }
