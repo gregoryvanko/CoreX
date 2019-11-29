@@ -326,13 +326,34 @@ class corex {
                 text-rendering: optimizelegibility;
                 height:100%;
             }
-        </style>` 
+        </style>`
+        let GlobalCallAPI = `
+        function GlobalCallAPI(FctName, FctData, CallBack, ErrCallBack){
+            var xhttp = new XMLHttpRequest()
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        let reponse = JSON.parse(this.responseText)
+                        if (reponse.Error) {
+                            console.log('GlobalCallAPI Error : ' + reponse.ErrorMsg)
+                            ErrCallBack(reponse.ErrorMsg)
+                        } else {
+                            CallBack(reponse.Data)
+                        }
+                    } else if (this.readyState == 4 && this.status != 200){
+                        ErrCallBack(this.response)
+                    }
+                }
+                xhttp.open("POST", "api", true)
+                xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                xhttp.send(JSON.stringify({FctName:FctName, FctData:FctData}))
+        }` 
         let CSS = `
         <style id="CodeCSS">
         ` + MyApp.CSS + `
         </style>`
         let JS = `
         <script id="CodeJS" type="text/javascript">
+        ` + GlobalCallAPI +`
         ` + MyApp.JS + `
         </script>`
         let HTMLEnd = ` 
@@ -392,24 +413,42 @@ class corex {
         let SocketIO = ""
         if (this._Usesocketio) { SocketIO = `<script src="/socket.io/socket.io.js"></script>`}
         
-        let HTML1 = `
-        <script>`
+        let HTML1 = `<script>`
         let CoreXLoaderJsScript = fs.readFileSync(__dirname + "/Client_CoreX_Loader.js", 'utf8')
         let CoreXLoginJsScript = fs.readFileSync(__dirname + "/Client_CoreX_Login.js", 'utf8')
         
-        let HTML2 = `
-        </script>`
-            
+        let apiurl = (Site = "admin") ? "apiadmin" : "api"
+        let GlobalCallAPI = `
+            function GlobalCallAPI(FctName, FctData, CallBack, ErrCallBack){
+                var xhttp = new XMLHttpRequest()
+                    xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4 && this.status == 200) {
+                            let reponse = JSON.parse(this.responseText)
+                            if (reponse.Error) {
+                                console.log('GlobalCallAPI Error : ' + reponse.ErrorMsg)
+                                ErrCallBack(reponse.ErrorMsg)
+                            } else {
+                                CallBack(reponse.Data)
+                            }
+                        } else if (this.readyState == 4 && this.status != 200){
+                            ErrCallBack(this.response)
+                        }
+                    }
+                    xhttp.open("POST", "`+ apiurl +`", true)
+                    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                    xhttp.send(JSON.stringify({Token:MyCoreXLoader.GetTokenLogin(), FctName:FctName, FctData:FctData}))
+            }`
+
+        let HTML2 = `</script>`
+
         let LoadScript = ` 
         <script>
             let OptionCoreXLoader = {Usesocketio: ` + this._Usesocketio + `, Color: "` + this._CSS.Color.Normale + `"}
-            let MyCoreXLoader = new CoreXLoader(OptionCoreXLoader)
+            var MyCoreXLoader = new CoreXLoader(OptionCoreXLoader)
             function GlobalLogout(){MyCoreXLoader.LogOut()}
-            var _GlobalToken = ""
             onload = function() {
                 MyCoreXLoader.Site = "` + Site + `"
                 MyCoreXLoader.Start()
-                _GlobalToken = MyCoreXLoader.GetTokenLogin()
             }
         </script>`
 
@@ -418,7 +457,7 @@ class corex {
     <body>
     </body>
 </html>`
-        return HTMLStart + SocketIO + HTML1 + CoreXLoaderJsScript + os.EOL + CoreXLoginJsScript + os.EOL + HTML2 + LoadScript + HTMLEnd
+        return HTMLStart + SocketIO + HTML1 + CoreXLoaderJsScript + os.EOL + CoreXLoginJsScript + os.EOL + GlobalCallAPI + os.EOL + HTML2 + LoadScript + HTMLEnd
     }
 
     /* Verification du login */

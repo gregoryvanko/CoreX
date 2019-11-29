@@ -1,27 +1,7 @@
 class CoreXAdminApp{
     constructor(){
         this._HtmlIdApp = "AdminApp"
-    }
-
-    /* Call to API of the server */
-    CallAPI(FctName, FctData, CallBack){
-        var xhttp = new XMLHttpRequest()
-            xhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    let reponse = JSON.parse(this.responseText)
-                    if (reponse.Error) {
-                        console.log('CallAPI Error : ' + reponse.ErrorMsg)
-                        document.getElementById("ListOfUser").innerHTML='<div class="Text" style="color:red;">' + reponse.ErrorMsg + '</div>'
-                    } else {
-                        CallBack(reponse.Data)
-                    }
-                } else if (this.readyState == 4 && this.status != 200){
-                    document.getElementById("ListOfUser").innerHTML ='<div class="Text" style="color:red;">' + this.response + '</div>'
-                }
-            }
-            xhttp.open("POST", "apiadmin", true)
-            xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-            xhttp.send(JSON.stringify({Token:_GlobalToken, FctName:FctName, FctData:FctData}))
+        this._ClickOnAdminBox =true
     }
     
     /* Render de l'application */
@@ -69,35 +49,39 @@ class CoreXAdminApp{
 
     /* Load view User list */
     LoadViewUserList(){
+        let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
         let View = /*html*/`
-        <div id="Titre" style="margin-top:4%">Liste of Users</div>
+        <div id="Titre" style="margin-top:4%">Liste of `+ TypeTexte + /*html*/`</div>
         <div id="ListOfUser" class="FlexColumnCenterSpaceAround">
-        <div class="Text">Get list of user...</div>
-        </div>
-        `
+        <div class="Text">Get list of `+ TypeTexte + /*html*/`...</div>
+        </div>`
+
         // Ajout de la vue
         this.SetView(View)
         // Get All user
-        this.CallAPI("GetAllUser", "User", this.LoadUserList)
+        let Dataofcall = (this._ClickOnAdminBox) ? "Admin" : "User"
+        GlobalCallAPI("GetAllUser", Dataofcall , this.LoadUserList.bind(this), this.CallBackErrorLoadUserList.bind(this))
     }
 
     /* Load list of user */
     LoadUserList(Users){
+        let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
         if (Users == null) {
-            document.getElementById("ListOfUser").innerHTML ='<div class="Text">Sorry, no user defined</div>'
+            document.getElementById("ListOfUser").innerHTML =/*html*/`<div class="Text">Sorry, no `+ TypeTexte + /*html*/` defined</div>`
         } else {
-            document.getElementById("ListOfUser").innerHTML = Users
+            if (this._ClickOnAdminBox) {
+                document.getElementById("ListOfUser").innerHTML = Users
+                // ToDo ajouter les box admin
+            } else {
+                document.getElementById("ListOfUser").innerHTML = Users
+                // ToDo ajouter les box User
+            }
         }
     }
 
-    /* Load view Admin list */
-    LoadViewAdminList(){
-        let View = /*html*/`
-        <div id="Titre" style="margin-top: 4%">List of Administrators</div>
-        `
-
-        // Ajout de la vue
-        this.SetView(View)
+    /* callback error Load list of user */
+    CallBackErrorLoadUserList(error){
+        document.getElementById("ListOfUser").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
     }
     
     /*
@@ -105,12 +89,14 @@ class CoreXAdminApp{
     */
     /* Click sur le botton User */
     OnClickUser(){
+        this._ClickOnAdminBox = false
         this.LoadViewUserList()
     }
 
     /* Click sur le botton Admin */
     OnClickAdmin(){
-        this.LoadViewAdminList()
+        this._ClickOnAdminBox = true
+        this.LoadViewUserList()
     }
 
     /*
@@ -136,6 +122,7 @@ class CoreXAdminApp{
                 border-radius: 5px;
                 width: 14vw;
                 height: 14vw;
+                cursor: pointer;
             }
             /* Image d'un user */
             .UserImg{
