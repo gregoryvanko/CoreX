@@ -65,6 +65,7 @@ class CoreXAdminApp{
 
     /* Load list of user */
     LoadUserList(Users){
+        debugger
         let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
         if (Users == null) {
             document.getElementById("ListOfUser").innerHTML =/*html*/`<div class="Text">Sorry, no `+ TypeTexte + /*html*/` defined</div>`

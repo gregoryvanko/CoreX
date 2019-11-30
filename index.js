@@ -82,7 +82,6 @@ class corex {
         // Creation d'une route vers l'application admin
 		this._Express.get('/admin', function(req, res, next){
             res.send(me.GetInitialSecuredHTML("admin"))
-            
         })
 
         // Creation d'un route pour le login via Post
@@ -135,17 +134,46 @@ class corex {
             }
         })
 
+        // Creation d'une route pour API l'application
+		this._Express.post('/api', function(req, res, next){
+            me.Log("API Call")
+            let Continue = false
+            // Si l'application est securisee 
+            if (me._AppIsSecured){
+                // validation du Token
+                let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
+                if (DecryptTokenReponse.TokenValide){
+                    Continue = true
+                } else {
+                    Continue = false
+                    res.json({Error: true, ErrorMsg:"Token non valide"})
+                }
+            } else {
+                Continue = true
+            }
+            // si on a valider la securité
+            if (Continue) {
+                // Analyse de la logincollection en fonction du site
+                switch (req.body.FctName) {
+                    case "test":
+                        break
+                    default:
+                        res.json({Error: true, ErrorMsg:"No API for FctName: " + req.body.FctName})
+                        break
+                }
+            }
+        })
+
         // Creation d'une route pour API Admin l'application
 		this._Express.post('/apiadmin', function(req, res, next){
-            me.Log("API Admin Call")
+            me.Log("API Admin Call, FctName: " + req.body.FctName)
             // validation du Token
             let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
             if (DecryptTokenReponse.TokenValide) {
                 // Analyse de la logincollection en fonction du site
                 switch (req.body.FctName) {
                     case "GetAllUser":
-                        let reponse = me.GetAllUsers(req.body.FctData)
-                        res.json({Error: reponse.Error, ErrorMsg: reponse.ErrorMsg, Data: reponse.Data})
+                        me.GetAllUsers(req.body.FctData, res)
                         break
                     default:
                         res.json({Error: true, ErrorMsg:"No API Admin for FctName: " + req.body.FctName})
@@ -588,13 +616,26 @@ class corex {
     }
 
     /* Get list of all user */
-    GetAllUsers(type){
-        var reponse = new Object()
-        reponse.Error = true
-        reponse.ErrorMsg = "Init Reponse"
-        reponse.Data = ""
-        
-        return reponse
+    GetAllUsers(type, res){
+        let mongocollection =""
+        if (type == "Admin") {
+            mongocollection = this._MongoLoginAdminCollection
+        } else {
+            mongocollection = this._MongoLoginClientCollection
+        }
+        let Mongo = require('./Mongo.js').Mongo
+        const Query = {}
+        const Projection = { projection:{ _id: 1, [this._MongoLoginUserItem]: 1}}
+        Mongo.FindPromise(Query,Projection, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+            if(reponse.length == 0){
+                res.json({Error: false, ErrorMsg: "No user in BD", Data: null})
+            } else {
+                res.json({Error: false, ErrorMsg: "User in DB", Data: reponse})
+            }
+        },(erreur)=>{
+            this.Log("GetAllUsers DB error : " + erreur)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: ""})
+        })
     }
 }
 module.exports.corex = corex

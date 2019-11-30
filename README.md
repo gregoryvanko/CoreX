@@ -58,3 +58,12 @@ Option de l'objet CoreX
     MyApp.IconRelPath = "/apple-icon-192x192.png"   // Chemin relatif de l'icone
 
     MyApp.Start()
+
+Fonction globale
+
+    GlobalCallAPI(FctName, FctData, CallBack, ErrCallBack)
+        // Appel à l'Api du serveur
+        // FctName :        le nome de la fonction a executer
+        // FctData :        les donnes a passer à la fonction
+        // CallBack :       la fonction a executer en retour de l'appel à l'API
+        // ErrCallBack :    la fonction executer si il y a une erreur sur l'API
