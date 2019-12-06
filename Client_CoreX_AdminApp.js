@@ -52,7 +52,7 @@ class CoreXAdminApp{
         let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
         let View = /*html*/`
         <div id="Titre" style="margin-top:4%">Liste of `+ TypeTexte + /*html*/`</div>
-        <div id="ListOfUser" class="FlexColumnCenterSpaceAround">
+        <div id="ListOfUser" class="FlexRowCenterSpaceevenly">
         <div class="Text">Get list of `+ TypeTexte + /*html*/`...</div>
         </div>`
 
@@ -65,18 +65,28 @@ class CoreXAdminApp{
 
     /* Load list of user */
     LoadUserList(Users){
-        debugger
+        let reponse =JSON.stringify(Users)
         let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
         if (Users == null) {
             document.getElementById("ListOfUser").innerHTML =/*html*/`<div class="Text">Sorry, no `+ TypeTexte + /*html*/` defined</div>`
         } else {
+            reponse = ""
             if (this._ClickOnAdminBox) {
-                document.getElementById("ListOfUser").innerHTML = Users
                 // ToDo ajouter les box admin
+                Users.forEach(User => {
+                    reponse += `
+                    <div id="" class="UserConteneur FlexColumnCenterSpaceAround">
+                        <div class="Text">` + User.user + `</div>
+                    </div>`
+                })
             } else {
-                document.getElementById("ListOfUser").innerHTML = Users
                 // ToDo ajouter les box User
+                Users.forEach(User => {
+                    console.log(User._id)
+                    console.log(User.user)
+                })
             }
+            document.getElementById("ListOfUser").innerHTML = reponse
         }
     }
 
@@ -125,6 +135,15 @@ class CoreXAdminApp{
                 height: 14vw;
                 cursor: pointer;
             }
+            /* Conteneur de bloc use */
+            .UserConteneur{
+                border: 1px solid black;
+                border-radius: 5px;
+                width: 35vw;
+                height: 10vw;
+                margin: 0.5%;
+                cursor: pointer;
+            }
             /* Image d'un user */
             .UserImg{
                 max-width: 100%;
@@ -144,6 +163,15 @@ class CoreXAdminApp{
                 align-content:center;
                 align-items: center;
             }
+            /* Felx row center  space-evenly*/
+            .FlexRowCenterSpaceevenly{
+                display: flex;
+                flex-direction: row;
+                justify-content:space-evenly;
+                align-content:center;
+                align-items: center;
+                flex-wrap: wrap;
+            }
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
             screen and (max-width: 700px)
@@ -155,6 +183,10 @@ class CoreXAdminApp{
                     width: 25vw;
                     height: 25vw;
                 }
+                .UserConteneur{
+                    width: 48vw;
+                    height: 20vw;
+                }
                 .UserImg{max-height: 20vw;}
             }
             @media screen and (min-width: 1200px)
@@ -164,6 +196,10 @@ class CoreXAdminApp{
                 .ImageConteneur{
                     width: 148px;
                     height: 148px;
+                }
+                .UserConteneur{
+                    width: 350px;
+                    height: 100px;
                 }
                 .UserImg{max-height: 120px;}
             }

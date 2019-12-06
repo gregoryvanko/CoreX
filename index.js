@@ -626,7 +626,8 @@ class corex {
         let Mongo = require('./Mongo.js').Mongo
         const Query = {}
         const Projection = { projection:{ _id: 1, [this._MongoLoginUserItem]: 1}}
-        Mongo.FindPromise(Query,Projection, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        const Sort = {[this._MongoLoginUserItem]: 1}
+        Mongo.FindSortPromise(Query,Projection, Sort, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
             if(reponse.length == 0){
                 res.json({Error: false, ErrorMsg: "No user in BD", Data: null})
             } else {
