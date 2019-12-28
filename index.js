@@ -19,8 +19,10 @@ class corex {
         // Varaible interne MongoDB
         this._MongoLoginClientCollection = "LoginClient"
         this._MongoLoginAdminCollection = "LoginAdmin"
-        this._MongoLoginUserItem = "user"
-        this._MongoLoginPassItem = "password"
+        this._MongoLoginUserItem = "User"
+        this._MongoLoginPassItem = "Password"
+        this._MongoLoginFirstNameItem = "First-name"
+        this._MongoLoginLastNameItem = "Last-name"
 
         // Variable Interne SocketIO
         this._RoomName = "Secured";
@@ -173,7 +175,16 @@ class corex {
                 // Analyse de la logincollection en fonction du site
                 switch (req.body.FctName) {
                     case "GetAllUser":
-                        me.GetAllUsers(req.body.FctData, res)
+                        me.ApiAdminGetAllUsers(req.body.FctData, res)
+                        break
+                    case "GetUserData":
+                        me.ApiAdminGetUserData(req.body.FctData, res)
+                        break
+                    case "UpdateUser":
+                        me.ApiAdminUpdateUser(req.body.FctData, res)
+                        break
+                    case "DeleteUser":
+                        me.ApiAdminDeleteUser(req.body.FctData, res)
                         break
                     default:
                         res.json({Error: true, ErrorMsg:"No API Admin for FctName: " + req.body.FctName})
@@ -304,7 +315,7 @@ class corex {
                     throw new Error('Erreur lors de la creation du User Admin de la collection Login de la db: ' + err)
                 }
                 let DoneCallbackCreate = ()=>{this.Log("Creation de la collection : " + this._MongoLoginAdminCollection)}
-                const DataToDb = { [this._MongoLoginUserItem]: "Admin", [this._MongoLoginPassItem]: "Admin"}
+                const DataToDb = { [this._MongoLoginUserItem]: "Admin", [this._MongoLoginPassItem]: "Admin", [this._MongoLoginFirstNameItem]: "Admin First Name", [this._MongoLoginLastNameItem]: "Admin Last Name"}
                 let Mongo = require('./Mongo.js').Mongo
                 Mongo.InsertOne(DataToDb, this._MongoLoginAdminCollection, this._MongoUrl, this._MongoDbName, DoneCallbackCreate, ErrorCallbackCreate)
             }
@@ -365,7 +376,9 @@ class corex {
                             console.log('GlobalCallAPI Error : ' + reponse.ErrorMsg)
                             ErrCallBack(reponse.ErrorMsg)
                         } else {
-                            CallBack(reponse.Data)
+                            if (CallBack != null){
+                                CallBack(reponse.Data)
+                            }
                         }
                     } else if (this.readyState == 4 && this.status != 200){
                         ErrCallBack(this.response)
@@ -615,8 +628,8 @@ class corex {
         return reponse
     }
 
-    /* Get list of all user */
-    GetAllUsers(type, res){
+    /* Get list of all user via l'ApiAdmin */
+    ApiAdminGetAllUsers(type, res){
         let mongocollection =""
         if (type == "Admin") {
             mongocollection = this._MongoLoginAdminCollection
@@ -634,10 +647,95 @@ class corex {
                 res.json({Error: false, ErrorMsg: "User in DB", Data: reponse})
             }
         },(erreur)=>{
-            this.Log("GetAllUsers DB error : " + erreur)
+            this.Log("ApiAdminGetAllUsers DB error : " + erreur)
             res.json({Error: true, ErrorMsg: "DB Error", Data: ""})
         })
     }
+
+    /* Get list of user data via l'ApiAdmin */
+    ApiAdminGetUserData(Data, res){
+        // Require pour Mongo
+        let Mongo = require('./Mongo.js').Mongo
+        let MongoObjectId = require('./Mongo.js').MongoObjectId
+        // Définition de la collection de Mongo en fonction du type de user
+        let mongocollection =""
+        if (Data.UserType == "Admin") {
+            mongocollection = this._MongoLoginAdminCollection
+        } else {
+            mongocollection = this._MongoLoginClientCollection
+        }
+        // Definition de la Query de Mongo
+        const Query = {'_id': new MongoObjectId(Data.UsesrId)}
+        // Definition de la projection de Mongo en fonction du type de user
+        let Projection = ""
+        if (Data.UserType == "Admin") {
+            // Projection pour un Admin
+            Projection = { projection:{ _id: 1, [this._MongoLoginUserItem]: 1, [this._MongoLoginFirstNameItem]: 1, [this._MongoLoginLastNameItem]: 1}}
+        } else {
+            // Projection pour un User
+            Projection = { projection:{ _id: 1, [this._MongoLoginUserItem]: 1}}
+        }
+        // Find de type Promise de Mongo
+        Mongo.FindPromise(Query,Projection, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+            if(reponse.length == 0){
+                res.json({Error: true, ErrorMsg: "Wrong User Id", Data: null})
+            } else {
+                res.json({Error: false, ErrorMsg: "User data in DB", Data: reponse})
+            }
+        },(erreur)=>{
+            this.Log("ApiAdminGetUserData DB error : " + erreur)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+        })
+    }
+
+    /* Delete d'un user via l'ApiAdmin */
+    ApiAdminDeleteUser(Data, res){
+        // Require pour Mongo
+        let Mongo = require('./Mongo.js').Mongo
+        // Définition de la collection de Mongo en fonction du type de user
+        let mongocollection =""
+        if (Data.UserType == "Admin") {
+            mongocollection = this._MongoLoginAdminCollection
+        } else {
+            mongocollection = this._MongoLoginClientCollection
+        }
+        // Delete de type Promise de Mongo
+        Mongo.DeleteByIdPromise(Data.UsesrId, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+            if (reponse.deletedCount==1) {
+                res.json({Error: false, ErrorMsg: "User deleted in DB", Data: null})
+            } else {
+                res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
+            }
+        },(erreur)=>{
+            this.Log("ApiAdminDeleteUser DB error : " + erreur)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+        })
+    }
+
+    /* Update d'un user via l'ApiAdmin */
+    ApiAdminUpdateUser(Data, res){
+        // Require pour Mongo
+        let Mongo = require('./Mongo.js').Mongo
+        // Définition de la collection de Mongo en fonction du type de user
+        let mongocollection =""
+        if (Data.UserType == "Admin") {
+            mongocollection = this._MongoLoginAdminCollection
+        } else {
+            mongocollection = this._MongoLoginClientCollection
+        }
+        // Update de type Promise de Mongo
+         Mongo.UpdateByIdPromise(Data.UsesrId, Data.Data, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+            if (reponse.modifiedCount==1) {
+                res.json({Error: false, ErrorMsg: "User Updated in DB", Data: null})
+            } else {
+                res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
+            }
+        },(erreur)=>{
+            this.Log("ApiAdminUpdateUser DB error : " + erreur)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+        })
+    }
 }
+
 module.exports.corex = corex
 module.exports.Mongo = require('./Mongo.js').Mongo

@@ -47,13 +47,13 @@ class CoreXAdminApp{
         ButtonAdmin.onclick = this.OnClickAdmin.bind(this)
     }
 
-    /* Load view User list */
-    LoadViewUserList(){
+    /* Load de la vue qui va appeler le serveur pour recevoir la liste des users ou admin */
+    LoadViewCallForUserList(){
         let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
         let View = /*html*/`
         <div id="Titre" style="margin-top:4%">Liste of `+ TypeTexte + /*html*/`</div>
         <div id="ListOfUser" class="FlexRowCenterSpaceevenly">
-        <div class="Text">Get list of `+ TypeTexte + /*html*/`...</div>
+            <div class="Text">Get list of `+ TypeTexte + /*html*/`...</div>
         </div>`
 
         // Ajout de la vue
@@ -62,8 +62,8 @@ class CoreXAdminApp{
         let Dataofcall = (this._ClickOnAdminBox) ? "Admin" : "User"
         GlobalCallAPI("GetAllUser", Dataofcall , this.LoadUserList.bind(this), this.CallBackErrorLoadUserList.bind(this))
     }
-
-    /* Load list of user */
+    
+    /* Load de la vue contenant la liste de tous les users */
     LoadUserList(Users){
         let reponse =JSON.stringify(Users)
         let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
@@ -71,28 +71,181 @@ class CoreXAdminApp{
             document.getElementById("ListOfUser").innerHTML =/*html*/`<div class="Text">Sorry, no `+ TypeTexte + /*html*/` defined</div>`
         } else {
             reponse = ""
+            // Creation des box pour chaque Admin
+            Users.forEach(User => {
+                reponse += `
+                <div id="` + User._id + `" class="UserConteneur FlexColumnCenterSpaceAround">
+                    <div class="Text">` + User.User + `</div>
+                </div>`
+            })
+            // ajout des user dans l'interface
+            document.getElementById("ListOfUser").innerHTML = reponse
             if (this._ClickOnAdminBox) {
-                // ToDo ajouter les box admin
+                // add event listener
                 Users.forEach(User => {
-                    reponse += `
-                    <div id="" class="UserConteneur FlexColumnCenterSpaceAround">
-                        <div class="Text">` + User.user + `</div>
-                    </div>`
+                    let element = document.getElementById(User._id)
+                    element.addEventListener("click", this.OnClickOneUser.bind(this,User._id))
                 })
             } else {
-                // ToDo ajouter les box User
+                // add event listener
                 Users.forEach(User => {
-                    console.log(User._id)
-                    console.log(User.user)
-                })
+                    let element = document.getElementById(User._id)
+                    element.addEventListener("click", this.OnClickOneUser.bind(this,User._id))
+            })
             }
-            document.getElementById("ListOfUser").innerHTML = reponse
         }
     }
 
     /* callback error Load list of user */
     CallBackErrorLoadUserList(error){
         document.getElementById("ListOfUser").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
+    }
+
+    /* Load de la vue qui structure la liste des donnees d'un Admin */
+    LoadViewCallForUserData(UserId){
+        let View = /*html*/`
+        <div id="Titre" style="margin-top:4%">User information</div>
+        <div id="ListOfUserData" class="FlexColumnCenterSpaceAround">
+            <div class="Text">Get data of user...</div>
+        </div>
+        <div id="ErrorOfUserData" class="Text" style="color:red; text-align:center;"></div>
+        <div id="Controle" class="FlexRowCenterSpaceevenly">
+            <button id="ButtonDelete" class="Button" tabindex="3" style="display: none;">Delete</button>
+            <button id="ButtonSave" class="Button" tabindex="1" style="display: none;">Save</button>
+            <button id="ButtonBack" class="Button" tabindex="2" style="display: none;">Back</button>
+        </div>`
+
+        // Ajout de la vue
+        this.SetView(View)
+        // ajout des event
+        let self = this
+        document.getElementById("ButtonDelete").addEventListener("click", ()=>{self.OnClickDeleteUser(UserId)})
+        document.getElementById("ButtonSave").addEventListener("click", ()=>{self.OnClickSaveUserData(UserId)})
+        document.getElementById("ButtonBack").addEventListener("click", ()=>{self.LoadViewCallForUserList()})
+        // Data for the api Call
+        let DataCall = new Object()
+        DataCall.UsesrId = UserId
+        DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
+        // Call Get user data
+        GlobalCallAPI("GetUserData", DataCall, this.LoadUserData.bind(this), this.CallBackErrorLoadUserData.bind(this))
+    }
+
+    /* Load de la vue montrant les donnes d'un user */
+    LoadUserData(Data){
+        // Afficher les bouttons de controles
+        document.getElementById("ButtonDelete").style.display = "inline"
+        document.getElementById("ButtonSave").style.display = "inline"
+        document.getElementById("ButtonBack").style.display = "inline"
+        // Supprimer les proprietés du user a ne pas afficher
+        let UserDataToShow = Data[0]
+        delete UserDataToShow._id
+        // Creation de la liste HTML des données du user
+        //let reponse =JSON.stringify(UserDataToShow)
+        let reponse =""
+        if (this._ClickOnAdminBox) {
+            // Afficher les donnes d'un admin
+            Object.keys(UserDataToShow).forEach(element => {
+                let HTML = /*html*/`
+                <div class="FlexRowLeftCenter" style="width:90%;">
+                    <div class="Text InputKey">`+ element.replace("-", " ") + " :" + /*html*/`</div>
+                    <input data-Input="CoreXInput" id="`+ element + /*html*/`" value="`+ UserDataToShow[element] + /*html*/`" class="Input" type="text" name="`+ element + /*html*/`" placeholder="`+ element + /*html*/`"> 
+                </div>`
+                reponse += HTML
+            })
+            // Afficher la modification de password
+            let HTMLPassword = /*html*/`
+                <div class="FlexRowLeftCenter" style="width:90%;">
+                    <div class="Text InputKey">New Password :</div>
+                    <input id="NewPassword" class="Input" type="password" name="NewPassword" placeholder=""> 
+                </div>
+                <div class="FlexRowLeftCenter" style="width:90%;">
+                    <div class="Text InputKey">Confirm Password :</div>
+                    <input id="ConfirmPassword" class="Input" type="password" name="ConfirmPassword" placeholder=""> 
+                </div>`
+                reponse += HTMLPassword
+        } else {
+            // Afficher les donnees d'un utilisateur
+            // ToDo afficher les donnees
+        }
+        document.getElementById("ListOfUserData").innerHTML = reponse
+    }
+
+    /* CallBack error du load des data d'un user */
+    CallBackErrorLoadUserData(error){
+        document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
+        document.getElementById("ButtonBack").style.display = "inline"
+    }
+
+    /* Delete d'un user */
+    DeleteUser(UserId){
+        document.getElementById("ListOfUserData").innerHTML='<div class="Text">Delete du user...</div>'
+        document.getElementById("ButtonDelete").style.display = "none"
+        document.getElementById("ButtonSave").style.display = "none"
+        document.getElementById("ButtonBack").style.display = "none"
+        // Data for the api Call
+        let DataCall = new Object()
+        DataCall.UsesrId = UserId
+        DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
+        // Call delete user
+        GlobalCallAPI("DeleteUser", DataCall, this.CallBackDeleteUser.bind(this), this.CallBackErrorDeleteUser.bind(this))
+    }
+
+    /* CallBAck du Delete d'un user */
+    CallBackDeleteUser(){
+        this.LoadViewCallForUserList()
+    }
+
+    /* CallBack error du Delete d'un user */
+    CallBackErrorDeleteUser(error){
+        document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
+        document.getElementById("ButtonBack").style.display = "inline"
+    }
+
+    /* Update d'un user */
+    UpdateUser(UserId){
+        let InputDataValide = false
+        // Data for the api Call
+        let DataCall = new Object()
+        DataCall.UsesrId = UserId
+        DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
+        // selectionner et ajouter tous les input de type CoreXInput dans DataCall
+        let AllData = new Object()
+        let el = document.querySelectorAll('[data-Input="CoreXInput"]')
+        el.forEach(element => {
+            AllData[element.name] = element.value
+        })
+        // ajouter le nouveau password si il est defini
+        if(document.getElementById("NewPassword").value != ""){
+            if(document.getElementById("NewPassword").value == document.getElementById("ConfirmPassword").value){
+                AllData["Password"] = document.getElementById("NewPassword").value
+                InputDataValide = true
+            } else {
+                document.getElementById("ErrorOfUserData").innerHTML= "Password not confirmed!"
+            }
+        } else {
+            InputDataValide = true
+        }
+        DataCall.Data = AllData
+        if (InputDataValide){
+            // afficher le message d'update
+            document.getElementById("ListOfUserData").innerHTML='<div class="Text">Update du user...</div>'
+            document.getElementById("ButtonDelete").style.display = "none"
+            document.getElementById("ButtonSave").style.display = "none"
+            document.getElementById("ButtonBack").style.display = "none"
+            // Call delete user
+            GlobalCallAPI("UpdateUser", DataCall, this.CallBackUpdateUser.bind(this), this.CallBackErrorUpdateUser.bind(this))
+        }
+    }
+
+    /* CallBAck de Update d'un user */
+    CallBackUpdateUser(){
+        this.LoadViewCallForUserList()
+    }
+
+    /* CallBack error du Delete d'un user */
+    CallBackErrorUpdateUser(error){
+        document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
+        document.getElementById("ButtonBack").style.display = "inline"
     }
     
     /*
@@ -101,13 +254,31 @@ class CoreXAdminApp{
     /* Click sur le botton User */
     OnClickUser(){
         this._ClickOnAdminBox = false
-        this.LoadViewUserList()
+        this.LoadViewCallForUserList()
     }
 
     /* Click sur le botton Admin */
     OnClickAdmin(){
         this._ClickOnAdminBox = true
-        this.LoadViewUserList()
+        this.LoadViewCallForUserList()
+    }
+
+    /* Click sur un user */
+    OnClickOneUser(Id){
+        this.LoadViewCallForUserData(Id)
+    }
+
+    /* Click sur le bouton Save d'un user */
+    OnClickSaveUserData(UserId){
+        document.getElementById("ErrorOfUserData").innerHTML= ""
+        this.UpdateUser(UserId)
+    }
+
+    /* Click sur le bouton Delete d'un user */
+    OnClickDeleteUser(UserId){
+        if (confirm('Are you sure you want to Dete this User?')) {
+            this.DeleteUser(UserId)
+        }
     }
 
     /*
@@ -155,6 +326,34 @@ class CoreXAdminApp{
                 border-radius: 5px;
                 flex: 0 0 auto;
             }
+            /* Input */
+            .Input {
+                width: 80%;
+                font-size: var(--CoreX-font-size);
+                padding: 1vh;
+                border: solid 0px #dcdcdc;
+                border-bottom: solid 1px transparent;
+                margin: 1% 0px 1% 0px;
+            }
+            .Input:focus,
+            .Input.focus {
+                outline: none;
+                border: solid 0px #707070;
+                border-bottom-width: 1px;
+                border-color: var(--CoreX-color);
+            }
+            .Input:hover{
+                border-bottom-width: 1px;
+                border-color: var(--CoreX-color);
+            }
+
+            /* Titre de l'input */
+            .InputKey{
+                color: gray; 
+                width:20%; 
+                margin:1%; 
+                text-align:right;
+            }
             /* Felx colum center  space-around*/
             .FlexColumnCenterSpaceAround{
                 display: flex;
@@ -172,6 +371,33 @@ class CoreXAdminApp{
                 align-items: center;
                 flex-wrap: wrap;
             }
+            /* Flex row center Center*/
+            .FlexRowLeftCenter{
+                display: flex;
+                flex-direction: row;
+                justify-content : left;
+                align-items: center;
+                align-content:center;
+            }
+            /*Boutton*/
+            .Button{
+                margin: 4% 0% 1% 0%;
+                padding: 1vh;
+                cursor: pointer;
+                border: 1px solid rgb(44,1,21);
+                border-radius: 20px;
+                text-align: center;
+                display: inline-block;
+                font-size: var(--CoreX-font-size);
+                box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7);
+                color: rgb(44,1,21);
+                background: white;
+                outline: none;
+                width: 20%;
+            }
+            .Button:hover{
+                box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+            }
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
             screen and (max-width: 700px)
@@ -184,10 +410,18 @@ class CoreXAdminApp{
                     height: 25vw;
                 }
                 .UserConteneur{
-                    width: 48vw;
-                    height: 20vw;
+                    width: 55vw;
+                    height: 12vw;
+                    margin: 2%;
                 }
                 .UserImg{max-height: 20vw;}
+                .Input {
+                    width: 70%;
+                    font-size: var(--CoreX-Iphone-font-size);
+                    border-bottom: solid 1px #dcdcdc;
+                }
+                .InputKey {width:20%;}
+                .Button{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
             }
             @media screen and (min-width: 1200px)
             {
@@ -202,6 +436,8 @@ class CoreXAdminApp{
                     height: 100px;
                 }
                 .UserImg{max-height: 120px;}
+                .Input {font-size: var(--CoreX-Max-font-size);}
+                .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
             }
         </style>`
     }
