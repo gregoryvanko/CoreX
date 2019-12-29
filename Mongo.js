@@ -22,7 +22,7 @@ class Mongo {
         })
     }
 
-    /* Trouver un element dans la collecrtion:Collection suivant la querry:Querry */
+    /* Trouver un element dans la collecrtion:Collection suivant la querry:Querry et la projection:Projection */
     static FindPromise(Querry, Projection, Collection, Url, DbName){
         return new Promise((resolve, reject)=>{
             let MongoClient = require('mongodb').MongoClient
@@ -43,7 +43,7 @@ class Mongo {
         })
     }
 
-    /* Trouver un element dans la collecrtion:Collection suivant la querry:Querry et faire un sort */
+    /* Trouver un element dans la collecrtion:Collection suivant la querry:Querry et la projection:Projection et faire un sort */
     static FindSortPromise(Querry, Projection, Sort, Collection, Url, DbName){
         return new Promise((resolve, reject)=>{
             let MongoClient = require('mongodb').MongoClient
@@ -101,6 +101,27 @@ class Mongo {
                     MyCollection.updateOne(Query, Newvalues, function(err, result) {
                         if(err) reject(err)
                         else {resolve(result)}
+                    })
+                    client.close()
+                }
+            })
+        })
+    }
+
+    /* Compter un element dans la collecrtion:Collection suivant la querry:Querry */
+    static CountPromise(Querry, Collection, Url, DbName){
+        return new Promise((resolve, reject)=>{
+            let MongoClient = require('mongodb').MongoClient
+            let url = Url+ "/" + DbName
+            MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+                if(err) reject(err)
+                else {
+                    const LoginCollection = client.db(DbName).collection(Collection)
+                    LoginCollection.find(Querry).count(function(err, result) {
+                        if(err) reject(err)
+                        else {
+                            resolve(result) 
+                        }
                     })
                     client.close()
                 }

@@ -140,34 +140,42 @@ class CoreXAdminApp{
         let UserDataToShow = Data[0]
         delete UserDataToShow._id
         // Creation de la liste HTML des données du user
-        //let reponse =JSON.stringify(UserDataToShow)
         let reponse =""
-        if (this._ClickOnAdminBox) {
-            // Afficher les donnes d'un admin
-            Object.keys(UserDataToShow).forEach(element => {
-                let HTML = /*html*/`
-                <div class="FlexRowLeftCenter" style="width:90%;">
-                    <div class="Text InputKey">`+ element.replace("-", " ") + " :" + /*html*/`</div>
-                    <input data-Input="CoreXInput" id="`+ element + /*html*/`" value="`+ UserDataToShow[element] + /*html*/`" class="Input" type="text" name="`+ element + /*html*/`" placeholder="`+ element + /*html*/`"> 
-                </div>`
-                reponse += HTML
-            })
-            // Afficher la modification de password
-            let HTMLPassword = /*html*/`
-                <div class="FlexRowLeftCenter" style="width:90%;">
-                    <div class="Text InputKey">New Password :</div>
-                    <input id="NewPassword" class="Input" type="password" name="NewPassword" placeholder=""> 
-                </div>
-                <div class="FlexRowLeftCenter" style="width:90%;">
-                    <div class="Text InputKey">Confirm Password :</div>
-                    <input id="ConfirmPassword" class="Input" type="password" name="ConfirmPassword" placeholder=""> 
-                </div>`
-                reponse += HTMLPassword
-        } else {
-            // Afficher les donnees d'un utilisateur
-            // ToDo afficher les donnees
-        }
+        Object.keys(UserDataToShow).forEach(element => {
+            reponse += this.UserDataBuilder(element, UserDataToShow[element])
+        })
         document.getElementById("ListOfUserData").innerHTML = reponse
+    }
+
+    UserDataBuilder(Key, Value){
+        let reponse =""
+        switch (Key) {
+            case "Password":
+                // input de type texte
+                reponse = /*html*/`
+                <div class="FlexRowLeftCenter" style="width:90%;">
+                    <div class="Text InputKey">`+ Key.replace("-", " ") + " :" + /*html*/`</div>
+                    <input data-Input="CoreXInput" id="`+ Key + /*html*/`" value="`+ Value + /*html*/`" class="Input" type="password" name="`+ Key + /*html*/`" placeholder=""> 
+                </div>`
+                break
+            case "Confirm-Password":
+                // input de type texte
+                reponse = /*html*/`
+                <div class="FlexRowLeftCenter" style="width:90%;">
+                    <div class="Text InputKey">`+ Key.replace("-", " ") + " :" + /*html*/`</div>
+                    <input data-Input="CoreXInput" id="`+ Key + /*html*/`" value="`+ Value + /*html*/`" class="Input" type="password" name="`+ Key + /*html*/`" placeholder=""> 
+                </div>`
+                break;
+            default:
+                // input de type texte
+                reponse = /*html*/`
+                <div class="FlexRowLeftCenter" style="width:90%;">
+                    <div class="Text InputKey">`+ Key.replace("-", " ") + " :" + /*html*/`</div>
+                    <input data-Input="CoreXInput" id="`+ Key + /*html*/`" value="`+ Value + /*html*/`" class="Input" type="text" name="`+ Key + /*html*/`" placeholder=""> 
+                </div>`
+                break
+        }
+        return reponse
     }
 
     /* CallBack error du load des data d'un user */
@@ -203,7 +211,7 @@ class CoreXAdminApp{
 
     /* Update d'un user */
     UpdateUser(UserId){
-        let InputDataValide = false
+        let InputDataValide = true
         // Data for the api Call
         let DataCall = new Object()
         DataCall.UsesrId = UserId
@@ -214,18 +222,13 @@ class CoreXAdminApp{
         el.forEach(element => {
             AllData[element.name] = element.value
         })
-        // ajouter le nouveau password si il est defini
-        if(document.getElementById("NewPassword").value != ""){
-            if(document.getElementById("NewPassword").value == document.getElementById("ConfirmPassword").value){
-                AllData["Password"] = document.getElementById("NewPassword").value
-                InputDataValide = true
-            } else {
-                document.getElementById("ErrorOfUserData").innerHTML= "Password not confirmed!"
-            }
-        } else {
-            InputDataValide = true
-        }
         DataCall.Data = AllData
+        // verifier si le password = confirm password
+        if(document.getElementById("Password").value != document.getElementById("Confirm-Password").value){
+            InputDataValide = false
+            document.getElementById("ErrorOfUserData").innerHTML= "Password not confirmed!"
+        }
+        // Sit tout les input son valide en envoie les data
         if (InputDataValide){
             // afficher le message d'update
             document.getElementById("ListOfUserData").innerHTML='<div class="Text">Update du user...</div>'
@@ -328,7 +331,7 @@ class CoreXAdminApp{
             }
             /* Input */
             .Input {
-                width: 80%;
+                width: 75%;
                 font-size: var(--CoreX-font-size);
                 padding: 1vh;
                 border: solid 0px #dcdcdc;
@@ -350,7 +353,7 @@ class CoreXAdminApp{
             /* Titre de l'input */
             .InputKey{
                 color: gray; 
-                width:20%; 
+                width:25%; 
                 margin:1%; 
                 text-align:right;
             }
@@ -420,7 +423,7 @@ class CoreXAdminApp{
                     font-size: var(--CoreX-Iphone-font-size);
                     border-bottom: solid 1px #dcdcdc;
                 }
-                .InputKey {width:20%;}
+                .InputKey {width:25%;}
                 .Button{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
             }
             @media screen and (min-width: 1200px)

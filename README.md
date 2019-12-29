@@ -61,6 +61,9 @@ Option de l'objet CoreX
 
 Fonction globale
 
+    GlobalLogout()
+        // Logout de l'application securisée
+
     GlobalCallAPI(FctName, FctData, CallBack, ErrCallBack)
         // Appel à l'Api du serveur
         // FctName :        le nome de la fonction a executer

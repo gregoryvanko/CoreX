@@ -1,6 +1,6 @@
 // Option de l'application
 const OptionApplication = {
-    AppName: "TestApp",                     // Nom de l'application
+    AppName: "TestCoreXApp",                     // Nom de l'application
     Port: 3000,                             // Port du serveur
     Secret: "TestAppSecret",                // phrase secrete pour l'encodage du token 
     MongoUrl: "mongodb://localhost:27017"   // Url de la DB Mongo
