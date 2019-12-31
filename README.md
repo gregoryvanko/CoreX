@@ -12,11 +12,11 @@ First, install the package using npm:
 Créer un fichier "App.js" qui contiendra le code de démarrage du module.
 
     /*------------------------------------*/
-    /* Creation de l'appli via CoreXLogin */
+    /* Creation de l'appli via CoreX */
     /*------------------------------------*/
-    let corexlogin = require('@gregvanko/corex').corex
+    let corex = require('@gregvanko/corex').corex
     let MyApp = new corex()
-    MyApp.Start() // Lancement du module corexlogin
+    MyApp.Start() // Lancement du module corex
 
 
 Option du constructeur de CoreX
@@ -27,14 +27,14 @@ Option du constructeur de CoreX
         Secret: "TestAppSecret",                // phrase secrete pour l'encodage du token 
         MongoUrl: "mongodb://localhost:27017"   // Url de la DB Mongo
     }
-    let corex = require('./index').corex
+    let corex = require('@gregvanko/corex').corex
     let MyApp = new corex(OptionApplication)
-    MyApp.Start() // Lancement du module corexlogin
+    MyApp.Start() // Lancement du module corex
 
 
 Option de l'objet CoreX
 
-    let corexlogin = require('@gregvanko/corex').corex
+    let corex = require('@gregvanko/corex').corex
     let MyApp = new corex()
 
     const CSS= {
@@ -66,7 +66,7 @@ Fonction globale
 
     GlobalCallAPI(FctName, FctData, CallBack, ErrCallBack)
         // Appel à l'Api du serveur
-        // FctName :        le nome de la fonction a executer
+        // FctName :        le nom de la fonction a executer
         // FctData :        les donnes a passer à la fonction
         // CallBack :       la fonction a executer en retour de l'appel à l'API
         // ErrCallBack :    la fonction executer si il y a une erreur sur l'API
