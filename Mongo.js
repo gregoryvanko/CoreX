@@ -129,6 +129,25 @@ class Mongo {
         })
     }
 
+    /* Update d'un element par ID dans la collecrtion:Collection */
+    static InsertOnePromise(Data, Collection, Url, DbName){
+        return new Promise((resolve, reject)=>{
+            let MongoClient = require('mongodb').MongoClient
+            let url = Url+ "/" + DbName
+            MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+                if(err) reject(err)
+                else {
+                    const MyCollection = client.db(DbName).collection(Collection)
+                    MyCollection.insertOne(Data, function(err, result) {
+                        if(err) reject(err)
+                        else {resolve(result)}
+                    })
+                    client.close()
+                }
+            })
+        })
+    }
+
     /* Find with querry and Projection */
     static FindQuerryProjection(Querry, Projection, Collection, Url, DbName, DoneCallback, ErrorCallback){
         let MongoClient = require('mongodb').MongoClient

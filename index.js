@@ -24,6 +24,10 @@ class corex {
         this._MongoLoginConfirmPassItem = "Confirm-Password"
         this._MongoLoginFirstNameItem = "First-name"
         this._MongoLoginLastNameItem = "Last-name"
+        this._MongoLogAppliCollection = "LogAppli"
+        this._MongoLogAppliNow = "Now"
+        this._MongoLogAppliType = "Type"
+        this._MongoLogAppliValeur = "Valeur"
 
         // Variable Interne SocketIO
         this._RoomName = "Secured";
@@ -34,6 +38,7 @@ class corex {
         this._Express = require('express')()
         this._http = require('http').Server(this._Express)
     }
+
     set Debug(val){
         this._Debug = val
     }
@@ -63,6 +68,7 @@ class corex {
 
         // Message de demarrage
         console.log("Application started")
+        this.LogAppliInfo("Application started")
 
         // Initiation de la DB
         this.InitMongoDb()
@@ -75,24 +81,24 @@ class corex {
         // Creation d'une route de base pour l'application
 		this._Express.get('/', function(req, res, next){
             if (me._AppIsSecured) {
-                me.Log("Send Initial Secured HTML for application app")
+                me.LogAppliInfo("Send Initial Secured HTML for application app")
                 res.send(me.GetInitialSecuredHTML("app"))
             } else {
                 // Envoyer l'App
-                me.Log("Send Initial HTML for application app")
+                me.LogAppliInfo("Send Initial HTML for application app")
                 res.send(me.GetInitialHTML())
             }
         })
 
         // Creation d'une route vers l'application admin
 		this._Express.get('/admin', function(req, res, next){
-            me.Log("Send Initial Secured HTML for application Admin")
+            me.LogAppliInfo("Send Initial Secured HTML for application Admin")
             res.send(me.GetInitialSecuredHTML("admin"))
         })
 
         // Creation d'un route pour le login via Post
 		this._Express.post('/login', function (req, res){
-            me.Log("Receive Post Login: " + JSON.stringify(req.body))
+            me.LogAppliInfo("Receive Post Login: " + JSON.stringify(req.body))
             // analyse du login en fonction du site
             switch (req.body.Site) {
                 case "app":
@@ -102,7 +108,7 @@ class corex {
                     me.VerifyLogin(res, me._MongoLoginAdminCollection, req.body.Login,req.body.Pass)
                     break
                 default:
-                    me.Log(" => No login for site: " + req.body.Site)
+                    me.LogAppliError(" => No login for site: " + req.body.Site)
                     res.json({Error: true, ErrorMsg:"No login for site: " + req.body.Site, Token: ""})
                     break
             }
@@ -110,21 +116,21 @@ class corex {
 
         // Creation d'une route pour loader l'application
 		this._Express.post('/loadApp', function(req, res, next){
-            me.Log("Receive Post loadApp")
+            me.LogAppliInfo("Receive Post loadApp")
             // validation du Token
             let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
             if (DecryptTokenReponse.TokenValide) {
                 // vérification que le UserId du Token existe en DB et envoie de l'app
                 me.CheckTokenUserIdAndSendApp(req.body.Site, DecryptTokenReponse.TokenData.data.UserData._id, DecryptTokenReponse.TokenData.data.LoginCollection, res)
             } else {
-                me.Log(" => Token non valide")
+                me.LogAppliError(" => Token non valide")
                 res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         })
 
         // Creation d'une route pour API l'application
 		this._Express.post('/api', function(req, res, next){
-            me.Log("API Call, FctName: " + req.body.FctName)
+            me.LogAppliInfo("API Call, FctName: " + req.body.FctName)
             let Continue = false
             // Si l'application est securisee 
             if (me._AppIsSecured){
@@ -134,12 +140,13 @@ class corex {
                     if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoLoginClientCollection){
                         Continue = true
                     } else {
-                        me.Log(" => Token non valide, LoginCollection incorrect")
+                        Continue = false
+                        me.LogAppliError(" => Token non valide, LoginCollection incorrect")
                         res.json({Error: true, ErrorMsg:"Token non valide, LoginCollection incorrect"})
                     }
                 } else {
                     Continue = false
-                    me.Log(" => Token non valide")
+                    me.LogAppliError(" => Token non valide")
                     res.json({Error: true, ErrorMsg:"Token non valide"})
                 }
             } else {
@@ -152,7 +159,7 @@ class corex {
                     case "test":
                         break
                     default:
-                        me.Log(" => TNo API Admin for FctName: " + req.body.FctName)
+                        me.LogAppliError(" => No API Admin for FctName: " + req.body.FctName)
                         res.json({Error: true, ErrorMsg:"No API for FctName: " + req.body.FctName})
                         break
                 }
@@ -161,7 +168,7 @@ class corex {
 
         // Creation d'une route pour API Admin l'application
 		this._Express.post('/apiadmin', function(req, res, next){
-            me.Log("API Admin Call, FctName: " + req.body.FctName)
+            me.LogAppliInfo("API Admin Call, FctName: " + req.body.FctName)
             // validation du Token
             let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
             if (DecryptTokenReponse.TokenValide) {
@@ -180,36 +187,43 @@ class corex {
                         case "DeleteUser":
                             me.ApiAdminDeleteUser(req.body.FctData, res)
                             break
+                        case "GetUserDataStructure":
+                            me.ApiAdminGetUserDataStructure(req.body.FctData, res)
+                            break
+                        case "NewUser":
+                            me.ApiAdminNewUser(req.body.FctData, res)
+                            break
                         default:
-                            me.Log(" => No API Admin for FctName: " + req.body.FctName)
+                            me.LogAppliError(" => No API Admin for FctName: " + req.body.FctName)
                             res.json({Error: true, ErrorMsg:"No API Admin for FctName: " + req.body.FctName})
                             break
                     }
                 } else {
-                    me.Log(" => Token non valide, LoginCollection incorrect")
+                    me.LogAppliError(" => Token non valide, LoginCollection incorrect")
                     res.json({Error: true, ErrorMsg:"Token non valide, LoginCollection incorrect"})
                 }
             } else {
-                me.Log(" => Token non valide")
+                me.LogAppliError(" => Token non valide")
                 res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         })
 
         // Creation d'un route pour l'icone
         this._Express.get('/apple-icon.png', function (req, res) {
-            me.Log("Get apple-icon.png: " + me._Icon)
+            me.LogAppliInfo("Get apple-icon.png: " + me._Icon)
             res.send(me._Icon)
         })
 
         // Creation d'un route pour favicon.ico
         this._Express.get('/favicon.ico', function (req, res) {
-            me.Log("Get favicon.ico: " + me._Icon)
+            me.LogAppliInfo("Get favicon.ico: " + me._Icon)
             res.send(me._Icon)
         })
 
         // Creation de la route 404
         this._Express.use(function(req, res, next) {
-            console.log('Mauvaise route: ' + req.originalUrl)
+            console.loLogDebugg('Mauvaise route: ' + req.originalUrl)
+            me.LogAppliError('Mauvaise route: ' + req.originalUrl)
             res.status(404).send("Sorry, the route " + req.originalUrl +" doesn't exist");
         })
 
@@ -225,22 +239,22 @@ class corex {
                 //         if (socket.handshake.query.token != "null"){
                 //             let Token = me.DecryptDataToken(socket.handshake.query.token)
                 //             if(Token != null){ // le token est valide
-                //                 me.Log("Token valide")
+                //                 me.LogDebug("Token valide")
                 //                 next()
                 //             } else { // Le token n'est pas valide
-                //                 me.Log("Token non valide")
+                //                 me.LogDebug("Token non valide")
                 //                 let err  = new Error('Token error')
                 //                 err.data = { type : 'Token ne correspons pas' }
                 //                 next(err)
                 //             }
                 //         } else {
-                //             me.Log("Token est null")
+                //             me.LogDebug("Token est null")
                 //             let err  = new Error('Token error')
                 //             err.data = { type : 'Token est null' }
                 //             next(err)
                 //         }
                 // 	} else {
-                // 		me.Log("Token non disponible")
+                // 		me.LogDebug("Token non disponible")
                 // 		let err  = new Error('Token error')
                 // 		err.data = { type : 'Token non disponible' }
                 // 		next(err)
@@ -263,15 +277,15 @@ class corex {
             //    socket.join(me._RoomName);
             //    // Envoie au client le code de l'application
             //    socket.emit('LoadingApp', me.GetCode(Token.data))
-            //    // Log du nombre de user
-            //    me.Log('user connected, nb user :' + me.UserCount());
+            //    // LogDebug du nombre de user
+            //    me.LogDebug('user connected, nb user :' + me.UserCount());
 
             //    // Reception du message client de déconnection
             //    socket.on('disconnect', () => {
             //        // Count User Connected
             //        me._NumClientConnected --
-                    // Log du nombre de user
-            //        me.Log('user disconnected, nb user: ' + me.UserCount());
+                    // LogDebug du nombre de user
+            //        me.LogDebug('user disconnected, nb user: ' + me.UserCount());
             //    })
 
             //    // Reception du message de changement de config
@@ -291,14 +305,49 @@ class corex {
 			console.log('listening on *:' + me._Port)
 		})
     }
-
-    /* Log dans la console */
-    Log(data){
+    /* LogDebug dans la console */
+    LogDebug(data){
         if(this._Debug){
             console.log(data)
         }
     }
-
+    /** Log applicatif de type info dans la DB */
+    LogAppliInfo(Valeur){
+        var now = new Date()
+        const DataToDb = { [this._MongoLogAppliNow]: now, [this._MongoLogAppliType]: "Info", [this._MongoLogAppliValeur]: Valeur}
+        let Mongo = require('./Mongo.js').Mongo
+        Mongo.InsertOnePromise(DataToDb, this._MongoLogAppliCollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+            this.LogDebug(this.GetDateString(now) + " " + "Info" + " " + Valeur)
+        },(erreur)=>{
+            this.LogDebug("LogAppliInfo DB error : " + erreur)
+        })
+    }
+    /** Log applicatif de type error dans la DB */
+    LogAppliError(Valeur){
+        var now = new Date()
+        const DataToDb = { [this._MongoLogAppliNow]: now, [this._MongoLogAppliType]: "Error", [this._MongoLogAppliValeur]: Valeur}
+        let Mongo = require('./Mongo.js').Mongo
+        Mongo.InsertOnePromise(DataToDb, this._MongoLogAppliCollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+            this.LogDebug(this.GetDateString(now) + " " + "Error" + " " + Valeur)
+        },(erreur)=>{
+            this.LogDebug("LogAppliError DB error : " + erreur)
+        })
+    }
+    /** Get Date Formated */
+    GetDateString(Now){
+        var dd = Now.getDate()
+        var mm = Now.getMonth()+1
+        var yyyy = Now.getFullYear()
+        var heure = Now.getHours()
+        var minute = Now.getMinutes()
+        var seconde = Now.getSeconds()
+        if(dd<10) {dd='0'+dd} 
+        if(mm<10) {mm='0'+mm}
+        if(heure<10) {heure='0'+heure}
+        if(minute<10) {minute='0'+minute}
+        if(seconde<10) {seconde='0'+seconde}
+        return yyyy + "-" + mm + "-" + dd + " " + heure + ":" + minute + ":" + seconde
+    }
     /* Initialisation des DB */
     InitMongoDb(){
         // Vérifier si la collection LoginAdmin existe. Si elle n'existe pas alors creation de la collection et du user
@@ -307,14 +356,14 @@ class corex {
         }
         let DoneCallback = (Data) => {
             if(Data){
-                this.Log("La collection suivante existe : " + this._MongoLoginAdminCollection)
+                this.LogDebug("La collection suivante existe : " + this._MongoLoginAdminCollection)
             } else {
                 // creation de la collection
                 let ErrorCallbackCreate= (err)=>{
-                    this.Log("ErrorCallbackCreate")
+                    this.LogDebug("ErrorCallbackCreate")
                     throw new Error('Erreur lors de la creation du User Admin de la collection Login de la db: ' + err)
                 }
-                let DoneCallbackCreate = ()=>{this.Log("Creation de la collection : " + this._MongoLoginAdminCollection)}
+                let DoneCallbackCreate = ()=>{this.LogDebug("Creation de la collection : " + this._MongoLoginAdminCollection)}
                 const DataToDb = { [this._MongoLoginUserItem]: "Admin", [this._MongoLoginFirstNameItem]: "Admin First Name", [this._MongoLoginLastNameItem]: "Admin Last Name", [this._MongoLoginPassItem]: "Admin", [this._MongoLoginConfirmPassItem]: "Admin"}
                 let Mongo = require('./Mongo.js').Mongo
                 Mongo.InsertOne(DataToDb, this._MongoLoginAdminCollection, this._MongoUrl, this._MongoDbName, DoneCallbackCreate, ErrorCallbackCreate)
@@ -405,7 +454,6 @@ class corex {
 </html>`
         return HTMLStart + CSS + HTMLEnd
     }
-
     /* Generation du fichier HTML de base de l'application cliente securisée */
 	GetInitialSecuredHTML(Site){
         let fs = require('fs')
@@ -458,7 +506,7 @@ class corex {
         let CoreXLoaderJsScript = fs.readFileSync(__dirname + "/Client_CoreX_Loader.js", 'utf8')
         let CoreXLoginJsScript = fs.readFileSync(__dirname + "/Client_CoreX_Login.js", 'utf8')
         
-        let apiurl = (Site = "admin") ? "apiadmin" : "api"
+        let apiurl = (Site == "admin") ? "apiadmin" : "api"
         let GlobalCallAPI = `
             function GlobalCallAPI(FctName, FctData, CallBack, ErrCallBack){
                 var xhttp = new XMLHttpRequest()
@@ -508,26 +556,26 @@ class corex {
         const Projection = { projection:{ _id: 1, [this._MongoLoginPassItem]: 1}}
         Mongo.FindPromise(Query,Projection, LoginCollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
             if(reponse.length == 0){
-                this.Log("Login non valide, pas de row en db pour ce user")
+                this.LogAppliError("Login non valide, pas de row en db pour ce user")
                 res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
             } else if (reponse.length == 1){
                 if (reponse[0][this._MongoLoginPassItem] == Pass){
-                    this.Log("Login valide")
+                    this.LogAppliInfo("Login valide")
                     delete reponse[0][this._MongoLoginPassItem]
                     let MyToken = new Object()
                     MyToken.UserData = reponse[0]
                     MyToken.LoginCollection = LoginCollection
                     res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(MyToken)})
                 } else {
-                    this.Log("Login non valide, le Pass est different du password en db")
+                    this.LogAppliError("Login non valide, le Pass est different du password en db")
                     res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
                 }
             } else {
-                this.Log("Login non valide, trop de row en db pour ce user")
+                this.LogAppliError("Login non valide, trop de row en db pour ce user")
                 res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
             }
         },(erreur)=>{
-            this.Log("Login non valide, erreur dans le call à la db : " + erreur)
+            this.LogAppliError("Login non valide, erreur dans le call à la db : " + erreur)
             res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
         })
     }
@@ -541,7 +589,6 @@ class corex {
         let Encrypttoken = this.Encrypt(token)
         return Encrypttoken
     }
-
     /* Decript et valide un JWT */
     DecryptDataToken(token){
         let reponse = new Object()
@@ -554,12 +601,11 @@ class corex {
                 reponse.TokenData = jwt.verify(DecryptReponse.decryptedData, this._Secret)
                 reponse.TokenValide = true
             } catch(err) {
-                this.Log("jsonwebtoken non valide")
+                this.LogAppliError("jsonwebtoken non valide")
             }
         }
         return reponse
     }
-
     /* Encrypte un JSON? */
     Encrypt(text){
         const Cryptr = require('cryptr');
@@ -567,7 +613,6 @@ class corex {
         const encryptedString = cryptr.encrypt(text);
         return encryptedString
     }
-
     /* Decrypte un string en Json */
     Decrypt(text){
         let reponse = new Object()
@@ -579,11 +624,10 @@ class corex {
             reponse.decryptedData = cryptr.decrypt(text)
             reponse.decryptedValide = true
         } catch (error) {
-            this.Log("cryptr non valide")
+            this.LogAppliError("cryptr non valide")
         }
         return reponse
     }
-
     /* Check la validation du UserId contenu dans un Token et envoie de l'app */
     CheckTokenUserIdAndSendApp(Site, Id, Collection, res){
         // Require MongoDb
@@ -594,27 +638,28 @@ class corex {
         // MongoDB Call
         Mongo.CountPromise(Query, Collection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
             if (reponse==1) {
-                this.Log("TokenUserId validé")
+                this.LogAppliInfo("TokenUserId validé")
                 switch (Site) {
                     case "app":
-                        this.Log("Start loading App")
-                        let MyApp = me.GetAppCode()
+                        this.LogAppliInfo("Start loading App")
+                        let MyApp = this.GetAppCode()
                         res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS:MyApp.CSS})
                         break
                     case "admin":
-                        this.Log("Start loading App Admin")
+                        this.LogAppliInfo("Start loading App Admin")
                         res.json({Error: false, ErrorMsg:"", CodeAppJS: this.GetAdminAppCode(),CodeAppCSS:"", CodeAppIMG:""})
                         break
                     default:
-                        res.json({Error: true, ErrorMsg:"No LoginCollection for site: " + Site})
+                        this.LogAppliError("No app for site: " + Site)
+                        res.json({Error: true, ErrorMsg:"No app for site: " + Site})
                         break
                 }
             } else {
-                this.Log("TokenUserId non validé. Nombre d'Id trouvéen DB: " + reponse)
+                this.LogAppliError("TokenUserId non validé. Nombre d'Id trouvéen DB: " + reponse)
                 res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         },(erreur)=>{
-            this.Log("TokenUserId validation => DB error : " + erreur)
+            this.LogAppliError("TokenUserId validation => DB error : " + erreur)
             res.json({Error: true, ErrorMsg:"Token non valide"})
         })
     }
@@ -641,16 +686,17 @@ class corex {
                         MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
                         break;
                     default:
+                        this.LogAppliError("file extension not know: " + path.extname(files[i]))
                         console.log("file extension not know: " + path.extname(files[i]))
                         break;
                 }
             } else {
+                this.LogAppliError("file not found: " + this._ClientAppFolderRoot + files[i])
                 console.log("file not found: " + this._ClientAppFolderRoot + files[i])
             }
         }
         return MyApp
     }
-
     /* Recuperer le code de l'Admin App */
     GetAdminAppCode(){
         let fs = require('fs')
@@ -681,11 +727,10 @@ class corex {
                 res.json({Error: false, ErrorMsg: "User in DB", Data: reponse})
             }
         },(erreur)=>{
-            this.Log("ApiAdminGetAllUsers DB error : " + erreur)
+            this.LogAppliError("ApiAdminGetAllUsers DB error : " + erreur)
             res.json({Error: true, ErrorMsg: "DB Error", Data: ""})
         })
     }
-
     /* Get list of user data via l'ApiAdmin */
     ApiAdminGetUserData(Data, res){
         // Require pour Mongo
@@ -705,6 +750,7 @@ class corex {
         // Find de type Promise de Mongo
         Mongo.FindPromise(Query,Projection, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
             if(reponse.length == 0){
+                this.LogAppliError("Wrong User Id")
                 res.json({Error: true, ErrorMsg: "Wrong User Id", Data: null})
             } else {
                 // les password sont effacés de la réponse
@@ -714,11 +760,10 @@ class corex {
                 res.json({Error: false, ErrorMsg: "User data in DB", Data: reponse})
             }
         },(erreur)=>{
-            this.Log("ApiAdminGetUserData DB error : " + erreur)
+            this.LogAppliError("ApiAdminGetUserData DB error : " + erreur)
             res.json({Error: true, ErrorMsg: "DB Error", Data: null})
         })
     }
-
     /* Delete d'un user via l'ApiAdmin */
     ApiAdminDeleteUser(Data, res){
         // Require pour Mongo
@@ -735,14 +780,14 @@ class corex {
             if (reponse.deletedCount==1) {
                 res.json({Error: false, ErrorMsg: "User deleted in DB", Data: null})
             } else {
+                this.LogAppliError("User not found in DB")
                 res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
             }
         },(erreur)=>{
-            this.Log("ApiAdminDeleteUser DB error : " + erreur)
+            this.LogAppliError("ApiAdminDeleteUser DB error : " + erreur)
             res.json({Error: true, ErrorMsg: "DB Error", Data: null})
         })
     }
-
     /* Update d'un user via l'ApiAdmin */
     ApiAdminUpdateUser(Data, res){
         // Require pour Mongo
@@ -761,13 +806,50 @@ class corex {
         }
         // Update de type Promise de Mongo
          Mongo.UpdateByIdPromise(Data.UsesrId, Data.Data, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
-            if (reponse.modifiedCount==1) {
+            if (reponse.matchedCount==1) {
                 res.json({Error: false, ErrorMsg: "User Updated in DB", Data: null})
             } else {
+                this.LogAppliError("User not found in DB")
                 res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
             }
         },(erreur)=>{
-            this.Log("ApiAdminUpdateUser DB error : " + erreur)
+            this.LogAppliError("ApiAdminUpdateUser DB error : " + erreur)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+        })
+    }
+    /** Get de la structure d'un user */
+    ApiAdminGetUserDataStructure(Data, res){
+        let reponse=[]
+        // Data strucutre d'un user
+        reponse.push(this._MongoLoginUserItem)
+        reponse.push(this._MongoLoginFirstNameItem)
+        reponse.push(this._MongoLoginLastNameItem)
+        reponse.push(this._MongoLoginPassItem)
+        reponse.push(this._MongoLoginConfirmPassItem)
+        if (Data == "Admin") {
+            // Add data strucutre only for admin
+        } else {
+            // Add data strucutre only for user
+        }
+        res.json({Error: false, ErrorMsg: "User data structure", Data: reponse})
+    }
+    /** Creation d'un nouvel user */
+    ApiAdminNewUser(Data, res){
+        // Require pour Mongo
+        let Mongo = require('./Mongo.js').Mongo
+        // Définition de la collection de Mongo en fonction du type de user
+        let mongocollection =""
+        if (Data.UserType == "Admin") {
+            mongocollection = this._MongoLoginAdminCollection
+        } else {
+            mongocollection = this._MongoLoginClientCollection
+        }
+        let DataToDb = { [this._MongoLoginUserItem]: Data.Data[this._MongoLoginUserItem], [this._MongoLoginFirstNameItem]: Data.Data[this._MongoLoginFirstNameItem], [this._MongoLoginLastNameItem]: Data.Data[this._MongoLoginLastNameItem], [this._MongoLoginPassItem]: Data.Data[this._MongoLoginPassItem], [this._MongoLoginConfirmPassItem]: Data.Data[this._MongoLoginConfirmPassItem]}
+        // Insert de type Promise de Mongo
+        Mongo.InsertOnePromise(DataToDb, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+            res.json({Error: false, ErrorMsg: "User added in DB", Data: null})
+        },(erreur)=>{
+            this.LogAppliError("ApiAdminNewUser DB error : " + erreur)
             res.json({Error: true, ErrorMsg: "DB Error", Data: null})
         })
     }

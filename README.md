@@ -59,7 +59,7 @@ Option de l'objet CoreX
 
     MyApp.Start()
 
-Fonction globale
+Fonction globale pour le client
 
     GlobalLogout()
         // Logout de l'application securisée
