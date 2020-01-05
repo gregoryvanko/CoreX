@@ -3,6 +3,8 @@ class CoreXAdminApp{
         this._HtmlIdApp = "AdminApp"
         this._ClickOnAdminBox =true
         this._MyCoreXActionButton = new CoreXActionButton()
+        this._LogCursor = 0
+        this._LogIdListe = []
     }
     
     /* Render du corps de la page de l'application */
@@ -345,11 +347,14 @@ class CoreXAdminApp{
 
     /* Load de la vue qui va appeler le serveur pour recevoir la liste des users ou admin */
     LoadViewCallForLog(){
+        // Initialisation des variables de type Log
+        this._LogCursor = 0
+        this._LogIdListe = []
         //this._ClickOnAdminBox = ClickOnAdminBox
         this.ClearView()
         let View = /*html*/`
         <div id="Titre" style="margin-top:4%">Liste of Log</div>
-        <div id="ListOfLog" class="FlexRowCenterSpaceevenly">
+        <div id="ListOfLog" class="FlexColumnCenterSpaceAround">
             <div class="Text">Get list of Log...</div>
         </div>`
 
@@ -358,13 +363,88 @@ class CoreXAdminApp{
         // Ajout des des action a ActionButton
         this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
         // Get All Log
-        GlobalCallAPI("GetLog", "" , this.LoadLog.bind(this), this.CallBackErrorLoadLog.bind(this))
+        GlobalCallAPI("GetLog", this._LogCursor , this.LoadLog.bind(this), this.CallBackErrorLoadLog.bind(this))
     }
     /* CallBAck du Load Log */
-    LoadLog(){
-        document.getElementById("ListOfLog").innerHTML='<div class="Text">ToDo</div>'
+    LoadLog(Data){
+        let reponse = ""
+        if (Data == null) {
+            document.getElementById("ListOfLog").innerHTML =/*html*/`<div class="Text">Sorry, no Log stored</div>`
+        } else {
+            reponse += `<div id="Liste" class="FlexColumnCenterSpaceAround" style="width:90%;">`
+            // Creation des box pour chaque Log
+            Data.forEach(element => {
+                this._LogIdListe.push(element._id)
+                if(element.Type == "Error"){
+                    reponse += `<div class="FlexRowStartCenter" style="width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;">`
+                } else {
+                    reponse += `<div class="FlexRowStartCenter" style="width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%;">`
+                }
+                reponse += `
+                    <div class="Text" style="width:20%; margin-right:1%;">` + this.GetDateString(element.Now) + `</div>
+                    <div class="Text" style="width:10%;">` + element.Type + `</div>
+                    <div class="Text" style="width:65%;">` + element.Valeur + `</div>
+                </div>`
+            })
+            reponse += `</div>`
+            reponse += `
+                <div class="FlexRowCenterSpaceevenly" style="width:90%; border-top: 1px solid black; margin-top:1%;">
+                    <button id="ButtonNext" class="Button">Next</button>
+                </div>`
+            // ajout des user dans l'interface
+            document.getElementById("ListOfLog").innerHTML = reponse
+            // ajout event onclick
+            ButtonNext.onclick = this.GetNextLog.bind(this)
+        }
     }
-    /* CallBack error du Load Log */
+    /** Get Date Formated */
+    GetDateString(StringNow){
+        var Now = new Date(StringNow)
+        var dd = Now.getDate()
+        var mm = Now.getMonth()+1
+        var yyyy = Now.getFullYear()
+        var heure = Now.getHours()
+        var minute = Now.getMinutes()
+        var seconde = Now.getSeconds()
+        if(dd<10) {dd='0'+dd} 
+        if(mm<10) {mm='0'+mm}
+        if(heure<10) {heure='0'+heure}
+        if(minute<10) {minute='0'+minute}
+        if(seconde<10) {seconde='0'+seconde}
+        return yyyy + "-" + mm + "-" + dd + " " + heure + ":" + minute + ":" + seconde
+    }
+    /** Get des next log */
+    GetNextLog(){
+        this._LogCursor += 10
+        document.getElementById("ButtonNext").innerHTML = "Waiting..."
+        GlobalCallAPI("GetLog", this._LogCursor , this.LoadNextLog.bind(this), this.CallBackErrorLoadLog.bind(this))
+    }
+    /** Load des next log */
+    LoadNextLog(Data){
+        document.getElementById("ButtonNext").innerHTML = "Next"
+        let reponse = ""
+        if (Data == null) {
+            document.getElementById("Liste").insertAdjacentHTML('beforeend', /*html*/`<div class="FlexRowCenterSpaceevenly" style="width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;">Sorry, end of log</div>`)
+        } else {
+            Data.forEach(element => {
+                if (!this._LogIdListe.includes(element._id)){
+                    this._LogIdListe.push(element._id)
+                    if(element.Type == "Error"){
+                        reponse += `<div class="FlexRowStartCenter" style="width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;">`
+                    } else {
+                        reponse += `<div class="FlexRowStartCenter" style="width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%;">`
+                    }
+                    reponse += `
+                        <div class="Text" style="width:20%; margin-right:1%;">` + this.GetDateString(element.Now) + `</div>
+                        <div class="Text" style="width:10%;">` + element.Type + `</div>
+                        <div class="Text" style="width:65%;">` + element.Valeur + `</div>
+                    </div>`
+                }
+            })
+            document.getElementById("Liste").insertAdjacentHTML('beforeend',reponse)
+        }
+    }
+    /** CallBack error du Load Log */
     CallBackErrorLoadLog(error){
         // Ajout des des action a ActionButton
         this._MyCoreXActionButton.ClearActionList()
@@ -471,12 +551,19 @@ class CoreXAdminApp{
                 align-items: center;
                 align-content:center;
             }
+            .FlexRowStartCenter{
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-content: center;
+                align-items: center;
+            }
             /*Boutton*/
             .Button{
-                margin: 4% 0% 1% 0%;
-                padding: 1vh;
+                margin: 4vh 0vh 1vh 0vh;
+                padding: 1vh 2vh 1vh 2vh;
                 cursor: pointer;
-                border: 1px solid rgb(44,1,21);
+                border: 1px solid var(--CoreX-color);
                 border-radius: 20px;
                 text-align: center;
                 display: inline-block;
@@ -485,7 +572,6 @@ class CoreXAdminApp{
                 color: rgb(44,1,21);
                 background: white;
                 outline: none;
-                width: 20%;
             }
             .Button:hover{
                 box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);

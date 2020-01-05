@@ -68,7 +68,7 @@ class corex {
 
         // Message de demarrage
         console.log("Application started")
-        this.LogAppliInfo("Application started")
+        this.LogDebug("Application started")
 
         // Initiation de la DB
         this.InitMongoDb()
@@ -116,7 +116,7 @@ class corex {
 
         // Creation d'une route pour loader l'application
 		this._Express.post('/loadApp', function(req, res, next){
-            me.LogAppliInfo("Receive Post loadApp")
+            me.LogDebug("Receive Post loadApp")
             // validation du Token
             let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
             if (DecryptTokenReponse.TokenValide) {
@@ -130,7 +130,7 @@ class corex {
 
         // Creation d'une route pour API l'application
 		this._Express.post('/api', function(req, res, next){
-            me.LogAppliInfo("API Call, FctName: " + req.body.FctName)
+            me.LogDebug("API Call, FctName: " + req.body.FctName)
             let Continue = false
             // Si l'application est securisee 
             if (me._AppIsSecured){
@@ -168,7 +168,7 @@ class corex {
 
         // Creation d'une route pour API Admin l'application
 		this._Express.post('/apiadmin', function(req, res, next){
-            me.LogAppliInfo("API Admin Call, FctName: " + req.body.FctName)
+            me.LogDebug("API Admin Call, FctName: " + req.body.FctName)
             // validation du Token
             let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
             if (DecryptTokenReponse.TokenValide) {
@@ -193,6 +193,9 @@ class corex {
                         case "NewUser":
                             me.ApiAdminNewUser(req.body.FctData, res)
                             break
+                        case "GetLog":
+                            me.ApiAdminGetLog(req.body.FctData, res)
+                            break
                         default:
                             me.LogAppliError(" => No API Admin for FctName: " + req.body.FctName)
                             res.json({Error: true, ErrorMsg:"No API Admin for FctName: " + req.body.FctName})
@@ -210,13 +213,13 @@ class corex {
 
         // Creation d'un route pour l'icone
         this._Express.get('/apple-icon.png', function (req, res) {
-            me.LogAppliInfo("Get apple-icon.png: " + me._Icon)
+            me.LogDebug("Get apple-icon.png: " + me._Icon)
             res.send(me._Icon)
         })
 
         // Creation d'un route pour favicon.ico
         this._Express.get('/favicon.ico', function (req, res) {
-            me.LogAppliInfo("Get favicon.ico: " + me._Icon)
+            me.LogDebug("Get favicon.ico: " + me._Icon)
             res.send(me._Icon)
         })
 
@@ -638,22 +641,28 @@ class corex {
         // MongoDB Call
         Mongo.CountPromise(Query, Collection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
             if (reponse==1) {
-                this.LogAppliInfo("TokenUserId validé")
-                switch (Site) {
-                    case "app":
-                        this.LogAppliInfo("Start loading App")
-                        let MyApp = this.GetAppCode()
-                        res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS:MyApp.CSS})
-                        break
-                    case "admin":
-                        this.LogAppliInfo("Start loading App Admin")
-                        res.json({Error: false, ErrorMsg:"", CodeAppJS: this.GetAdminAppCode(),CodeAppCSS:"", CodeAppIMG:""})
-                        break
-                    default:
-                        this.LogAppliError("No app for site: " + Site)
-                        res.json({Error: true, ErrorMsg:"No app for site: " + Site})
-                        break
-                }
+                // Get Name of user in DB
+                let Projection = { projection:{[this._MongoLoginUserItem]: 1}}
+                Mongo.FindPromise(Query, Projection, Collection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+                    this.LogAppliInfo("TokenUserId validé. User = " + reponse[0].User)
+                    switch (Site) {
+                        case "app":
+                            this.LogAppliInfo("Start loading App")
+                            let MyApp = this.GetAppCode()
+                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS:MyApp.CSS})
+                            break
+                        case "admin":
+                            this.LogAppliInfo("Start loading App Admin")
+                            res.json({Error: false, ErrorMsg:"", CodeAppJS: this.GetAdminAppCode(),CodeAppCSS:"", CodeAppIMG:""})
+                            break
+                        default:
+                            this.LogAppliError("No app for site: " + Site)
+                            res.json({Error: true, ErrorMsg:"No app for site: " + Site})
+                            break
+                    }
+                },(erreur)=>{
+                    this.LogAppliError("CheckTokenUserIdAndSendApp DB error : " + erreur)
+                })
             } else {
                 this.LogAppliError("TokenUserId non validé. Nombre d'Id trouvéen DB: " + reponse)
                 res.json({Error: true, ErrorMsg:"Token non valide"})
@@ -710,6 +719,7 @@ class corex {
 
     /* Get list of all user via l'ApiAdmin */
     ApiAdminGetAllUsers(type, res){
+        this.LogAppliInfo("Call API Admin, FctName: GetAllUsers, Data: " + type)
         let mongocollection =""
         if (type == "Admin") {
             mongocollection = this._MongoLoginAdminCollection
@@ -722,6 +732,7 @@ class corex {
         const Sort = {[this._MongoLoginUserItem]: 1}
         Mongo.FindSortPromise(Query,Projection, Sort, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
             if(reponse.length == 0){
+                this.LogDebug("No user in BD")
                 res.json({Error: false, ErrorMsg: "No user in BD", Data: null})
             } else {
                 res.json({Error: false, ErrorMsg: "User in DB", Data: reponse})
@@ -733,6 +744,7 @@ class corex {
     }
     /* Get list of user data via l'ApiAdmin */
     ApiAdminGetUserData(Data, res){
+        this.LogAppliInfo("Call API Admin, FctName: GetUserData, Data: " + JSON.stringify(Data))
         // Require pour Mongo
         let Mongo = require('./Mongo.js').Mongo
         let MongoObjectId = require('./Mongo.js').MongoObjectId
@@ -766,6 +778,7 @@ class corex {
     }
     /* Delete d'un user via l'ApiAdmin */
     ApiAdminDeleteUser(Data, res){
+        this.LogAppliInfo("Call API Admin, FctName: DeleteUser, Data: " + JSON.stringify(Data))
         // Require pour Mongo
         let Mongo = require('./Mongo.js').Mongo
         // Définition de la collection de Mongo en fonction du type de user
@@ -790,6 +803,7 @@ class corex {
     }
     /* Update d'un user via l'ApiAdmin */
     ApiAdminUpdateUser(Data, res){
+        this.LogAppliInfo("Call API Admin, FctName: UpdateUser, Data: " + JSON.stringify(Data))
         // Require pour Mongo
         let Mongo = require('./Mongo.js').Mongo
         // Définition de la collection de Mongo en fonction du type de user
@@ -819,6 +833,7 @@ class corex {
     }
     /** Get de la structure d'un user */
     ApiAdminGetUserDataStructure(Data, res){
+        this.LogAppliInfo("Call API Admin, FctName: GetUserDataStructure, Data: " + Data)
         let reponse=[]
         // Data strucutre d'un user
         reponse.push(this._MongoLoginUserItem)
@@ -835,6 +850,7 @@ class corex {
     }
     /** Creation d'un nouvel user */
     ApiAdminNewUser(Data, res){
+        this.LogAppliInfo("Call API Admin, FctName: NewUser, Data: " + JSON.stringify(Data))
         // Require pour Mongo
         let Mongo = require('./Mongo.js').Mongo
         // Définition de la collection de Mongo en fonction du type de user
@@ -851,6 +867,26 @@ class corex {
         },(erreur)=>{
             this.LogAppliError("ApiAdminNewUser DB error : " + erreur)
             res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+        })
+    }
+    /** Get des log de l'application */
+    ApiAdminGetLog(Data, res){
+        this.LogAppliInfo("Call API Admin, FctName: GetLog, Skip data value: " + Data)
+        let Mongo = require('./Mongo.js').Mongo
+        let mongocollection = this._MongoLogAppliCollection
+        const Query = {}
+        const Projection = {}
+        const Sort = {[this._MongoLogAppliNow]: -1}
+        Mongo.FindSortLimitSkipPromise(Query,Projection, Sort, 10, parseInt(Data), mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+            if(reponse.length == 0){
+                this.LogDebug("No Log in BD")
+                res.json({Error: false, ErrorMsg: "No Log in BD", Data: null})
+            } else {
+                res.json({Error: false, ErrorMsg: "Log in DB", Data: reponse})
+            }
+        },(erreur)=>{
+            this.LogAppliError("ApiAdminGetAllUsers DB error : " + erreur)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: ""})
         })
     }
 }

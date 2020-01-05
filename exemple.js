@@ -7,9 +7,9 @@ const OptionApplication = {
 }
 const CSS= {
     FontSize:{
-        TexteNomrale:"2vw",                 //--CoreX-font-size
+        TexteNomrale:"1.5vw",                 //--CoreX-font-size
         TexteIphone:"3vw",                  //--CoreX-Iphone-font-size
-        TexteMax:"20px",                    //--CoreX-Max-font-size
+        TexteMax:"18px",                    //--CoreX-Max-font-size
         TitreNormale:"4vw",                 //--CoreX-Titrefont-size
         TitreIphone:"7vw",                  //--CoreX-TitreIphone-font-size
         TitreMax:"50px"                     //--CoreX-TitreMax-font-size
