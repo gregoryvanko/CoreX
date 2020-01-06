@@ -484,7 +484,7 @@ class CoreXAdminApp{
                 border: 1px solid black;
                 border-radius: 5px;
                 width: 35vw;
-                height: 10vw;
+                height: 5vw;
                 margin: 0.5%;
                 cursor: pointer;
             }
@@ -590,7 +590,7 @@ class CoreXAdminApp{
                 }
                 .UserConteneur{
                     width: 55vw;
-                    height: 12vw;
+                    height: 6vw;
                     margin: 2%;
                 }
                 .UserImg{max-height: 20vw;}
@@ -612,7 +612,7 @@ class CoreXAdminApp{
                 }
                 .UserConteneur{
                     width: 350px;
-                    height: 100px;
+                    height: 50px;
                 }
                 .UserImg{max-height: 120px;}
                 .Input {font-size: var(--CoreX-Max-font-size);}
