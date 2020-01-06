@@ -1,6 +1,6 @@
 // Option de l'application
 const OptionApplication = {
-    AppName: "TestCoreXApp",                     // Nom de l'application
+    AppName: "TestCoreXApp",                // Nom de l'application
     Port: 3000,                             // Port du serveur
     Secret: "TestAppSecret",                // phrase secrete pour l'encodage du token 
     MongoUrl: "mongodb://localhost:27017"   // Url de la DB Mongo
@@ -25,8 +25,9 @@ const CSS= {
 let corex = require('./index').corex
 let MyApp = new corex(OptionApplication)
 MyApp.Debug = true                              // Affichier les message de debug du serveur
-MyApp.AppIsSecured = true                      // L'application est elle securisee par un login
+MyApp.AppIsSecured = true                       // L'application est elle securisee par un login
 MyApp.CSS = CSS                                 // Css de base de l'application
 MyApp.Usesocketio = false                       // L'application utilise SocketIo
 MyApp.IconRelPath = "/apple-icon-192x192.png"   // Chemin relatif de l'icone
+MyApp.ClientAppFolder = "/TestClient"           // Chemin vers le dossier contenant les sources Js et CSS du client
 MyApp.Start()                                   // Lancement du module corexlogin

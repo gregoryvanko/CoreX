@@ -683,6 +683,9 @@ class corex {
         let path = require('path')
         let os = require('os');
 
+        // Ajout des modules de CoreX
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8') + os.EOL
+
         let folder = this._ClientAppFolderRoot + this._ClientAppFolder
         var files = fs.readdirSync(folder)
         for (var i in files){
@@ -711,7 +714,9 @@ class corex {
         let fs = require('fs')
         let os = require('os');
         let reponse = ""
-        // Ajout de la classe ClientSecuredApp
+        // Ajout de la classe de l'application admin
+        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8')
+        reponse += os.EOL
         reponse += fs.readFileSync(__dirname + "/Client_CoreX_AdminApp.js", 'utf8')
         reponse += os.EOL
         return reponse

@@ -56,7 +56,7 @@ Option de l'objet CoreX
     MyApp.CSS = CSS                                 // Css de base de l'application
     MyApp.Usesocketio = false                       // L'application utilise SocketIo
     MyApp.IconRelPath = "/apple-icon-192x192.png"   // Chemin relatif de l'icone
-
+    MyApp.ClientAppFolder = "/TestClient"           // Chemin vers le dossier contenant les sources Js et CSS du client
     MyApp.Start()
 
 Fonction globale pour le client
