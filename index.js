@@ -15,6 +15,7 @@ class corex {
         this._ClientAppFolderRoot = __dirname
         this._ClientAppFolder = "/Client_CoreX_DefaultApp"
         this._Usesocketio = false
+        this._ApiFctToCall = null
 
         // Varaible interne MongoDB
         this._MongoLoginClientCollection = "LoginClient"
@@ -58,6 +59,9 @@ class corex {
     set ClientAppFolder(val){
         this._ClientAppFolderRoot = process.cwd()
         this._ClientAppFolder = val
+    }
+    set ApiFctToCall(val){
+        this._ApiFctToCall = val
     }
 
     /* Start du Serveur de l'application */
@@ -157,10 +161,15 @@ class corex {
                 // Analyse de la logincollection en fonction du site
                 switch (req.body.FctName) {
                     case "test":
+                        res.json({Error: true, ErrorMsg:"No API for FctName: " + req.body.FctName})
                         break
                     default:
-                        me.LogAppliError(" => No API Admin for FctName: " + req.body.FctName)
-                        res.json({Error: true, ErrorMsg:"No API for FctName: " + req.body.FctName})
+                        if (me._ApiFctToCall != null) {
+                            me._ApiFctToCall(req.body.FctName, req.body.FctData, res)
+                        } else {
+                            me.LogAppliError(" => No ApiFctToCall defined for CoreX")
+                            res.json({Error: true, ErrorMsg:"No ApiFctToCall defined"})
+                        }
                         break
                 }
             }
