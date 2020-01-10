@@ -8,7 +8,10 @@ class TestCoreXApp{
         this._MyCoreXActionButton.Start()
     }
     ClickTestButton(){
-        GlobalCallAPI("TestApi", "TestData", this.CallBackTestApi.bind(this), this.ErrCallBackTestApi.bind(this))
+        GlobalCallAPI("Test", "TestDataGreg", this.CallBackTestApi.bind(this), this.ErrCallBackTestApi.bind(this))
+    }
+    ClickTestCButton(){
+        GlobalCallAPI("TestC", "TestData for Fct C", this.CallBackTestApi.bind(this), this.ErrCallBackTestApi.bind(this))
     }
     CallBackTestApi(Data){
         alert(Data)

@@ -25,20 +25,25 @@ class ServeurTestCoreX{
                 Normale:"rgb(20, 163, 255)"         //--CoreX-color
             }
         }
-        this._MyServeurApp.Debug = true                              // Affichier les message de debug du serveur
-        this._MyServeurApp.AppIsSecured = true                       // L'application est elle securisee par un login
-        this._MyServeurApp.CSS = CSS                                 // Css de base de l'application
-        this._MyServeurApp.Usesocketio = false                       // L'application utilise SocketIo
-        this._MyServeurApp.IconRelPath = "/apple-icon-192x192.png"   // Chemin relatif de l'icone
-        this._MyServeurApp.ClientAppFolder = "/TestClient"           // Chemin vers le dossier contenant les sources Js et CSS du client
-        this._MyServeurApp.ApiFctToCall = this.ApiCall               // Definition de la fonction a appeler lors d'un appel serveur sur l'api
-        this._MyServeurApp.Start()                                   // Lancement du module corex
+        this._MyServeurApp.Debug = true                                                 // Affichier les message de debug du serveur
+        this._MyServeurApp.AppIsSecured = true                                          // L'application est elle securisee par un login
+        this._MyServeurApp.CSS = CSS                                                    // Css de base de l'application
+        this._MyServeurApp.Usesocketio = false                                          // L'application utilise SocketIo
+        this._MyServeurApp.IconRelPath = "/apple-icon-192x192.png"                      // Chemin relatif de l'icone
+        this._MyServeurApp.ClientAppFolder = "/TestClient"                              // Chemin vers le dossier contenant les sources Js et CSS du client
+        this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this))     // Add serveur api for FctName = test
+        this._MyServeurApp.AddApiFct("TestC", this.TestApiCallForFctTestC.bind(this))   // Add serveur api for FctName = test
+        this._MyServeurApp.Start()                                                      // Lancement du module corex
     }
-    ApiCall(Fct, Data, Res){
-        Res.json({Error: false, ErrorMsg: "API OK", Data: "Fct=" + Fct + " Data=" + Data})
+    TestApiCallForFctTest(Data, Res){
+        this._MyServeurApp.LogAppliInfo("Call de l API User avec la fonction Test")
+        Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct Test=" + Data})
+    }
+    TestApiCallForFctTestC(Data, Res){
+        this._MyServeurApp.LogAppliError("Call de l API User avec la fonction TestC")
+        Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct TestC=" + Data})
     }
 }
-
 
 /** Lancement du serveur */
 let MyServeurApp = new ServeurTestCoreX()

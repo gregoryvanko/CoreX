@@ -15,7 +15,7 @@ class corex {
         this._ClientAppFolderRoot = __dirname
         this._ClientAppFolder = "/Client_CoreX_DefaultApp"
         this._Usesocketio = false
-        this._ApiFctToCall = null
+        this._ApiFctList = []
 
         // Varaible interne MongoDB
         this._MongoLoginClientCollection = "LoginClient"
@@ -59,9 +59,6 @@ class corex {
     set ClientAppFolder(val){
         this._ClientAppFolderRoot = process.cwd()
         this._ClientAppFolder = val
-    }
-    set ApiFctToCall(val){
-        this._ApiFctToCall = val
     }
 
     /* Start du Serveur de l'application */
@@ -160,16 +157,15 @@ class corex {
             if (Continue) {
                 // Analyse de la logincollection en fonction du site
                 switch (req.body.FctName) {
-                    case "test":
+                    case "coucou":
                         res.json({Error: true, ErrorMsg:"No API for FctName: " + req.body.FctName})
                         break
                     default:
-                        if (me._ApiFctToCall != null) {
-                            me._ApiFctToCall(req.body.FctName, req.body.FctData, res)
-                        } else {
-                            me.LogAppliError(" => No ApiFctToCall defined for CoreX")
-                            res.json({Error: true, ErrorMsg:"No ApiFctToCall defined"})
-                        }
+                        me._ApiFctList.forEach(element => {
+                            if (element.FctName == req.body.FctName){
+                                element.Fct(req.body.FctData, res)
+                            }
+                        })
                         break
                 }
             }
@@ -383,6 +379,13 @@ class corex {
         }
         let Mongo = require('./Mongo.js').Mongo
         Mongo.CollectionExist(this._MongoLoginAdminCollection, this._MongoUrl, this._MongoDbName, DoneCallback, ErrorCallback)
+    }
+    /** Ajout d'un fonction a gerer via l'API user */
+    AddApiFct(FctName, Fct){
+        let apiobject = new Object()
+        apiobject.FctName = FctName
+        apiobject.Fct = Fct
+        this._ApiFctList.push(apiobject)
     }
 
     /* Generation du fichier HTML de base de l'application cliente securisée */
