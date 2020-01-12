@@ -430,35 +430,35 @@ class corex {
                 height:100%;
             }
         </style>`
-        let GlobalCallAPI = `
-        function GlobalCallAPI(FctName, FctData, CallBack, ErrCallBack){
-            var xhttp = new XMLHttpRequest()
+        let GlobalCallApiPromise = `
+        function GlobalCallApiPromise(FctName, FctData){
+            return new Promise((resolve, reject)=>{
+                var xhttp = new XMLHttpRequest()
                 xhttp.onreadystatechange = function() {
                     if (this.readyState == 4 && this.status == 200) {
                         let reponse = JSON.parse(this.responseText)
                         if (reponse.Error) {
-                            console.log('GlobalCallAPI Error : ' + reponse.ErrorMsg)
-                            ErrCallBack(reponse.ErrorMsg)
+                            console.log('GlobalCallApiPromise Error : ' + reponse.ErrorMsg)
+                            reject(reponse.ErrorMsg)
                         } else {
-                            if (CallBack != null){
-                                CallBack(reponse.Data)
-                            }
+                            resolve(reponse.Data) 
                         }
                     } else if (this.readyState == 4 && this.status != 200){
-                        ErrCallBack(this.response)
+                        reject(this.response)
                     }
                 }
-                xhttp.open("POST", "api", true)
+                xhttp.open("POST", "`+ apiurl +`", true)
                 xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-                xhttp.send(JSON.stringify({FctName:FctName, FctData:FctData}))
-        }` 
+                xhttp.send(JSON.stringify({Token:MyCoreXLoader.GetTokenLogin(), FctName:FctName, FctData:FctData}))
+            })
+        }`
         let CSS = `
         <style id="CodeCSS">
         ` + MyApp.CSS + `
         </style>`
         let JS = `
-        <script id="CodeJS" type="text/javascript">
-        ` + GlobalCallAPI +`
+        <script id="CodeJS" type="text/javascript"> 
+        ` + GlobalCallApiPromise +`
         ` + MyApp.JS + `
         </script>`
         let HTMLEnd = ` 
@@ -522,25 +522,27 @@ class corex {
         let CoreXLoginJsScript = fs.readFileSync(__dirname + "/Client_CoreX_Login.js", 'utf8')
         
         let apiurl = (Site == "admin") ? "apiadmin" : "api"
-        let GlobalCallAPI = `
-            function GlobalCallAPI(FctName, FctData, CallBack, ErrCallBack){
-                var xhttp = new XMLHttpRequest()
+        let GlobalCallApiPromise = `
+            function GlobalCallApiPromise(FctName, FctData){
+                return new Promise((resolve, reject)=>{
+                    var xhttp = new XMLHttpRequest()
                     xhttp.onreadystatechange = function() {
                         if (this.readyState == 4 && this.status == 200) {
                             let reponse = JSON.parse(this.responseText)
                             if (reponse.Error) {
-                                console.log('GlobalCallAPI Error : ' + reponse.ErrorMsg)
-                                ErrCallBack(reponse.ErrorMsg)
+                                console.log('GlobalCallApiPromise Error : ' + reponse.ErrorMsg)
+                                reject(reponse.ErrorMsg)
                             } else {
-                                CallBack(reponse.Data)
+                                resolve(reponse.Data) 
                             }
                         } else if (this.readyState == 4 && this.status != 200){
-                            ErrCallBack(this.response)
+                            reject(this.response)
                         }
                     }
                     xhttp.open("POST", "`+ apiurl +`", true)
                     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
                     xhttp.send(JSON.stringify({Token:MyCoreXLoader.GetTokenLogin(), FctName:FctName, FctData:FctData}))
+                })
             }`
 
         let HTML2 = `</script>`
@@ -561,7 +563,7 @@ class corex {
     <body>
     </body>
 </html>`
-        return HTMLStart + SocketIO + HTML1 + CoreXLoaderJsScript + os.EOL + CoreXLoginJsScript + os.EOL + GlobalCallAPI + os.EOL + HTML2 + LoadScript + HTMLEnd
+        return HTMLStart + SocketIO + HTML1 + CoreXLoaderJsScript + os.EOL + CoreXLoginJsScript + os.EOL + GlobalCallApiPromise + os.EOL + HTML2 + LoadScript + HTMLEnd
     }
 
     /* Verification du login */

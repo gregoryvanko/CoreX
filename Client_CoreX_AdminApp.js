@@ -80,7 +80,11 @@ class CoreXAdminApp{
         this._MyCoreXActionButton.AddAction("Add User", this.LoadViewCallForNewUser.bind(this))
         // Get All user
         let Dataofcall = (this._ClickOnAdminBox) ? "Admin" : "User"
-        GlobalCallAPI("GetAllUser", Dataofcall , this.LoadUserList.bind(this), this.CallBackErrorLoadUserList.bind(this))
+        GlobalCallApiPromise("GetAllUser", Dataofcall).then((reponse)=>{
+            this.LoadUserList(reponse)
+        },(erreur)=>{
+            document.getElementById("ListOfUser").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+        })
     }
     /* Load de la vue contenant la liste de tous les users */
     LoadUserList(Users){
@@ -114,10 +118,6 @@ class CoreXAdminApp{
             }
         }
     }
-    /* callback error Load list of user */
-    CallBackErrorLoadUserList(error){
-        document.getElementById("ListOfUser").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
-    }
     /** Load de la vue qui structure l'ajout d'un nouveau user */
     LoadViewCallForNewUser(){
         this.ClearView()
@@ -137,7 +137,15 @@ class CoreXAdminApp{
         // Data for the api Call
         let UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
         // Call Get user data
-        GlobalCallAPI("GetUserDataStructure", UserType, this.LoadUserDataStrucutre.bind(this), this.CallBackErrorLoadUserDataStructure.bind(this))
+        GlobalCallApiPromise("GetUserDataStructure", UserType).then((reponse)=>{
+            this.LoadUserDataStrucutre(reponse)
+        },(erreur)=>{
+            // Ajout des des action a ActionButton
+            this._MyCoreXActionButton.ClearActionList()
+            this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+            this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
+            document.getElementById("ListOfUserDataStructure").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+        })
     }
     /* Load de la vue montrant la strucutre des donnes d'un user */
     LoadUserDataStrucutre(Data){
@@ -147,14 +155,6 @@ class CoreXAdminApp{
             reponse += this.UserDataBuilder(element, "")
         })
         document.getElementById("ListOfUserDataStructure").innerHTML = reponse
-    }
-    /* CallBack error du load de la structure des data d'un user */
-    CallBackErrorLoadUserDataStructure(error){
-        // Ajout des des action a ActionButton
-        this._MyCoreXActionButton.ClearActionList()
-        this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
-        this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
-        document.getElementById("ListOfUserDataStructure").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
     }
     /* Load de la vue qui structure la liste des donnees d'un user */
     LoadViewCallForUserData(UserId){
@@ -178,7 +178,15 @@ class CoreXAdminApp{
         DataCall.UsesrId = UserId
         DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
         // Call Get user data
-        GlobalCallAPI("GetUserData", DataCall, this.LoadUserData.bind(this), this.CallBackErrorLoadUserData.bind(this))
+        GlobalCallApiPromise("GetUserData", DataCall).then((reponse)=>{
+            this.LoadUserData(reponse)
+        },(erreur)=>{
+            // Ajout des des action a ActionButton
+            this._MyCoreXActionButton.ClearActionList()
+            this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+            this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
+            document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+        })
     }
     /* Load de la vue montrant les donnes d'un user */
     LoadUserData(Data){
@@ -223,14 +231,6 @@ class CoreXAdminApp{
         }
         return reponse
     }
-    /* CallBack error du load des data d'un user */
-    CallBackErrorLoadUserData(error){
-        // Ajout des des action a ActionButton
-        this._MyCoreXActionButton.ClearActionList()
-        this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
-        this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
-        document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
-    }
     /** Save d'un nouveau user */
     SaveNewUser(){
         document.getElementById("ErrorOfUserDataStructure").innerHTML= ""
@@ -265,20 +265,16 @@ class CoreXAdminApp{
             // afficher le message d'update
             document.getElementById("ListOfUserDataStructure").innerHTML='<div class="Text">Saving user...</div>'
             // Call delete user
-            GlobalCallAPI("NewUser", DataCall, this.CallBackSaveNewUser.bind(this), this.CallBackErrorSaveNewUser.bind(this))
+            GlobalCallApiPromise("NewUser", DataCall).then((reponse)=>{
+                this.LoadViewCallForUserList()
+            },(erreur)=>{
+                // Ajout des des action a ActionButton
+                this._MyCoreXActionButton.ClearActionList()
+                this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+                this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
+                document.getElementById("ListOfUserDataStructure").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+            })
         }
-    }
-    /* CallBack de l'ajout d'un nouveau user */
-    CallBackSaveNewUser(){
-        this.LoadViewCallForUserList()
-    }
-    /* CallBack error de l'ajout d'un nouveau user */
-    CallBackErrorSaveNewUser(error){
-        // Ajout des des action a ActionButton
-        this._MyCoreXActionButton.ClearActionList()
-        this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
-        this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
-        document.getElementById("ListOfUserDataStructure").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
     }
     /* Delete d'un user */
     DeleteUser(UserId){
@@ -289,20 +285,16 @@ class CoreXAdminApp{
             DataCall.UsesrId = UserId
             DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
             // Call delete user
-            GlobalCallAPI("DeleteUser", DataCall, this.CallBackDeleteUser.bind(this), this.CallBackErrorDeleteUser.bind(this))
+            GlobalCallApiPromise("DeleteUser", DataCall).then((reponse)=>{
+                this.LoadViewCallForUserList()
+            },(erreur)=>{
+                // Ajout des des action a ActionButton
+                this._MyCoreXActionButton.ClearActionList()
+                this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+                this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
+                document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+            })
         }
-    }
-    /* CallBAck du Delete d'un user */
-    CallBackDeleteUser(){
-        this.LoadViewCallForUserList()
-    }
-    /* CallBack error du Delete d'un user */
-    CallBackErrorDeleteUser(error){
-        // Ajout des des action a ActionButton
-        this._MyCoreXActionButton.ClearActionList()
-        this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
-        this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
-        document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
     }
     /* Update d'un user */
     UpdateUser(UserId){
@@ -329,23 +321,19 @@ class CoreXAdminApp{
             // afficher le message d'update
             document.getElementById("ListOfUserData").innerHTML='<div class="Text">Update du user...</div>'
             // Call delete user
-            GlobalCallAPI("UpdateUser", DataCall, this.CallBackUpdateUser.bind(this), this.CallBackErrorUpdateUser.bind(this))
+            GlobalCallApiPromise("UpdateUser", DataCall).then((reponse)=>{
+                this.LoadViewCallForUserList()
+            },(erreur)=>{
+                // Ajout des des action a ActionButton
+                this._MyCoreXActionButton.ClearActionList()
+                this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+                this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
+                document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+            })
         }
     }
-    /* CallBAck de Update d'un user */
-    CallBackUpdateUser(){
-        this.LoadViewCallForUserList()
-    }
-    /* CallBack error du Delete d'un user */
-    CallBackErrorUpdateUser(error){
-        // Ajout des des action a ActionButton
-        this._MyCoreXActionButton.ClearActionList()
-        this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
-        this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
-        document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
-    }
 
-    /* Load de la vue qui va appeler le serveur pour recevoir la liste des users ou admin */
+    /* Load de la vue qui va appeler le serveur pour recevoir la liste des log */
     LoadViewCallForLog(){
         // Initialisation des variables de type Log
         this._LogCursor = 0
@@ -363,7 +351,14 @@ class CoreXAdminApp{
         // Ajout des des action a ActionButton
         this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
         // Get All Log
-        GlobalCallAPI("GetLog", this._LogCursor , this.LoadLog.bind(this), this.CallBackErrorLoadLog.bind(this))
+        GlobalCallApiPromise("GetLog", this._LogCursor).then((reponse)=>{
+            this.LoadLog(reponse)
+        },(erreur)=>{
+            // Ajout des des action a ActionButton
+            this._MyCoreXActionButton.ClearActionList()
+            this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+            document.getElementById("ListOfLog").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+        })
     }
     /* CallBAck du Load Log */
     LoadLog(Data){
@@ -417,7 +412,14 @@ class CoreXAdminApp{
     GetNextLog(){
         this._LogCursor += 10
         document.getElementById("ButtonNext").innerHTML = "Waiting..."
-        GlobalCallAPI("GetLog", this._LogCursor , this.LoadNextLog.bind(this), this.CallBackErrorLoadLog.bind(this))
+        GlobalCallApiPromise("GetLog", this._LogCursor).then((reponse)=>{
+            this.LoadNextLog(reponse)
+        },(erreur)=>{
+            // Ajout des des action a ActionButton
+            this._MyCoreXActionButton.ClearActionList()
+            this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+            document.getElementById("ListOfLog").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+        })
     }
     /** Load des next log */
     LoadNextLog(Data){
@@ -444,13 +446,6 @@ class CoreXAdminApp{
             })
             document.getElementById("Liste").insertAdjacentHTML('beforeend',reponse)
         }
-    }
-    /** CallBack error du Load Log */
-    CallBackErrorLoadLog(error){
-        // Ajout des des action a ActionButton
-        this._MyCoreXActionButton.ClearActionList()
-        this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
-        document.getElementById("ListOfLog").innerHTML='<div class="Text" style="color:red;">' + error + '</div>'
     }
 
     /*

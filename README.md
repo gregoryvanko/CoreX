@@ -86,17 +86,12 @@ Creation de l'application via une class
             Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct TestC=" + Data})
         }
     }
-
-
-    // Lancement du serveur
-    let MyServeurApp = new ServeurTestCoreX()
-    MyServeurApp.Start() 
     
-Le backend de l'application
+Les fonctions backend de l'application
 
     Pour ajouter une fonction dans l'API du serveur il faut utiliser la fonction serveur AddApiFct(FctName, FctBinded)
     this._MyServeurApp.AddApiFct(FctName, FctBinded)
-        // FctName      : est le nom de la fonction appele via l'API
+        // FctName      : est le nom (string) de la fonction appelee via l'API
         // FctBinded    : est la référence à la fonction a executer sur le serveur lorsque l'on recoit une commande API pour FctName
     
     Pour faire un Log en DB il faut utiliser la fonction serveur LogAppliInfo(Valeur) ou LogAppliError(Valeur)
@@ -108,17 +103,18 @@ Le backend de l'application
 
 Le frontend client de l'application
 
-    Les fichiers JS et CSS du frontend client de l'application doivent se trouver sous répertoire défini par la variable "ClientAppFolder"
+    Les fichiers JS et CSS du frontend client de l'application doivent se trouver sous répertoire défini par la variable "ClientAppFolder".
 
+    Voici les fonctions "globale" pour le frontend client de l'application
 
-Fonction globale pour le client de l'application
-
+    /** Logout de l'application securisée */
     GlobalLogout()
-        // Logout de l'application securisée
 
-    GlobalCallAPI(FctName, FctData, CallBack, ErrCallBack)
-        // Appel à l'Api du serveur
-        // FctName :        le nom de la fonction a executer
-        // FctData :        les donnes a passer à la fonction
-        // CallBack :       la fonction a executer en retour de l'appel à l'API
-        // ErrCallBack :    la fonction executer si il y a une erreur sur l'API
+    /** Appel à l'Api du serveur */
+    // FctName :        le nom de la fonction a executer
+    // FctData :        les donnes a passer à la fonction
+    GlobalCallApiPromise(FctName, FctData).then((reponse)=>{
+        alert(reponse)
+    },(erreur)=>{
+        alert(erreur)
+    })

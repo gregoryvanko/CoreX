@@ -8,16 +8,18 @@ class TestCoreXApp{
         this._MyCoreXActionButton.Start()
     }
     ClickTestButton(){
-        GlobalCallAPI("Test", "TestDataGreg", this.CallBackTestApi.bind(this), this.ErrCallBackTestApi.bind(this))
+        GlobalCallApiPromise("Test", "TestDataGreg").then((reponse)=>{
+            alert(reponse)
+        },(erreur)=>{
+            alert(erreur)
+        })
     }
     ClickTestCButton(){
-        GlobalCallAPI("TestC", "TestData for Fct C", this.CallBackTestApi.bind(this), this.ErrCallBackTestApi.bind(this))
-    }
-    CallBackTestApi(Data){
-        alert(Data)
-    }
-    ErrCallBackTestApi(Data){
-        alert(Data)
+        GlobalCallApiPromise("TestC", "TestData for Fct C").then((reponse)=>{
+            alert(reponse)
+        },(erreur)=>{
+            alert(erreur)
+        })
     }
 }
 
