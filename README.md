@@ -1,6 +1,6 @@
 # CoreX
 
-A Node.js package part of CoreX.
+A Node.js package building the core of a secured application with an administration app.
 
 ## Usage
 
@@ -16,7 +16,7 @@ Créer un fichier "App.js" qui contiendra le code de démarrage du module.
     /*--------------------------------------*/
     let corex = require('@gregvanko/corex').corex
     let MyApp = new corex()
-    MyApp.Start() // Lancement du module corex
+    MyApp.Start() // Lancement de l'application
 
 
 Option du constructeur de CoreX
@@ -37,9 +37,9 @@ Option du constructeur de CoreX
 
 Creation de l'application via une class
 
-    /*--------------------------------------------*/
-    /* Creation de l'appli via CoreX et une class */
-    /*--------------------------------------------*/
+    /*-------------------------------------------------*/
+    /* Creation de l'appli via CoreX et dans une class */
+    /*-------------------------------------------------*/
     class ServeurTestCoreX{
         constructor(){
             // Creation de l'application CoreX
@@ -56,15 +56,15 @@ Creation de l'application via une class
             // Parametres de l'application CoreX
             const CSS= {
                 FontSize:{
-                    TexteNomrale:"1.5vw",               //--CoreX-font-size
-                    TexteIphone:"3vw",                  //--CoreX-Iphone-font-size
-                    TexteMax:"18px",                    //--CoreX-Max-font-size
-                    TitreNormale:"4vw",                 //--CoreX-Titrefont-size
-                    TitreIphone:"7vw",                  //--CoreX-TitreIphone-font-size
-                    TitreMax:"50px"                     //--CoreX-TitreMax-font-size
+                    TexteNomrale:"1.5vw",           //--CoreX-font-size
+                    TexteIphone:"3vw",              //--CoreX-Iphone-font-size
+                    TexteMax:"18px",                //--CoreX-Max-font-size
+                    TitreNormale:"4vw",             //--CoreX-Titrefont-size
+                    TitreIphone:"7vw",              //--CoreX-TitreIphone-font-size
+                    TitreMax:"50px"                 //--CoreX-TitreMax-font-size
                 },
                 Color:{
-                    Normale:"rgb(20, 163, 255)"         //--CoreX-color
+                    Normale:"rgb(20, 163, 255)"     //--CoreX-color
                 }
             }
             this._MyServeurApp.Debug = true                                                 // Affichier les message de debug du serveur
@@ -73,8 +73,8 @@ Creation de l'application via une class
             this._MyServeurApp.Usesocketio = false                                          // L'application utilise SocketIo
             this._MyServeurApp.IconRelPath = "/apple-icon-192x192.png"                      // Chemin relatif de l'icone
             this._MyServeurApp.ClientAppFolder = "/TestClient"                              // Chemin vers le dossier contenant les sources Js et CSS du client
-            this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this))     // Add serveur api for FctName = test
-            this._MyServeurApp.AddApiFct("TestC", this.TestApiCallForFctTestC.bind(this))   // Add serveur api for FctName = test
+            this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this))     // Add serveur api for FctName = Test
+            this._MyServeurApp.AddApiFct("TestC", this.TestApiCallForFctTestC.bind(this))   // Add serveur api for FctName = TestC
             this._MyServeurApp.Start()                                                      // Lancement du module corex
         }
         TestApiCallForFctTest(Data, Res){
@@ -90,11 +90,14 @@ Creation de l'application via une class
 Les fonctions backend de l'application
 
     Pour ajouter une fonction dans l'API du serveur il faut utiliser la fonction serveur AddApiFct(FctName, FctBinded)
+    
     this._MyServeurApp.AddApiFct(FctName, FctBinded)
         // FctName      : est le nom (string) de la fonction appelee via l'API
         // FctBinded    : est la référence à la fonction a executer sur le serveur lorsque l'on recoit une commande API pour FctName
     
+    
     Pour faire un Log en DB il faut utiliser la fonction serveur LogAppliInfo(Valeur) ou LogAppliError(Valeur)
+    
     this._MyServeurApp.LogAppliInfo(Valeur)
         // Valeur       : valeur a enregister dans la db en tant que type 'info"
     
