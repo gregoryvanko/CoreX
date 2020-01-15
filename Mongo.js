@@ -16,6 +16,24 @@ class Mongo {
                             DoneCallback(false)
                         }
                     }
+                    client.close()
+                })
+            }
+        })
+    }
+    /* Save (add or update) */
+    static InsertOne(Data, Collection, Url, DbName, DoneCallback, ErrorCallback){
+        let MongoClient = require('mongodb').MongoClient
+        let url = Url+ "/" + DbName
+        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+            if(err) {
+                ErrorCallback(err)
+            }
+            else {
+                const MyCollection = client.db(DbName).collection(Collection)
+                MyCollection.insertOne(Data,function(err, res) {
+                    if (err) ErrorCallback(err)
+                    DoneCallback(res.ops[0])
                 })
                 client.close()
             }
@@ -36,8 +54,8 @@ class Mongo {
                         else {
                             resolve(result) 
                         }
+                        client.close()
                     })
-                    client.close()
                 }
             })
         })
@@ -57,8 +75,8 @@ class Mongo {
                         else {
                             resolve(result) 
                         }
+                        client.close()
                     })
-                    client.close()
                 }
             })
         })
@@ -78,8 +96,8 @@ class Mongo {
                         else {
                             resolve(result) 
                         }
+                        client.close()
                     })
-                    client.close()
                 }
             })
         })
@@ -99,8 +117,8 @@ class Mongo {
                     MyCollection.deleteOne(Query, function(err, result) {
                         if(err) reject(err)
                         else {resolve(result)}
+                        client.close()
                     })
-                    client.close()
                 }
             })
         })
@@ -122,8 +140,8 @@ class Mongo {
                     MyCollection.updateOne(Query, Newvalues, function(err, result) {
                         if(err) reject(err)
                         else {resolve(result)}
+                        client.close()
                     })
-                    client.close()
                 }
             })
         })
@@ -143,8 +161,8 @@ class Mongo {
                         else {
                             resolve(result) 
                         }
+                        client.close()
                     })
-                    client.close()
                 }
             })
         })
@@ -162,109 +180,10 @@ class Mongo {
                     MyCollection.insertOne(Data, function(err, result) {
                         if(err) reject(err)
                         else {resolve(result)}
+                        client.close()
                     })
-                    client.close()
                 }
             })
-        })
-    }
-
-    /* Find with querry and Projection */
-    static FindQuerryProjection(Querry, Projection, Collection, Url, DbName, DoneCallback, ErrorCallback){
-        let MongoClient = require('mongodb').MongoClient
-        let url = Url+ "/" + DbName
-        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-            if(err) {
-                ErrorCallback(err)
-            }
-            else {
-                const MyCollection = client.db(DbName).collection(Collection)
-                MyCollection.find(Querry,Projection).toArray(function(err, res) {
-                    if (err) ErrorCallback(err)
-                    DoneCallback(res)
-                })
-                client.close()
-            }
-        })
-    }
-
-    /* Save (add or update) */
-    static InsertOne(Data, Collection, Url, DbName, DoneCallback, ErrorCallback){
-        let MongoClient = require('mongodb').MongoClient
-        let url = Url+ "/" + DbName
-        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-            if(err) {
-                ErrorCallback(err)
-            }
-            else {
-                const MyCollection = client.db(DbName).collection(Collection)
-                MyCollection.insertOne(Data,function(err, res) {
-                    if (err) ErrorCallback(err)
-                    DoneCallback(res.ops[0])
-                })
-                client.close()
-            }
-        })
-    }
-
-    /* Find All */
-    static FindAll(Collection, Url, DbName, DoneCallback, ErrorCallback){
-        let MongoClient = require('mongodb').MongoClient
-        let url = Url+ "/" + DbName
-        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-            if(err) {
-                ErrorCallback(err)
-            }
-            else {
-                const MyCollection = client.db(DbName).collection(Collection)
-                MyCollection.find().toArray(function(err, res) {
-                    if (err) ErrorCallback(err)
-                    DoneCallback(res)
-                })
-                client.close()
-            }
-        })
-    }
-
-    /* Update */
-    static UpdateById(Id, Newvalues, Collection, Url, DbName, DoneCallback, ErrorCallback){
-        let MongoClient = require('mongodb').MongoClient
-        let ObjectID = require('mongodb').ObjectID
-        let Query = {"_id": new ObjectID(Id)}   
-        let url = Url+ "/" + DbName
-        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-            if(err) {
-                ErrorCallback(err)
-            }
-            else {
-                const MyCollection = client.db(DbName).collection(Collection)
-                MyCollection.updateOne(Query, Newvalues, function(err, res) {
-                    if (err) ErrorCallback(err)
-                    DoneCallback(res)
-                })
-                client.close()
-            }
-        })
-    }
-
-    /* Delete by Id */
-    static DeleteById(Id, Collection, Url, DbName, DoneCallback, ErrorCallback){
-        let MongoClient = require('mongodb').MongoClient
-        let ObjectID = require('mongodb').ObjectID
-        let Query = {"_id": new ObjectID(Id)}   
-        let url = Url+ "/" + DbName
-        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-            if(err) {
-                ErrorCallback(err)
-            }
-            else {
-                const MyCollection = client.db(DbName).collection(Collection)
-                MyCollection.deleteOne(Query, function(err, res) {
-                    if (err) ErrorCallback(err)
-                    DoneCallback(res)
-                })
-                client.close()
-            }
         })
     }
 }
