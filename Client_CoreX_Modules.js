@@ -61,6 +61,7 @@ class CoreXActionButton{
             Div.appendChild(this.GetTemplateActionImagesButton())
         } else {
             Div.appendChild(this.GetTemplateActionBoutton("Logout", GlobalLogout))
+            Div.appendChild(this.GetTemplateActionBoutton("User Configuration",  CoreXWindowUserConfig.BuildWindow))
         }
         
         CoreXWindow.BuildWindow(Div)
@@ -87,6 +88,7 @@ class CoreXActionButton{
     GetTemplateActionImagesButton(){
         // Bouton Logout sous forme d'image
         const LogoutSvg = "PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgMTAwMCAxMDAwIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMDAwIDEwMDAiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8bWV0YWRhdGE+IFN2ZyBWZWN0b3IgSWNvbnMgOiBodHRwOi8vd3d3Lm9ubGluZXdlYmZvbnRzLmNvbS9pY29uIDwvbWV0YWRhdGE+CjxnPjxwYXRoIGQ9Ik03NTcuNSwxNTIuMWMzMC4xLDIyLDU2LjksNDYuOCw4MC4zLDc0LjZjMjMuNCwyNy44LDQzLjUsNTcuOCw2MC4yLDkwLjFjMTYuNywzMi4zLDI5LjQsNjYuNCwzOC4xLDEwMi40YzguNywzNiwxMy4xLDcyLjYsMTMuMSwxMDkuNmMwLDYzLjgtMTEuOSwxMjMuNy0zNS42LDE3OS42Yy0yMy43LDU1LjktNTUuOSwxMDQuNy05Ni40LDE0Ni4yYy00MC41LDQxLjUtODgsNzQuNS0xNDIuNSw5OC44QzYyMC4xLDk3Ny44LDU2MS43LDk5MCw0OTkuNSw5OTBjLTYxLjYsMC0xMTkuNi0xMi4yLTE3NC4xLTM2LjVjLTU0LjUtMjQuNC0xMDIuMi01Ny4zLTE0My05OC44Yy00MC44LTQxLjUtNzIuOS05MC4zLTk2LjQtMTQ2LjJjLTIzLjQtNTUuOS0zNS4xLTExNS44LTM1LjEtMTc5LjZjMC0zNi40LDQuMi03Mi4xLDEyLjYtMTA3LjFjOC40LTM1LDIwLjItNjguMywzNS42LTk5LjhjMTUuNC0zMS42LDM0LjUtNjEuMSw1Ny4yLTg4LjVjMjIuOC0yNy41LDQ4LjItNTIuMiw3Ni4zLTc0LjFjMTQuNy0xMSwzMC42LTE1LjEsNDcuNy0xMi40YzE3LjEsMi43LDMwLjksMTEuMyw0MS43LDI1LjdjMTAuNywxNC40LDE0LjcsMzAuNSwxMiw0OC40Yy0yLjcsMTcuOC0xMSwzMi4zLTI1LjEsNDMuMmMtNDIuMiwzMS42LTc0LjQsNzAuMy05Ni45LDExNi4zYy0yMi40LDQ2LTMzLjYsOTUuNC0zMy42LDE0OC4yYzAsNDUuMyw4LjQsODgsMjUuMSwxMjguMmMxNi43LDQwLjEsMzkuNiw3NS4xLDY4LjgsMTA1YzI5LjEsMjkuOSw2My4yLDUzLjUsMTAyLjQsNzFjMzkuMSwxNy41LDgwLjgsMjYuMywxMjUsMjYuM2M0NC4yLDAsODUuOC04LjgsMTI1LTI2LjNjMzkuMS0xNy41LDczLjMtNDEuMiwxMDIuNC03MWMyOS4xLTI5LjksNTIuMi02NC45LDY5LjMtMTA1YzE3LjEtNDAuMiwyNS42LTgyLjksMjUuNi0xMjguMmMwLTUzLjUtMTItMTA0LjEtMzYuMS0xNTEuOGMtMjQuMS00Ny43LTU3LjktODctMTAxLjQtMTE3LjljLTE0LjctMTAuMy0yMy42LTI0LjQtMjYuNi00Mi4yYy0zLTE3LjksMC41LTM0LjMsMTAuNS00OS40YzEwLTE0LjQsMjMuOC0yMy4yLDQxLjItMjYuMkM3MjYuNywxMzguMiw3NDIuNywxNDEuOCw3NTcuNSwxNTIuMUw3NTcuNSwxNTIuMXogTTQ5OS41LDUzMS45Yy0xNy40LDAtMzIuMy02LjMtNDQuNy0xOWMtMTIuNC0xMi43LTE4LjYtMjgtMTguNi00NS44Vjc1LjljMC0xNy44LDYuMi0zMy4zLDE4LjYtNDYuM2MxMi40LTEzLDI3LjMtMTkuNiw0NC43LTE5LjZjMTguMSwwLDMzLjMsNi41LDQ1LjcsMTkuNmMxMi40LDEzLDE4LjYsMjguNSwxOC42LDQ2LjN2MzkxLjJjMCwxNy44LTYuMiwzMy4xLTE4LjYsNDUuOEM1MzIuOCw1MjUuNiw1MTcuNiw1MzEuOSw0OTkuNSw1MzEuOUw0OTkuNSw1MzEuOXoiLz48L2c+Cjwvc3ZnPg=="
+        const UserConfigSvg = "PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaWQ9IkxheWVyXzEiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDEyOCAxMjg7IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAxMjggMTI4IiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MHtmaWxsOiM0RjRGNEY7fQoJLnN0MXtmaWxsOiNGRkZGRkY7fQo8L3N0eWxlPjxjaXJjbGUgY2xhc3M9InN0MCIgY3g9IjY0IiBjeT0iNjQiIHI9IjY0Ii8+PHBhdGggY2xhc3M9InN0MSIgZD0iTTc3LjQsNzUuM2MtMi0wLjMtMy40LTEuOS0zLjQtMy45di01LjhjMi4xLTIuMywzLjUtNS4zLDMuOC04LjdsMC4yLTMuMmMxLjEtMC42LDIuMi0yLDIuNy0zLjggIGMwLjctMi41LDAuMS00LjctMS41LTQuOWMtMC4yLDAtMC40LDAtMC43LDBsMC40LTUuOUM3OS42LDMwLjksNzMuMywyNCw2NS4zLDI0aC0yLjVjLTgsMC0xNC4zLDYuOS0xMy44LDE1LjFsMC40LDYgIEM0OS4yLDQ1LDQ5LDQ1LDQ4LjgsNDVjLTEuNiwwLjItMi4yLDIuNC0xLjUsNC45YzAuNSwxLjksMS43LDMuMywyLjgsMy45bDAuMiwzLjFjMC4yLDMuNCwxLjYsNi40LDMuNyw4Ljd2NS44YzAsMi0xLjQsMy42LTMuNCwzLjkgIEM0MS44LDc2LjgsMjcsODMuMiwyNyw5MHYxNGg3NFY5MEMxMDEsODMuMiw4Ni4yLDc2LjgsNzcuNCw3NS4zeiIvPjwvc3ZnPg=="
         var Div = document.createElement("div")
         Div.setAttribute("style","display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; align-content: center;")
         var ButtonLogout = document.createElement("button")
@@ -94,7 +96,13 @@ class CoreXActionButton{
         ButtonLogout.addEventListener("click", ()=>{CoreXWindow.DeleteWindow(); GlobalLogout()})
         ButtonLogout.innerHTML = '<img src="data:image/svg+xml;base64,' + LogoutSvg + '" height="100%" width="100%">'
 
+        var ButtonUserConfig = document.createElement("button")
+        ButtonUserConfig.setAttribute("class", "CoreXActionButtonImageButton")
+        ButtonUserConfig.addEventListener("click", ()=>{CoreXWindow.DeleteWindow(); CoreXWindowUserConfig.BuildWindow()})
+        ButtonUserConfig.innerHTML = '<img src="data:image/svg+xml;base64,' + UserConfigSvg + '" height="100%" width="100%">'
+
         Div.appendChild(ButtonLogout)
+        Div.appendChild(ButtonUserConfig)
         return Div
     }
     /** Get Css du bouton action */
@@ -254,5 +262,251 @@ class CoreXWindow{
     static DeleteWindow() {
         let divWindow = document.getElementById("CoreXWindow")
         divWindow.parentNode.removeChild(divWindow)
+    }
+}
+
+/** Fenetre pour la gestion de la config d'un user */
+class CoreXWindowUserConfig{
+    constructor(){
+    }
+    /** Construction d'un fenetre */
+    static BuildWindow() {
+        var winH = window.innerHeight
+        var divInputScreenTop = (winH/12)  + "px"
+        var divInputScreenMaxHeight = winH - 2*(winH/10)  + "px"
+        var CSS =/*html*/`
+            <style>
+            .Text{font-size: var(--CoreX-font-size);}
+            #CoreXWindowScreen{
+                width:80%;
+                display: block;
+                position: fixed;
+                margin-left: auto;
+                margin-right: auto;
+                left: 0;
+                right: 0;
+                z-index: 10;
+                background-color: white;
+                padding: 10px;
+                border-radius: 10px;
+                border: 2px solid var(--CoreX-color);
+                overflow-y: auto;
+            }
+            .CoreXWindowUserConfigButton{
+                margin: 2% 2% 2% 2%;
+                padding: 1vh;
+                cursor: pointer;
+                border: 1px solid var(--CoreX-color);
+                border-radius: 20px;
+                text-align: center;
+                display: inline-block;
+                font-size: var(--CoreX-font-size);
+                box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7);
+                color: rgb(44,1,21);
+                background: white;
+                outline: none;
+                background-color:white; 
+                width: 20%;
+            }
+            .CoreXWindowUserConfigButton:hover{
+                box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+            }
+            .FlexRowLeftCenter{
+                display: flex;
+                flex-direction: row;
+                justify-content : left;
+                align-items: center;
+                align-content:center;
+            }
+            .InputKey{
+                color: gray; 
+                width:25%; 
+                margin:1%; 
+                text-align:right;
+            }
+            .Input {
+                width: 75%;
+                font-size: var(--CoreX-font-size);
+                padding: 1vh;
+                border: solid 0px #dcdcdc;
+                border-bottom: solid 1px transparent;
+                margin: 1% 0px 1% 0px;
+            }
+            .Input:focus,
+            .Input.focus {
+                outline: none;
+                border: solid 0px #707070;
+                border-bottom-width: 1px;
+                border-color: var(--CoreX-color);
+            }
+            .Input:hover{
+                border-bottom-width: 1px;
+                border-color: var(--CoreX-color);
+            }
+            @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
+            only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
+            screen and (max-width: 700px)
+            {
+                .Text{font-size: var(--CoreX-Iphone-font-size);}
+                #CoreXWindowScreen{width: 90%;}
+                .CoreXWindowUserConfigButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
+                .InputKey {width:25%;}
+                .Input {
+                    width: 70%;
+                    font-size: var(--CoreX-Iphone-font-size);
+                    border-bottom: solid 1px #dcdcdc;
+                }
+            }
+            @media screen and (min-width: 1200px)
+            {
+                .Text{font-size: var(--CoreX-Max-font-size);}
+                #CoreXWindowScreen{width: 1000px;}
+                .CoreXWindowUserConfigButton {font-size: var(--CoreX-Max-font-size); border-radius: 40px; width: 200px;}
+                .Input {font-size: var(--CoreX-Max-font-size);}
+            }
+            </style>`
+
+        var el = document.createElement("div")
+        el.setAttribute("id", "CoreXWindowUserConfig")
+        el.innerHTML = CSS
+
+        var Div1 = document.createElement("div")
+        Div1.setAttribute("style", "display: block; position: fixed; top: 0px; left: 0px; background-color: rgb(230,230,230, 0.8); width: 100%; height: 100%; z-index: 10;")
+        el.appendChild(Div1)
+
+        var Div2 = document.createElement("div")
+        Div2.setAttribute("id", "CoreXWindowScreen")
+        Div2.setAttribute("style","top: " + divInputScreenTop + "; max-height: " + divInputScreenMaxHeight + ";")
+        Div1.appendChild(Div2)
+
+        var DivData = document.createElement("div")
+        DivData.setAttribute("id", "CoreXWindowUserConfigData")
+
+        var DivWaitingText = document.createElement("div")
+        DivWaitingText.setAttribute("id", "CoreXWindowUserConfigWaitingText")
+        DivWaitingText.setAttribute("style","display:flex; flex-direction:column; justify-content:space-around; align-content:center; align-items: center;")
+        DivWaitingText.innerHTML = "Get User Data..."
+        DivData.appendChild(DivWaitingText)
+        
+        Div2.appendChild(DivData)
+
+        var DivErrorTxt = document.createElement("div")
+        DivErrorTxt.setAttribute("id", "ErrorOfMyUserData")
+        DivErrorTxt.setAttribute("class", "Text")
+        DivErrorTxt.setAttribute("style", "color:red; text-align:center;")
+        Div2.appendChild(DivErrorTxt)
+
+        var DivButton = document.createElement("div")
+        DivButton.setAttribute("style","display:flex; flex-direction:row; justify-content:space-around; align-content:center; align-items: center;")
+        
+        var ButtonUpdate = document.createElement("button")
+        ButtonUpdate.setAttribute("id", "ButtonUpdateMyData")
+        ButtonUpdate.setAttribute("class", "CoreXWindowUserConfigButton")
+        ButtonUpdate.setAttribute("style", "display: none;")
+        ButtonUpdate.addEventListener("click", ()=>{CoreXWindowUserConfig.UpdateMyData()})
+        var DivButtonUpdateStruct1 = document.createElement("div")
+        DivButtonUpdateStruct1.setAttribute("style", "display: flex; flex-direction: row; align-items: center; justify-content: center; align-content: center;")
+        ButtonUpdate.appendChild(DivButtonUpdateStruct1)
+        var DivButtonUpdateStruct2 = document.createElement("div")
+        DivButtonUpdateStruct2.innerHTML = "Update"
+        DivButtonUpdateStruct1.appendChild(DivButtonUpdateStruct2)
+
+        var ButtonClose = document.createElement("button")
+        ButtonClose.setAttribute("class", "CoreXWindowUserConfigButton")
+        ButtonClose.addEventListener("click", ()=>{CoreXWindowUserConfig.DeleteWindow()})
+        var DivButtonCloseStruct1 = document.createElement("div")
+        DivButtonCloseStruct1.setAttribute("style", "display: flex; flex-direction: row; align-items: center; justify-content: center; align-content: center;")
+        ButtonClose.appendChild(DivButtonCloseStruct1)
+        var DivButtonCloseStruct2 = document.createElement("div")
+        DivButtonCloseStruct2.innerHTML = "Close"
+        DivButtonCloseStruct1.appendChild(DivButtonCloseStruct2)
+
+        DivButton.appendChild(ButtonUpdate)
+        DivButton.appendChild(ButtonClose)
+        Div2.appendChild(DivButton)
+
+        document.body.appendChild(el)
+
+        // Call Api GetMyData
+        GlobalCallApiPromise("GetMyData", "").then((reponse)=>{
+            CoreXWindowUserConfig.LoadUserData(reponse)
+            document.getElementById("ButtonUpdateMyData").style.display = "inline"
+        },(erreur)=>{
+            document.getElementById("CoreXWindowUserConfigWaitingText").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+        })
+    }
+    /** Suppression de la fenetre */
+    static DeleteWindow() {
+        let divWindow = document.getElementById("CoreXWindowUserConfig")
+        divWindow.parentNode.removeChild(divWindow)
+    }
+    /** Load de la vue montrant les donnes d'un user */
+    static LoadUserData(Data){
+        // Supprimer les proprietés du user a ne pas afficher
+        let UserDataToShow = Data[0]
+        // Creation de la liste HTML des données du user
+        let reponse =""
+        Object.keys(UserDataToShow).forEach(element => {
+            reponse += CoreXWindowUserConfig.UserDataBuilder(element, UserDataToShow[element])
+        })
+        document.getElementById("CoreXWindowUserConfigData").innerHTML = reponse
+    }
+    /** Construcuteur d'un element html pour une Key et une valeur */
+    static UserDataBuilder(Key, Value){
+        let reponse =""
+        switch (Key) {
+            case "Password":
+                // input de type texte
+                reponse = /*html*/`
+                <div class="FlexRowLeftCenter" style="width:90%;">
+                    <div class="Text InputKey">`+ Key.replace("-", " ") + " :" + /*html*/`</div>
+                    <input data-Input="CoreXMyUserDataInput" id="`+ Key + /*html*/`" value="`+ Value + /*html*/`" class="Input" type="password" name="`+ Key + /*html*/`" placeholder=""> 
+                </div>`
+                break
+            case "Confirm-Password":
+                // input de type texte
+                reponse = /*html*/`
+                <div class="FlexRowLeftCenter" style="width:90%;">
+                    <div class="Text InputKey">`+ Key.replace("-", " ") + " :" + /*html*/`</div>
+                    <input data-Input="CoreXMyUserDataInput" id="`+ Key + /*html*/`" value="`+ Value + /*html*/`" class="Input" type="password" name="`+ Key + /*html*/`" placeholder=""> 
+                </div>`
+                break;
+            default:
+                // input de type texte
+                reponse = /*html*/`
+                <div class="FlexRowLeftCenter" style="width:90%;">
+                    <div class="Text InputKey">`+ Key.replace("-", " ") + " :" + /*html*/`</div>
+                    <input data-Input="CoreXMyUserDataInput" id="`+ Key + /*html*/`" value="`+ Value + /*html*/`" class="Input" type="text" name="`+ Key + /*html*/`" placeholder=""> 
+                </div>`
+                break
+        }
+        return reponse
+    }
+    /** Update Data of user */
+    static UpdateMyData(){
+        document.getElementById("ErrorOfMyUserData").innerHTML= ""
+        let InputDataValide = true
+        // selectionner et ajouter tous les input de type CoreXMyUserDataInput
+        let AllData = new Object()
+        let el = document.querySelectorAll('[data-Input="CoreXMyUserDataInput"]')
+        el.forEach(element => {
+            AllData[element.name] = element.value
+        })
+        // verifier si le password = confirm password
+        if(document.getElementById("Password").value != document.getElementById("Confirm-Password").value){
+            InputDataValide = false
+            document.getElementById("ErrorOfMyUserData").innerHTML= "Password not confirmed!"
+        }
+        // Sit tout les input son valide en envoie les data
+        if (InputDataValide){
+            // afficher le message d'update
+            document.getElementById("CoreXWindowUserConfigData").innerHTML='<div class="Text" style="text-align: center;">Update du user...</div>'
+            // Call delete user
+            GlobalCallApiPromise("UpdateMyUser", AllData).then((reponse)=>{
+                CoreXWindowUserConfig.DeleteWindow()
+            },(erreur)=>{
+                document.getElementById("CoreXWindowUserConfigData").innerHTML='<div class="Text" style="color:red; text-align: center;">' + erreur + '</div>'
+            })
+        }
     }
 }

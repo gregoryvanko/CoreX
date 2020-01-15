@@ -133,10 +133,11 @@ class corex {
 		this._Express.post('/api', function(req, res, next){
             me.LogDebug("API Call, FctName: " + req.body.FctName)
             let Continue = false
+            let DecryptTokenReponse = null
             // Si l'application est securisee 
             if (me._AppIsSecured){
                 // validation du Token
-                let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
+                DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
                 if (DecryptTokenReponse.TokenValide){
                     if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoLoginClientCollection){
                         Continue = true
@@ -157,8 +158,25 @@ class corex {
             if (Continue) {
                 // Analyse de la logincollection en fonction du site
                 switch (req.body.FctName) {
-                    case "coucou":
-                        res.json({Error: true, ErrorMsg:"No API for FctName: " + req.body.FctName})
+                    case "GetMyData":
+                        if (DecryptTokenReponse != null) {
+                            me.ApiGetMyData("App",DecryptTokenReponse.TokenData.data.UserData._id, res)
+                        } else {
+                            me.LogAppliError(" => No personal data for application not secured")
+                            res.json({Error: true, ErrorMsg:"No personal data for application not secured"})
+                        }
+                        break
+                    case "UpdateMyUser":
+                        if (DecryptTokenReponse != null) {
+                            let DataCall = new Object()
+                            DataCall.UsesrId = DecryptTokenReponse.TokenData.data.UserData._id
+                            DataCall.UserType = ""
+                            DataCall.Data = req.body.FctData
+                            me.ApiAUpdateUser(DataCall, res)
+                        } else {
+                            me.LogAppliError(" => No personal data for application not secured")
+                            res.json({Error: true, ErrorMsg:"No personal data for application not secured"})
+                        }
                         break
                     default:
                         me._ApiFctList.forEach(element => {
@@ -187,7 +205,7 @@ class corex {
                             me.ApiAdminGetUserData(req.body.FctData, res)
                             break
                         case "UpdateUser":
-                            me.ApiAdminUpdateUser(req.body.FctData, res)
+                            me.ApiAUpdateUser(req.body.FctData, res)
                             break
                         case "DeleteUser":
                             me.ApiAdminDeleteUser(req.body.FctData, res)
@@ -200,6 +218,16 @@ class corex {
                             break
                         case "GetLog":
                             me.ApiAdminGetLog(req.body.FctData, res)
+                            break
+                        case "GetMyData":
+                            me.ApiGetMyData("Admin",DecryptTokenReponse.TokenData.data.UserData._id, res)
+                            break
+                        case "UpdateMyUser":
+                            let DataCall = new Object()
+                            DataCall.UsesrId = DecryptTokenReponse.TokenData.data.UserData._id
+                            DataCall.UserType = "Admin"
+                            DataCall.Data = req.body.FctData
+                            me.ApiAUpdateUser(DataCall, res)
                             break
                         default:
                             me.LogAppliError(" => No API Admin for FctName: " + req.body.FctName)
@@ -820,36 +848,6 @@ class corex {
             res.json({Error: true, ErrorMsg: "DB Error", Data: null})
         })
     }
-    /* Update d'un user via l'ApiAdmin */
-    ApiAdminUpdateUser(Data, res){
-        this.LogAppliInfo("Call API Admin, FctName: UpdateUser, Data: " + JSON.stringify(Data))
-        // Require pour Mongo
-        let Mongo = require('./Mongo.js').Mongo
-        // Définition de la collection de Mongo en fonction du type de user
-        let mongocollection =""
-        if (Data.UserType == "Admin") {
-            mongocollection = this._MongoLoginAdminCollection
-        } else {
-            mongocollection = this._MongoLoginClientCollection
-        }
-        // changement du password que si il est different de vide
-        if (Data.Data[this._MongoLoginPassItem] == ""){
-            delete Data.Data[this._MongoLoginPassItem]
-            delete Data.Data[this._MongoLoginConfirmPassItem]
-        }
-        // Update de type Promise de Mongo
-         Mongo.UpdateByIdPromise(Data.UsesrId, Data.Data, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
-            if (reponse.matchedCount==1) {
-                res.json({Error: false, ErrorMsg: "User Updated in DB", Data: null})
-            } else {
-                this.LogAppliError("User not found in DB")
-                res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
-            }
-        },(erreur)=>{
-            this.LogAppliError("ApiAdminUpdateUser DB error : " + erreur)
-            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
-        })
-    }
     /** Get de la structure d'un user */
     ApiAdminGetUserDataStructure(Data, res){
         this.LogAppliInfo("Call API Admin, FctName: GetUserDataStructure, Data: " + Data)
@@ -906,6 +904,71 @@ class corex {
         },(erreur)=>{
             this.LogAppliError("ApiAdminGetAllUsers DB error : " + erreur)
             res.json({Error: true, ErrorMsg: "DB Error", Data: ""})
+        })
+    }
+
+    /** Get My Data of a connected user (meme fonction pour Api et ApiAdmin) */
+    ApiGetMyData(App, Id, res){
+        this.LogAppliInfo("Call API Admin, FctName: ApiGetMyData, Data: App=" + App + " Id="+Id)
+        // Require pour Mongo
+        let Mongo = require('./Mongo.js').Mongo
+        let MongoObjectId = require('./Mongo.js').MongoObjectId
+        // Définition de la collection de Mongo en fonction du type de user
+        let mongocollection =""
+        if (App == "Admin") {
+            mongocollection = this._MongoLoginAdminCollection
+        } else {
+            mongocollection = this._MongoLoginClientCollection
+        }
+        // Definition de la Query de Mongo
+        const Query = {'_id': new MongoObjectId(Id)}
+        // Definition de la projection de Mongo en fonction du type de user
+        let Projection = { projection:{ _id: 0}}
+        // Find de type Promise de Mongo
+        Mongo.FindPromise(Query,Projection, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+            if(reponse.length == 0){
+                this.LogAppliError("Wrong User Id")
+                res.json({Error: true, ErrorMsg: "Wrong User Id", Data: null})
+            } else {
+                // les password sont effacés de la réponse
+                reponse[0][this._MongoLoginPassItem]=""
+                reponse[0][this._MongoLoginConfirmPassItem]=""
+                // la reponse est envoyée
+                res.json({Error: false, ErrorMsg: "User data in DB", Data: reponse})
+            }
+        },(erreur)=>{
+            this.LogAppliError("ApiAdminGetUserData DB error : " + erreur)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+        })
+    }
+    /* Update d'un user (meme fonction pour Api et ApiAdmin) */
+    ApiAUpdateUser(Data, res){
+        this.LogAppliInfo("Call API "+ Data.UserType + ", FctName: UpdateUser, Data: " + JSON.stringify(Data))
+        // Require pour Mongo
+        let Mongo = require('./Mongo.js').Mongo
+        // Définition de la collection de Mongo en fonction du type de user
+        let mongocollection =""
+        if (Data.UserType == "Admin") {
+            mongocollection = this._MongoLoginAdminCollection
+        } else {
+            mongocollection = this._MongoLoginClientCollection
+        }
+        // changement du password que si il est different de vide
+        if (Data.Data[this._MongoLoginPassItem] == ""){
+            delete Data.Data[this._MongoLoginPassItem]
+            delete Data.Data[this._MongoLoginConfirmPassItem]
+        }
+        // Update de type Promise de Mongo
+         Mongo.UpdateByIdPromise(Data.UsesrId, Data.Data, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+            if (reponse.matchedCount==1) {
+                res.json({Error: false, ErrorMsg: "User Updated in DB", Data: null})
+            } else {
+                this.LogAppliError("User not found in DB")
+                res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
+            }
+        },(erreur)=>{
+            this.LogAppliError("ApiAUpdateUser DB error : " + erreur)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
         })
     }
 }
