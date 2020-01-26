@@ -129,3 +129,14 @@ Le frontend client de l'application
     DownProg(event){
         console.log("Down => Loaded: " + event.loaded + " Total: " +event.total)
     }
+
+Les modules disponible
+
+    //** Action Button en haut a droite de l'écran */
+    // Creation du boutton
+    var GlobalActionButton = new CoreXActionButton()
+    GlobalActionButton.Start()
+    // Clear de la liste des Action
+    GlobalActionButton.ClearActionList()
+    // Add d'une action
+    GlobalActionButton.AddAction(Titre, Fct)
