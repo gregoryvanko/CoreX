@@ -122,6 +122,7 @@ class CoreXActionButton{
             color: rgb(44,1,21);
             background: white;
             outline: none;
+            height: 5%;
         }
         .CoreXActionButtonButton:hover{
             box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
@@ -148,6 +149,8 @@ class CoreXActionButton{
             opacity: 0;
             transition: opacity 0.5s linear;
             cursor: pointer;
+            height: 5VW;
+            width: 5VW;
         }
         .CoreXActionMenuButton:hover,
         .CoreXActionMenuButton:active{opacity: 1;}
@@ -155,9 +158,9 @@ class CoreXActionButton{
         only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
         screen and (max-width: 700px)
         {
-            .CoreXActionButtonButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
+            .CoreXActionButtonButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px; height: 12VW;}
             .CoreXActionButtonImageButton{width:10%;}
-            .CoreXActionMenuButton{font-size: var(--CoreX-Iphone-font-size);}
+            .CoreXActionMenuButton{font-size: var(--CoreX-Iphone-font-size);height: 10VW; width: 10VW;}
         }
         @media screen and (min-width: 1200px)
         {
@@ -224,7 +227,7 @@ class CoreXWindow{
             screen and (max-width: 700px)
             {
                 #CoreXWindowScreen{width: 90%;}
-                .CoreXWindowCloseButton{width:5%;}
+                .CoreXWindowCloseButton{width:10%;}
             }
             @media screen and (min-width: 1200px)
             {
@@ -350,9 +353,9 @@ class CoreXWindowUserConfig{
                 .Text{font-size: var(--CoreX-Iphone-font-size);}
                 #CoreXWindowScreen{width: 90%;}
                 .CoreXWindowUserConfigButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
-                .InputKey {width:25%;}
+                .InputKey {width:30%;}
                 .Input {
-                    width: 70%;
+                    width: 65%;
                     font-size: var(--CoreX-Iphone-font-size);
                     border-bottom: solid 1px #dcdcdc;
                 }

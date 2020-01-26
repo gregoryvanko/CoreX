@@ -123,10 +123,14 @@ class CoreXAdminApp{
         this.ClearView()
         let View = /*html*/`
         <div id="Titre" style="margin-top:4%">New user</div>
-        <div id="ListOfUserDataStructure" class="FlexColumnCenterSpaceAround">
+        <div id="ListOfUserDataStructure" class="FlexColumnCenterSpaceAround DivListOfUserData">
             <div class="Text">Get data structure for user...</div>
         </div>
-        <div id="ErrorOfUserDataStructure" class="Text" style="color:red; text-align:center;"></div>`
+        <div id="ErrorOfUserDataStructure" class="Text" style="color:red; text-align:center;"></div>
+        <div class="DivListOfUserData" style="display:flex; flex-direction:row; justify-content:space-around; align-content:center; align-items: center;">
+            <button id="ButtonSave" class="Button" style="display: none;">Save</button>
+            <button id="ButtonCancel" class="Button" style="display: none;">Cancel</button>
+        </div>`
 
         // Ajout de la vue
         this.SetView(View)
@@ -134,6 +138,9 @@ class CoreXAdminApp{
         this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
         this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
         this._MyCoreXActionButton.AddAction("Save User", this.SaveNewUser.bind(this))
+        // ajout event onclick
+        ButtonSave.onclick = this.SaveNewUser.bind(this)
+        ButtonCancel.onclick = this.LoadViewCallForUserList.bind(this)
         // Data for the api Call
         let UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
         // Call Get user data
@@ -155,16 +162,22 @@ class CoreXAdminApp{
             reponse += this.UserDataBuilder(element, "")
         })
         document.getElementById("ListOfUserDataStructure").innerHTML = reponse
+        document.getElementById("ButtonSave").style.display = "inline"
+        document.getElementById("ButtonCancel").style.display = "inline"
     }
     /* Load de la vue qui structure la liste des donnees d'un user */
     LoadViewCallForUserData(UserId){
         this.ClearView()
         let View = /*html*/`
         <div id="Titre" style="margin-top:4%">User information</div>
-        <div id="ListOfUserData" class="FlexColumnCenterSpaceAround">
+        <div id="ListOfUserData" class="FlexColumnCenterSpaceAround DivListOfUserData">
             <div class="Text">Get data of user...</div>
         </div>
-        <div id="ErrorOfUserData" class="Text" style="color:red; text-align:center;"></div>`
+        <div id="ErrorOfUserData" class="Text" style="color:red; text-align:center;"></div>
+        <div class="DivListOfUserData" style="display:flex; flex-direction:row; justify-content:space-around; align-content:center; align-items: center;">
+            <button id="ButtonSave" class="Button" style="display: none;">Save</button>
+            <button id="ButtonCancel" class="Button" style="display: none;">Cancel</button>
+        </div>`
 
         // Ajout de la vue
         this.SetView(View)
@@ -173,6 +186,9 @@ class CoreXAdminApp{
         this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
         this._MyCoreXActionButton.AddAction("Save User", this.UpdateUser.bind(this,UserId))
         this._MyCoreXActionButton.AddAction("Delete User", this.DeleteUser.bind(this,UserId))
+        // ajout event onclick
+        ButtonSave.onclick = this.UpdateUser.bind(this,UserId)
+        ButtonCancel.onclick = this.LoadViewCallForUserList.bind(this)
         // Data for the api Call
         let DataCall = new Object()
         DataCall.UsesrId = UserId
@@ -199,6 +215,8 @@ class CoreXAdminApp{
             reponse += this.UserDataBuilder(element, UserDataToShow[element])
         })
         document.getElementById("ListOfUserData").innerHTML = reponse
+        document.getElementById("ButtonSave").style.display = "inline"
+        document.getElementById("ButtonCancel").style.display = "inline"
     }
     /** Construcuteur d'un element html pour une Key et une valeur */
     UserDataBuilder(Key, Value){
@@ -264,6 +282,8 @@ class CoreXAdminApp{
         if (InputDataValide){ 
             // afficher le message d'update
             document.getElementById("ListOfUserDataStructure").innerHTML='<div class="Text">Saving user...</div>'
+            document.getElementById("ButtonSave").style.display = "none"
+            document.getElementById("ButtonCancel").style.display = "none"
             // Call delete user
             GlobalCallApiPromise("NewUser", DataCall).then((reponse)=>{
                 this.LoadViewCallForUserList()
@@ -280,6 +300,8 @@ class CoreXAdminApp{
     DeleteUser(UserId){
         if (confirm('Are you sure you want to Dete this User?')){
             document.getElementById("ListOfUserData").innerHTML='<div class="Text">Delete du user...</div>'
+            document.getElementById("ButtonSave").style.display = "none"
+            document.getElementById("ButtonCancel").style.display = "none"
             // Data for the api Call
             let DataCall = new Object()
             DataCall.UsesrId = UserId
@@ -320,6 +342,8 @@ class CoreXAdminApp{
         if (InputDataValide){
             // afficher le message d'update
             document.getElementById("ListOfUserData").innerHTML='<div class="Text">Update du user...</div>'
+            document.getElementById("ButtonSave").style.display = "none"
+            document.getElementById("ButtonCancel").style.display = "none"
             // Call delete user
             GlobalCallApiPromise("UpdateUser", DataCall).then((reponse)=>{
                 this.LoadViewCallForUserList()
@@ -494,6 +518,10 @@ class CoreXAdminApp{
                 border-radius: 5px;
                 flex: 0 0 auto;
             }
+            .DivListOfUserData {
+                width: 70%;
+                margin: auto;
+            }
             /* Input */
             .Input {
                 width: 75%;
@@ -585,16 +613,17 @@ class CoreXAdminApp{
                 }
                 .UserConteneur{
                     width: 55vw;
-                    height: 6vw;
+                    height: 15vw;
                     margin: 2%;
                 }
                 .UserImg{max-height: 20vw;}
+                .DivListOfUserData{width: 100%;}
                 .Input {
-                    width: 70%;
+                    width: 65%;
                     font-size: var(--CoreX-Iphone-font-size);
                     border-bottom: solid 1px #dcdcdc;
                 }
-                .InputKey {width:25%;}
+                .InputKey {width:30%;}
                 .Button{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
             }
             @media screen and (min-width: 1200px)
@@ -610,6 +639,7 @@ class CoreXAdminApp{
                     height: 50px;
                 }
                 .UserImg{max-height: 120px;}
+                .DivListOfUserData{width: 800px;}
                 .Input {font-size: var(--CoreX-Max-font-size);}
                 .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
             }
