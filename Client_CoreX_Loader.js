@@ -142,6 +142,36 @@ class CoreXLoader {
                     color: red;
                     font-size: var(--CoreX-font-size);
                 }
+                .meter { 
+                    width: 50%;
+                    height: 1vh;  /* Can be anything */
+                    position: relative;
+                    background: #555;
+                    -moz-border-radius: 25px;
+                    -webkit-border-radius: 25px;
+                    border-radius: 25px;
+                    padding: 5px;
+                    box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
+                }
+                .meter > span {
+                    display: block;
+                    height: 100%;
+                    border-top-right-radius: 8px;
+                    border-bottom-right-radius: 8px;
+                    border-top-left-radius: 20px;
+                    border-bottom-left-radius: 20px;
+                    background-color: rgb(43,194,83);
+                    background-image: linear-gradient(
+                        center bottom,
+                        rgb(43,194,83) 37%,
+                        rgb(84,240,84) 69%
+                    );
+                    box-shadow: 
+                        inset 0 2px 9px  rgba(255,255,255,0.3),
+                        inset 0 -2px 6px rgba(0,0,0,0.4);
+                    position: relative;
+                    overflow: hidden;
+                }
                 @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
                 only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
                 screen and (max-width: 700px)
@@ -155,8 +185,11 @@ class CoreXLoader {
                     .LoadingError{font-size: var(--CoreX-Max-font-size);}
                 }
             </style>
-            <div style="display: flex; flex-direction: column; justify-content:space-between; align-content:center; align-items: center;">
+            <div style="height: 50vh; display: flex; flex-direction: column; justify-content:center; align-content:center; align-items: center;">
                 <div style="margin: 1%;" class="Loadingtext">Loading App...</div>
+                <div class="meter">
+                    <span id="ProgressBar" style="width: 0%"></span>
+                </div>
                 <div id="LoadingErrorMsg" class="LoadingError"></div>
             </div>`
         document.body.innerHTML = LoadingText
@@ -174,8 +207,6 @@ class CoreXLoader {
                     localStorage.removeItem(me._DbKeyLogin)
                 } else {
                     console.log('App Loaded')
-                    // effacer le contenu du body
-                    document.body.innerHTML = ""
                     // Load de l'application CSS
                     var CSS = document.createElement('style')
                     CSS.type = 'text/css'
@@ -187,12 +218,22 @@ class CoreXLoader {
                     JS.type = 'text/javascript'
                     JS.id = 'CodeJs'
                     JS.innerHTML = reponse.CodeAppJS
-                    document.getElementsByTagName('head')[0].appendChild(JS)
+                    // Timeout de 500 milisec entre la fin de la progressbar et le load de l'application
+                    setTimeout(function() {
+                        // effacer le contenu du body
+                        document.body.innerHTML = ""
+                        // Lancement du javascript de l'application
+                        document.getElementsByTagName('head')[0].appendChild(JS)
+                    }, 100)
                 }
             } else if (this.readyState == 4 && this.status != 200) {
                 document.getElementById("LoadingErrorMsg").innerHTML = this.response;
             }
         } 
+        xhttp.onprogress = function (event) {
+            let pourcent = Math.round((event.loaded / event.total)* 100)
+            document.getElementById("ProgressBar").style.width = pourcent+"%"
+        }
         xhttp.open("POST", "loadApp", true)
         xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
         xhttp.send(JSON.stringify({Site:me._Site, Token:me.GetTokenLogin()})) 

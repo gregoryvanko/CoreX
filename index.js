@@ -394,15 +394,14 @@ class corex {
             if(Data){
                 this.LogDebug("La collection suivante existe : " + this._MongoLoginAdminCollection)
             } else {
-                // creation de la collection
-                let ErrorCallbackCreate= (err)=>{
-                    this.LogDebug("ErrorCallbackCreate")
-                    throw new Error('Erreur lors de la creation du User Admin de la collection Login de la db: ' + err)
-                }
-                let DoneCallbackCreate = ()=>{this.LogDebug("Creation de la collection : " + this._MongoLoginAdminCollection)}
                 const DataToDb = { [this._MongoLoginUserItem]: "Admin", [this._MongoLoginFirstNameItem]: "Admin First Name", [this._MongoLoginLastNameItem]: "Admin Last Name", [this._MongoLoginPassItem]: "Admin", [this._MongoLoginConfirmPassItem]: "Admin"}
                 let Mongo = require('./Mongo.js').Mongo
-                Mongo.InsertOne(DataToDb, this._MongoLoginAdminCollection, this._MongoUrl, this._MongoDbName, DoneCallbackCreate, ErrorCallbackCreate)
+                Mongo.InsertOnePromise(DataToDb, this._MongoLoginAdminCollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+                    this.LogDebug("Creation de la collection : " + this._MongoLoginAdminCollection)
+                },(erreur)=>{
+                    this.LogDebug("Error Insert temp user admin in collection Login Admin")
+                    throw new Error('Erreur lors de la creation du User Admin de la collection Admin de la db: ' + erreur)
+                })
             }
         }
         let Mongo = require('./Mongo.js').Mongo
@@ -459,7 +458,7 @@ class corex {
             }
         </style>`
         let GlobalCallApiPromise = `
-        function GlobalCallApiPromise(FctName, FctData){
+        function GlobalCallApiPromise(FctName, FctData, UploadProgress, DownloadProgress){
             return new Promise((resolve, reject)=>{
                 var xhttp = new XMLHttpRequest()
                 xhttp.onreadystatechange = function() {
@@ -474,6 +473,14 @@ class corex {
                     } else if (this.readyState == 4 && this.status != 200){
                         reject(this.response)
                     }
+                }
+                xhttp.onprogress = function (event) {
+                    if(DownloadProgress){DownloadProgress(event)}
+                    //console.log("Download => Loaded: " + event.loaded + " Total: " +event.total)
+                }
+                xhttp.upload.onprogress= function (event){
+                    if(UploadProgress){UploadProgress(event)}
+                    //console.log("Upload => Loaded: " + event.loaded + " Total: " + event.total)
                 }
                 xhttp.open("POST", "`+ apiurl +`", true)
                 xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
@@ -551,7 +558,7 @@ class corex {
         
         let apiurl = (Site == "admin") ? "apiadmin" : "api"
         let GlobalCallApiPromise = `
-            function GlobalCallApiPromise(FctName, FctData){
+            function GlobalCallApiPromise(FctName, FctData, UploadProgress, DownloadProgress){
                 return new Promise((resolve, reject)=>{
                     var xhttp = new XMLHttpRequest()
                     xhttp.onreadystatechange = function() {
@@ -566,6 +573,14 @@ class corex {
                         } else if (this.readyState == 4 && this.status != 200){
                             reject(this.response)
                         }
+                    }
+                    xhttp.onprogress = function (event) {
+                        if(DownloadProgress){DownloadProgress(event)}
+                        //console.log("Download => Loaded: " + event.loaded + " Total: " +event.total)
+                    }
+                    xhttp.upload.onprogress= function (event){
+                        if(UploadProgress){UploadProgress(event)}
+                        //console.log("Upload => Loaded: " + event.loaded + " Total: " + event.total)
                     }
                     xhttp.open("POST", "`+ apiurl +`", true)
                     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")

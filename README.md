@@ -116,8 +116,16 @@ Le frontend client de l'application
     /** Appel à l'Api du serveur */
     // FctName :        le nom de la fonction a executer
     // FctData :        les donnes a passer à la fonction
-    GlobalCallApiPromise(FctName, FctData).then((reponse)=>{
-        alert(reponse)
+    // UpProg :         la fonction a executer lors du Upload Progess
+    // DownProg :       la fonction a executer lors du Download Progress
+    GlobalCallApiPromise(FctName, FctData, this.UpProg.bind(this), this.DownProg.bind(this)).then((reponse)=>{
+        console.log(reponse)
     },(erreur)=>{
-        alert(erreur)
+        console.log(erreur)
     })
+    UpProg(event){
+        console.log("Up => Loaded: " + event.loaded + " Total: " +event.total)
+    }
+    DownProg(event){
+        console.log("Down => Loaded: " + event.loaded + " Total: " +event.total)
+    }

@@ -21,24 +21,6 @@ class Mongo {
             }
         })
     }
-    /* Save (add or update) */
-    static InsertOne(Data, Collection, Url, DbName, DoneCallback, ErrorCallback){
-        let MongoClient = require('mongodb').MongoClient
-        let url = Url+ "/" + DbName
-        MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-            if(err) {
-                ErrorCallback(err)
-            }
-            else {
-                const MyCollection = client.db(DbName).collection(Collection)
-                MyCollection.insertOne(Data,function(err, res) {
-                    if (err) ErrorCallback(err)
-                    DoneCallback(res.ops[0])
-                })
-                client.close()
-            }
-        })
-    }
 
     /* Trouver un element dans la collecrtion:Collection suivant la querry:Querry et la projection:Projection */
     static FindPromise(Querry, Projection, Collection, Url, DbName){
