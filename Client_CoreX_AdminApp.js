@@ -9,7 +9,7 @@ class CoreXAdminApp{
     
     /* Render du corps de la page de l'application */
     RenderSart(){
-        document.body.innerHTML = this.GetCss() + this._MyCoreXActionButton.Rendre() + '<div id="' + this._HtmlIdApp + '"></div>'
+        document.body.innerHTML = this.GetCss() + '<div id="' + this._HtmlIdApp + '"></div>'
         this._MyCoreXActionButton.Start()
         this.LoadViewStart()
     }

@@ -5,20 +5,19 @@ class CoreXActionButton{
         this._ActionList=[]
         this._lastTap = 0
     }
-    /** Affichage du bouton action */
-    Rendre(){
-        let TemplateActionButton = '<button id="'+this._HtmlId+'" class="CoreXActionMenuButton" style="right: 0px; display: inline;">&#9733</button>'
-        return this.GetCss() + TemplateActionButton
-    }
     /** Start de l'action button */
     Start(){
-        if (document.getElementById(this._HtmlId)) {
-            let Button = document.getElementById(this._HtmlId)
-            Button.addEventListener("click", this.OnClickCoreXActionButton.bind(this))
-            document.addEventListener('touchend', this.DoubleTouchEventFct.bind(this))
-        } else {
-            console.log(this._HtmlId + " n'existe pas dans la fonction Start")
-        }
+        let div = document.createElement("div")
+        div.innerHTML = this.GetCss()
+
+        let Button = document.createElement("button")
+        Button.setAttribute("id", this._HtmlId)
+        Button.setAttribute("style", "right: 0px; display: inline;")
+        Button.setAttribute("class", "CoreXActionMenuButton")
+        Button.innerHTML = "&#9733"
+        Button.addEventListener("click", this.OnClickCoreXActionButton.bind(this))
+        div.appendChild(Button)
+        document.body.appendChild(div)
     }
     /** Détection d'un double tap sur l'écran */
     DoubleTouchEventFct(){
