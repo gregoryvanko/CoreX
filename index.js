@@ -179,11 +179,17 @@ class corex {
                         }
                         break
                     default:
+                        let FctNotFound = true
                         me._ApiFctList.forEach(element => {
                             if (element.FctName == req.body.FctName){
                                 element.Fct(req.body.FctData, res)
+                                FctNotFound = false
                             }
                         })
+                        if (FctNotFound){
+                            me.LogAppliError(" => No API for FctName: " + req.body.FctName)
+                            res.json({Error: true, ErrorMsg:"No API for FctName: " + req.body.FctName})
+                        }
                         break
                 }
             }
