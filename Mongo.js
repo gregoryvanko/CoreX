@@ -150,7 +150,7 @@ class Mongo {
         })
     }
 
-    /* Update d'un element par ID dans la collecrtion:Collection */
+    /* Ajout d'un element par ID dans la collecrtion:Collection */
     static InsertOnePromise(Data, Collection, Url, DbName){
         return new Promise((resolve, reject)=>{
             let MongoClient = require('mongodb').MongoClient

@@ -140,3 +140,41 @@ Les modules disponible
     GlobalActionButton.ClearActionList()
     // Add d'une action
     GlobalActionButton.AddAction(Titre, Fct)
+
+    //** MongoDb */
+
+    // Require
+    let Mongo = require('@gregvanko/corex').Mongo
+
+    // Collection Exist
+    Mongo.CollectionExist(Collection, Url, DbName, DoneCallback, ErrorCallback)
+    let ErrorCallback = (err)=>{}
+    let DoneCallback = (Data) => {} // Data exist if collection exist
+
+    // Find
+    Mongo.FindPromise(Querry, Projection, Collection, Url, DbName)
+    const Query = { [this._MongoLoginUserItem]: Login}
+    const Projection = { projection:{ _id: 1, [this._MongoLoginPassItem]: 1}}
+
+    // Find Sort
+    Mongo.FindSortPromise(Querry, Projection, Sort, Collection, Url, DbName)
+    const Sort = {[this._MongoLoginUserItem]: 1}
+
+    // Find Sort Skip
+    Mongo.FindSortLimitSkipPromise(Querry, Projection, Sort, Limit, Skip, Collection, Url, DbName)
+    Let Limit = 10
+
+    // Delete By Id (Id = string)
+    Mongo.DeleteByIdPromise(Id, Collection, Url, DbName)
+
+    // Update by Id (Id = string)
+    Mongo.UpdateByIdPromise(Id, Data, Collection, Url, DbName)
+
+    // Count 
+    Mongo.CountPromise(Querry, Collection, Url, DbName)
+    let MongoObjectId = require('@gregvanko/corex').MongoObjectId
+    const Query = {'_id': new MongoObjectId(Id)}
+
+    // Insert One
+    Mongo.InsertOnePromise(Data, Collection, Url, DbName)
+    let Data = { [this._MongoLoginUserItem]: "test", [this._MongoLoginFirstNameItem]: "test2"}
