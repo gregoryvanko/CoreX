@@ -131,7 +131,7 @@ class corex {
 
         // Creation d'une route pour API l'application
 		this._Express.post('/api', function(req, res, next){
-            me.LogDebug("API Call, FctName: " + req.body.FctName)
+            //me.LogDebug("API Call, FctName: " + req.body.FctName)
             let Continue = false
             let DecryptTokenReponse = null
             // Si l'application est securisee 
@@ -197,7 +197,7 @@ class corex {
 
         // Creation d'une route pour API Admin l'application
 		this._Express.post('/apiadmin', function(req, res, next){
-            me.LogDebug("API Admin Call, FctName: " + req.body.FctName)
+            //me.LogDebug("API Admin Call, FctName: " + req.body.FctName)
             // validation du Token
             let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
             if (DecryptTokenReponse.TokenValide) {

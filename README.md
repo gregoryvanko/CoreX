@@ -152,29 +152,57 @@ Les modules disponible
     let DoneCallback = (Data) => {} // Data exist if collection exist
 
     // Find
-    Mongo.FindPromise(Querry, Projection, Collection, Url, DbName)
+    Mongo.FindPromise(Querry, Projection, Collection, Url, DbName).then((reponse)=>{
+        // ToDo
+    },(erreur)=>{
+        this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    })
     const Query = { [this._MongoLoginUserItem]: Login}
     const Projection = { projection:{ _id: 1, [this._MongoLoginPassItem]: 1}}
 
     // Find Sort
-    Mongo.FindSortPromise(Querry, Projection, Sort, Collection, Url, DbName)
+    Mongo.FindSortPromise(Querry, Projection, Sort, Collection, Url, DbName).then((reponse)=>{
+        // ToDo
+    },(erreur)=>{
+        this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    })
     const Sort = {[this._MongoLoginUserItem]: 1}
 
     // Find Sort Skip
-    Mongo.FindSortLimitSkipPromise(Querry, Projection, Sort, Limit, Skip, Collection, Url, DbName)
+    Mongo.FindSortLimitSkipPromise(Querry, Projection, Sort, Limit, Skip, Collection, Url, DbName).then((reponse)=>{
+        // ToDo
+    },(erreur)=>{
+        this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    })
     Let Limit = 10
 
     // Delete By Id (Id = string)
-    Mongo.DeleteByIdPromise(Id, Collection, Url, DbName)
+    Mongo.DeleteByIdPromise(Id, Collection, Url, DbName).then((reponse)=>{
+        // ToDo
+    },(erreur)=>{
+        this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    })
 
     // Update by Id (Id = string)
-    Mongo.UpdateByIdPromise(Id, Data, Collection, Url, DbName)
+    Mongo.UpdateByIdPromise(Id, Data, Collection, Url, DbName).then((reponse)=>{
+        // ToDo
+    },(erreur)=>{
+        this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    })
 
     // Count 
-    Mongo.CountPromise(Querry, Collection, Url, DbName)
+    Mongo.CountPromise(Querry, Collection, Url, DbName).then((reponse)=>{
+        // ToDo
+    },(erreur)=>{
+        this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    })
     let MongoObjectId = require('@gregvanko/corex').MongoObjectId
     const Query = {'_id': new MongoObjectId(Id)}
 
     // Insert One
-    Mongo.InsertOnePromise(Data, Collection, Url, DbName)
+    Mongo.InsertOnePromise(Data, Collection, Url, DbName).then((reponse)=>{
+        // ToDo
+    },(erreur)=>{
+        this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    })
     let Data = { [this._MongoLoginUserItem]: "test", [this._MongoLoginFirstNameItem]: "test2"}
