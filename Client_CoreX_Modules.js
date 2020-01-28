@@ -148,8 +148,8 @@ class CoreXActionButton{
             opacity: 0;
             transition: opacity 0.5s linear;
             cursor: pointer;
-            height: 5VW;
-            width: 5VW;
+            height: 50px;
+            width: 50px;
         }
         .CoreXActionMenuButton:hover,
         .CoreXActionMenuButton:active{opacity: 1;}
