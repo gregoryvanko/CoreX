@@ -150,7 +150,7 @@ class CoreXLoader {
                     -moz-border-radius: 25px;
                     -webkit-border-radius: 25px;
                     border-radius: 25px;
-                    padding: 5px;
+                    padding: 1px;
                     box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
                 }
                 .meter > span {
