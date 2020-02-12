@@ -460,7 +460,8 @@ class corex {
                 font-synthesis: none;
                 letter-spacing: normal;
                 text-rendering: optimizelegibility;
-                height:100%;
+                width: 100%;
+                height: 100VH;
             }
         </style>`
         let GlobalCallApiPromise = `
@@ -551,7 +552,8 @@ class corex {
                 font-synthesis: none;
                 letter-spacing: normal;
                 text-rendering: optimizelegibility;
-                height:100%;
+                width: 100%;
+                height: 100VH;
             }
         </style>` 
 
