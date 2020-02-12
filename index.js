@@ -264,7 +264,6 @@ class corex {
 
         // Creation de la route 404
         this._Express.use(function(req, res, next) {
-            console.loLogDebugg('Mauvaise route: ' + req.originalUrl)
             me.LogAppliError('Mauvaise route: ' + req.originalUrl)
             res.status(404).send("Sorry, the route " + req.originalUrl +" doesn't exist");
         })
