@@ -183,6 +183,14 @@ Les modules disponible
         this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
     })
 
+    // Delete By Query
+    Mongo.DeleteByQueryPromise(Query, Collection, Url, DbName).then((reponse)=>{
+        // ToDo
+    },(erreur)=>{
+        this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    })
+    let Query = { address: "test" }
+
     // Update by Id (Id = string)
     Mongo.UpdateByIdPromise(Id, Data, Collection, Url, DbName).then((reponse)=>{
         // ToDo
