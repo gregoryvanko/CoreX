@@ -141,8 +141,13 @@ Les modules disponible
     // Add d'une action
     GlobalActionButton.AddAction(Titre, Fct)
 
-    //** MongoDb */
+    //** Les fenetres */
+    // Creation d'un fenetre
+    CoreXWindow.BuildWindow(ElementHtml) // ElementHtml est le contenu object html de la fenetre
+    // Suppression de la fenetre
+    CoreXWindow.DeleteWindow()
 
+    //** MongoDb */
     // Require
     let Mongo = require('@gregvanko/corex').Mongo
 

@@ -76,8 +76,8 @@ class corex {
 
         // utilistaion de body-parser
 		var bodyParser = require("body-parser")
-		this._Express.use(bodyParser.urlencoded({ extended: true }))
-        this._Express.use(bodyParser.json())
+		this._Express.use(bodyParser.urlencoded({ limit: '200mb', extended: true }))
+        this._Express.use(bodyParser.json({limit: '200mb'}))
 
         // Creation d'une route de base pour l'application
 		this._Express.get('/', function(req, res, next){
