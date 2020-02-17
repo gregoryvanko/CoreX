@@ -114,6 +114,7 @@ class CoreXLoader {
 
     /* Logout de l'application */
     LogOut(){
+        document.body.innerHTML = ""
         this._LoginToken = null
         localStorage.removeItem(this._DbKeyLogin)
         if (this._Usesocketio){this._SocketIo.disconnect()}
