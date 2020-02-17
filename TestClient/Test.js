@@ -4,7 +4,7 @@ class TestCoreXApp{
     }
     /** Start de l'application */
     Sart(){
-        document.body.innerHTML = this._MyCoreXActionButton.Rendre() + `<div id="TestCSS">coucou les amis</div>`
+        document.body.innerHTML = `<div id="TestCSS">coucou les amis</div>`
         this._MyCoreXActionButton.Start()
     }
     ClickTestButton(){

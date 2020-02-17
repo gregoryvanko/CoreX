@@ -143,35 +143,9 @@ class CoreXLoader {
                     color: red;
                     font-size: var(--CoreX-font-size);
                 }
-                .meter { 
+                .AppProgressBar {
                     width: 50%;
-                    height: 1vh;  /* Can be anything */
-                    position: relative;
-                    background: #555;
-                    -moz-border-radius: 25px;
-                    -webkit-border-radius: 25px;
-                    border-radius: 25px;
-                    padding: 1px;
-                    box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
-                }
-                .meter > span {
-                    display: block;
-                    height: 100%;
-                    border-top-right-radius: 8px;
-                    border-bottom-right-radius: 8px;
-                    border-top-left-radius: 20px;
-                    border-bottom-left-radius: 20px;
-                    background-color: rgb(43,194,83);
-                    background-image: linear-gradient(
-                        center bottom,
-                        rgb(43,194,83) 37%,
-                        rgb(84,240,84) 69%
-                    );
-                    box-shadow: 
-                        inset 0 2px 9px  rgba(255,255,255,0.3),
-                        inset 0 -2px 6px rgba(0,0,0,0.4);
-                    position: relative;
-                    overflow: hidden;
+                    margin:2%;
                 }
                 @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
                 only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
@@ -179,6 +153,7 @@ class CoreXLoader {
                 {
                     .Loadingtext{font-size: var(--CoreX-Iphone-font-size);}
                     .LoadingError{font-size: var(--CoreX-Iphone-font-size);}
+                    .ProgressBar{width: 90%;}
                 }
                 @media screen and (min-width: 1200px)
                 {
@@ -188,9 +163,7 @@ class CoreXLoader {
             </style>
             <div style="height: 50vh; display: flex; flex-direction: column; justify-content:center; align-content:center; align-items: center;">
                 <div style="margin: 1%;" class="Loadingtext">Loading App...</div>
-                <div class="meter">
-                    <span id="ProgressBar" style="width: 0%"></span>
-                </div>
+                <progress id="ProgressBar" value="0" max="100" class="AppProgressBar"></progress>
                 <div id="LoadingErrorMsg" class="LoadingError"></div>
             </div>`
         document.body.innerHTML = LoadingText
@@ -233,7 +206,7 @@ class CoreXLoader {
         } 
         xhttp.onprogress = function (event) {
             let pourcent = Math.round((event.loaded / event.total)* 100)
-            document.getElementById("ProgressBar").style.width = pourcent+"%"
+            document.getElementById("ProgressBar").value = pourcent
         }
         xhttp.open("POST", "loadApp", true)
         xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
