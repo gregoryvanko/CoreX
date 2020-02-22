@@ -1,101 +1,82 @@
 class Mongo {
-
+    constructor(MongoUrl, MongoDbName){
+        this._MongoDbName = MongoDbName
+        this._Url = MongoUrl+ "/" + MongoDbName
+        this._MongoClient = require('mongodb').MongoClient
+    }
     /* Check if collection exist */
-    static CollectionExist(Collection, Url, DbName, DoneCallback, ErrorCallback){
-        let MongoClient = require('mongodb').MongoClient
-        let url = Url+ "/" + DbName
-        MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+    CollectionExist(Collection, DoneCallback, ErrorCallback){
+        this._MongoClient.connect(this._Url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
             if(err) {ErrorCallback(err)}
             else {
-                client.db(DbName).listCollections({name:Collection}).toArray(function(err, items) {
+                client.db(this._MongoDbName).listCollections({name:Collection}).toArray(function(err, items) {
                     if(err) {ErrorCallback(err)}
                     else {
-                        if ((items.length == 1) && (items[0].name == Collection)){
-                            DoneCallback(true)
-                        } else {
-                            DoneCallback(false)
-                        }
+                        if ((items.length == 1) && (items[0].name == Collection)){DoneCallback(true)}
+                        else {DoneCallback(false)}
                     }
                     client.close()
                 })
             }
         })
     }
-
     /* Trouver un element dans la collecrtion:Collection suivant la querry:Querry et la projection:Projection */
-    static FindPromise(Querry, Projection, Collection, Url, DbName){
+    FindPromise(Querry, Projection, Collection){
         return new Promise((resolve, reject)=>{
-            let MongoClient = require('mongodb').MongoClient
-            let url = Url+ "/" + DbName
-            MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+            this._MongoClient.connect(this._Url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
                 if(err) reject(err)
                 else {
-                    const LoginCollection = client.db(DbName).collection(Collection)
+                    const LoginCollection = client.db(this._MongoDbName).collection(Collection)
                     LoginCollection.find(Querry,Projection).toArray(function(err, result) {
                         if(err) reject(err)
-                        else {
-                            resolve(result) 
-                        }
+                        else {resolve(result)}
                         client.close()
                     })
                 }
             })
         })
     }
-
     /* Trouver un element dans la collecrtion:Collection suivant la querry:Querry et la projection:Projection et faire un sort */
-    static FindSortPromise(Querry, Projection, Sort, Collection, Url, DbName){
+    FindSortPromise(Querry, Projection, Sort, Collection){
         return new Promise((resolve, reject)=>{
-            let MongoClient = require('mongodb').MongoClient
-            let url = Url+ "/" + DbName
-            MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+            this._MongoClient.connect(this._Url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
                 if(err) reject(err)
                 else {
-                    const LoginCollection = client.db(DbName).collection(Collection)
+                    const LoginCollection = client.db(this._MongoDbName).collection(Collection)
                     LoginCollection.find(Querry,Projection).sort(Sort).toArray(function(err, result) {
                         if(err) reject(err)
-                        else {
-                            resolve(result) 
-                        }
+                        else {resolve(result)}
                         client.close()
                     })
                 }
             })
         })
     }
-
     /* Trouver un element dans la collecrtion:Collection suivant la querry:Querry et la projection:Projection et faire un sort en limitant et en skipant*/
-    static FindSortLimitSkipPromise(Querry, Projection, Sort, Limit, Skip, Collection, Url, DbName){
+    FindSortLimitSkipPromise(Querry, Projection, Sort, Limit, Skip, Collection){
         return new Promise((resolve, reject)=>{
-            let MongoClient = require('mongodb').MongoClient
-            let url = Url+ "/" + DbName
-            MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+            this._MongoClient.connect(this._Url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
                 if(err) reject(err)
                 else {
-                    const LoginCollection = client.db(DbName).collection(Collection)
+                    const LoginCollection = client.db(this._MongoDbName).collection(Collection)
                     LoginCollection.find(Querry,Projection).limit(Limit).skip(Skip).sort(Sort).toArray(function(err, result) {
                         if(err) reject(err)
-                        else {
-                            resolve(result) 
-                        }
+                        else {resolve(result) }
                         client.close()
                     })
                 }
             })
         })
     }
-
     /* Delete d'un element par ID dans la collecrtion:Collection */
-    static DeleteByIdPromise(Id, Collection, Url, DbName){
+    DeleteByIdPromise(Id, Collection){
         return new Promise((resolve, reject)=>{
-            let MongoClient = require('mongodb').MongoClient
-            let url = Url+ "/" + DbName
             let ObjectID = require('mongodb').ObjectID
             let Query = {"_id": new ObjectID(Id)}
-            MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+            this._MongoClient.connect(this._Url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
                 if(err) reject(err)
                 else {
-                    const MyCollection = client.db(DbName).collection(Collection)
+                    const MyCollection = client.db(this._MongoDbName).collection(Collection)
                     MyCollection.deleteOne(Query, function(err, result) {
                         if(err) reject(err)
                         else {resolve(result)}
@@ -105,16 +86,13 @@ class Mongo {
             })
         })
     }
-
     /* Delete d'un element par querry dans la collecrtion:Collection */
-    static DeleteByQueryPromise(Query, Collection, Url, DbName){
+    DeleteByQueryPromise(Query, Collection){
         return new Promise((resolve, reject)=>{
-            let MongoClient = require('mongodb').MongoClient
-            let url = Url+ "/" + DbName
-            MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+            this._MongoClient.connect(this._Url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
                 if(err) reject(err)
                 else {
-                    const MyCollection = client.db(DbName).collection(Collection)
+                    const MyCollection = client.db(this._MongoDbName).collection(Collection)
                     MyCollection.deleteMany(Query, function(err, result) {
                         if(err) reject(err)
                         else {resolve(result)}
@@ -124,20 +102,16 @@ class Mongo {
             })
         })
     }
-
     /* Update d'un element par ID dans la collecrtion:Collection */
-    static UpdateByIdPromise(Id, Data, Collection, Url, DbName){
+    UpdateByIdPromise(Id, Data, Collection, Url, DbName){
         return new Promise((resolve, reject)=>{
-            let MongoClient = require('mongodb').MongoClient
-            let url = Url+ "/" + DbName
             let ObjectID = require('mongodb').ObjectID
             let Query = {"_id": new ObjectID(Id)}
-            //let Newvalues = { $set: {Titre: BlogData.Titre, Img: BlogData.Img} }
             let Newvalues = { $set: Data }
-            MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+            this._MongoClient.connect(this._Url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
                 if(err) reject(err)
                 else {
-                    const MyCollection = client.db(DbName).collection(Collection)
+                    const MyCollection = client.db(this._MongoDbName).collection(Collection)
                     MyCollection.updateOne(Query, Newvalues, function(err, result) {
                         if(err) reject(err)
                         else {resolve(result)}
@@ -147,37 +121,29 @@ class Mongo {
             })
         })
     }
-
     /* Compter un element dans la collecrtion:Collection suivant la querry:Querry */
-    static CountPromise(Querry, Collection, Url, DbName){
+    CountPromise(Querry, Collection){
         return new Promise((resolve, reject)=>{
-            let MongoClient = require('mongodb').MongoClient
-            let url = Url+ "/" + DbName
-            MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+            this._MongoClient.connect(this._Url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
                 if(err) reject(err)
                 else {
-                    const LoginCollection = client.db(DbName).collection(Collection)
+                    const LoginCollection = client.db(this._MongoDbName).collection(Collection)
                     LoginCollection.find(Querry).count(function(err, result) {
                         if(err) reject(err)
-                        else {
-                            resolve(result) 
-                        }
+                        else {resolve(result) }
                         client.close()
                     })
                 }
             })
         })
     }
-
     /* Ajout d'un element par ID dans la collecrtion:Collection */
-    static InsertOnePromise(Data, Collection, Url, DbName){
+    InsertOnePromise(Data, Collection){
         return new Promise((resolve, reject)=>{
-            let MongoClient = require('mongodb').MongoClient
-            let url = Url+ "/" + DbName
-            MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+            this._MongoClient.connect(this._Url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
                 if(err) reject(err)
                 else {
-                    const MyCollection = client.db(DbName).collection(Collection)
+                    const MyCollection = client.db(this._MongoDbName).collection(Collection)
                     MyCollection.insertOne(Data, function(err, result) {
                         if(err) reject(err)
                         else {resolve(result)}

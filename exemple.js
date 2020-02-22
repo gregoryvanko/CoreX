@@ -3,7 +3,7 @@ class ServeurTestCoreX{
         // Creation de l'application CoreX
         let corex = require('./index').corex
         const OptionApplication = {
-            AppName: "TestCoreXApp",                // Nom de l'application
+            AppName: "CoreXAppTest",                // Nom de l'application
             Port: 3000,                             // Port du serveur
             Secret: "TestAppSecret",                // phrase secrete pour l'encodage du token 
             MongoUrl: "mongodb://localhost:27017"   // Url de la DB Mongo

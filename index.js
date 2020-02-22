@@ -18,6 +18,8 @@ class corex {
         this._ApiFctList = []
 
         // Varaible interne MongoDB
+        let MongoR = require('./Mongo.js').Mongo
+        this._Mongo = new MongoR(this._MongoUrl,this._MongoDbName)
         this._MongoLoginClientCollection = "LoginClient"
         this._MongoLoginAdminCollection = "LoginAdmin"
         this._MongoLoginUserItem = "User"
@@ -39,19 +41,11 @@ class corex {
         this._Express = require('express')()
         this._http = require('http').Server(this._Express)
     }
-
-    set Debug(val){
-        this._Debug = val
-    }
-    set AppIsSecured(val){
-        this._AppIsSecured = val
-    }
-    set CSS(val){
-        this._CSS = val
-    }
-    set Usesocketio(val){
-        this._Usesocketio = val
-    }
+    
+    set Debug(val){this._Debug = val}
+    set AppIsSecured(val){this._AppIsSecured = val}
+    set CSS(val){this._CSS = val}
+    set Usesocketio(val){this._Usesocketio = val}
     set IconRelPath(val){
         var appRoot = process.cwd()
         this._Icon = appRoot + val
@@ -66,19 +60,15 @@ class corex {
         // Initialisation de variable et require
         var fs = require('fs')
         var me = this
-
         // Message de demarrage
         console.log("Application started")
         this.LogDebug("Application started")
-
         // Initiation de la DB
         this.InitMongoDb()
-
         // utilistaion de body-parser
 		var bodyParser = require("body-parser")
 		this._Express.use(bodyParser.urlencoded({ limit: '200mb', extended: true }))
         this._Express.use(bodyParser.json({limit: '200mb'}))
-
         // Creation d'une route de base pour l'application
 		this._Express.get('/', function(req, res, next){
             if (me._AppIsSecured) {
@@ -90,13 +80,11 @@ class corex {
                 res.send(me.GetInitialHTML())
             }
         })
-
         // Creation d'une route vers l'application admin
 		this._Express.get('/admin', function(req, res, next){
             me.LogAppliInfo("Send Initial Secured HTML for application Admin")
             res.send(me.GetInitialSecuredHTML("admin"))
         })
-
         // Creation d'un route pour le login via Post
 		this._Express.post('/login', function (req, res){
             me.LogAppliInfo("Receive Post Login: " + JSON.stringify(req.body))
@@ -114,7 +102,6 @@ class corex {
                     break
             }
         })
-
         // Creation d'une route pour loader l'application
 		this._Express.post('/loadApp', function(req, res, next){
             me.LogDebug("Receive Post loadApp")
@@ -128,7 +115,6 @@ class corex {
                 res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         })
-
         // Creation d'une route pour API l'application
 		this._Express.post('/api', function(req, res, next){
             //me.LogDebug("API Call, FctName: " + req.body.FctName)
@@ -194,7 +180,6 @@ class corex {
                 }
             }
         })
-
         // Creation d'une route pour API Admin l'application
 		this._Express.post('/apiadmin', function(req, res, next){
             //me.LogDebug("API Admin Call, FctName: " + req.body.FctName)
@@ -249,25 +234,21 @@ class corex {
                 res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         })
-
         // Creation d'un route pour l'icone
         this._Express.get('/apple-icon.png', function (req, res) {
             me.LogDebug("Get apple-icon.png: " + me._Icon)
             res.send(me._Icon)
         })
-
         // Creation d'un route pour favicon.ico
         this._Express.get('/favicon.ico', function (req, res) {
             me.LogDebug("Get favicon.ico: " + me._Icon)
             res.send(me._Icon)
         })
-
         // Creation de la route 404
         this._Express.use(function(req, res, next) {
             me.LogAppliError('Mauvaise route: ' + req.originalUrl)
             res.status(404).send("Sorry, the route " + req.originalUrl +" doesn't exist");
         })
-
         // Si on utilise Socket IO, alors on effectue une initialisation de socket io
         if(this._Usesocketio){
             // Creation de socket io
@@ -340,7 +321,6 @@ class corex {
             //    }
             })
         }
-
         // Lancer le serveur
 		this._http.listen(this._Port, function(){
 			console.log('listening on *:' + me._Port)
@@ -348,16 +328,13 @@ class corex {
     }
     /* LogDebug dans la console */
     LogDebug(data){
-        if(this._Debug){
-            console.log(data)
-        }
+        if(this._Debug){console.log(data)}
     }
     /** Log applicatif de type info dans la DB */
     LogAppliInfo(Valeur){
         var now = new Date()
         const DataToDb = { [this._MongoLogAppliNow]: now, [this._MongoLogAppliType]: "Info", [this._MongoLogAppliValeur]: Valeur}
-        let Mongo = require('./Mongo.js').Mongo
-        Mongo.InsertOnePromise(DataToDb, this._MongoLogAppliCollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        this._Mongo.InsertOnePromise(DataToDb, this._MongoLogAppliCollection).then((reponse)=>{
             this.LogDebug(this.GetDateString(now) + " " + "Info" + " " + Valeur)
         },(erreur)=>{
             this.LogDebug("LogAppliInfo DB error : " + erreur)
@@ -367,8 +344,7 @@ class corex {
     LogAppliError(Valeur){
         var now = new Date()
         const DataToDb = { [this._MongoLogAppliNow]: now, [this._MongoLogAppliType]: "Error", [this._MongoLogAppliValeur]: Valeur}
-        let Mongo = require('./Mongo.js').Mongo
-        Mongo.InsertOnePromise(DataToDb, this._MongoLogAppliCollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        this._Mongo.InsertOnePromise(DataToDb, this._MongoLogAppliCollection).then((reponse)=>{
             this.LogDebug(this.GetDateString(now) + " " + "Error" + " " + Valeur)
         },(erreur)=>{
             this.LogDebug("LogAppliError DB error : " + erreur)
@@ -400,8 +376,7 @@ class corex {
                 this.LogDebug("La collection suivante existe : " + this._MongoLoginAdminCollection)
             } else {
                 const DataToDb = { [this._MongoLoginUserItem]: "Admin", [this._MongoLoginFirstNameItem]: "Admin First Name", [this._MongoLoginLastNameItem]: "Admin Last Name", [this._MongoLoginPassItem]: "Admin", [this._MongoLoginConfirmPassItem]: "Admin"}
-                let Mongo = require('./Mongo.js').Mongo
-                Mongo.InsertOnePromise(DataToDb, this._MongoLoginAdminCollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+                this._Mongo.InsertOnePromise(DataToDb, this._MongoLoginAdminCollection).then((reponse)=>{
                     this.LogDebug("Creation de la collection : " + this._MongoLoginAdminCollection)
                 },(erreur)=>{
                     this.LogDebug("Error Insert temp user admin in collection Login Admin")
@@ -409,8 +384,7 @@ class corex {
                 })
             }
         }
-        let Mongo = require('./Mongo.js').Mongo
-        Mongo.CollectionExist(this._MongoLoginAdminCollection, this._MongoUrl, this._MongoDbName, DoneCallback, ErrorCallback)
+        this._Mongo.CollectionExist(this._MongoLoginAdminCollection, DoneCallback, ErrorCallback)
     }
     /** Ajout d'un fonction a gerer via l'API user */
     AddApiFct(FctName, Fct){
@@ -419,7 +393,6 @@ class corex {
         apiobject.Fct = Fct
         this._ApiFctList.push(apiobject)
     }
-
     /* Generation du fichier HTML de base de l'application cliente securisée */
     GetInitialHTML(){
         let MyApp = this.GetAppCode()
@@ -615,13 +588,11 @@ class corex {
 </html>`
         return HTMLStart + SocketIO + HTML1 + CoreXLoaderJsScript + os.EOL + CoreXLoginJsScript + os.EOL + GlobalCallApiPromise + os.EOL + HTML2 + LoadScript + HTMLEnd
     }
-
     /* Verification du login */
     VerifyLogin(res, LoginCollection, Login, Pass){
-        let Mongo = require('./Mongo.js').Mongo
         const Query = { [this._MongoLoginUserItem]: Login}
         const Projection = { projection:{ _id: 1, [this._MongoLoginPassItem]: 1}}
-        Mongo.FindPromise(Query,Projection, LoginCollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        this._Mongo.FindPromise(Query,Projection, LoginCollection).then((reponse)=>{
             if(reponse.length == 0){
                 this.LogAppliError("Login non valide, pas de row en db pour ce user")
                 res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
@@ -646,7 +617,6 @@ class corex {
             res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
         })
     }
-
     /* genère et encrypt un Json Web Token */
     EncryptDataToken(DBData){
         // creation d'un JWT
@@ -697,17 +667,13 @@ class corex {
     }
     /* Check la validation du UserId contenu dans un Token et envoie de l'app */
     CheckTokenUserIdAndSendApp(Site, Id, Collection, res){
-        // Require MongoDb
-        let Mongo = require('./Mongo.js').Mongo
         let MongoObjectId = require('./Mongo.js').MongoObjectId
-        // Query Mongodb
         const Query = {'_id': new MongoObjectId(Id)}
-        // MongoDB Call
-        Mongo.CountPromise(Query, Collection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        this._Mongo.CountPromise(Query, Collection).then((reponse)=>{
             if (reponse==1) {
                 // Get Name of user in DB
                 let Projection = { projection:{[this._MongoLoginUserItem]: 1}}
-                Mongo.FindPromise(Query, Projection, Collection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+                this._Mongo.FindPromise(Query, Projection, Collection).then((reponse)=>{
                     this.LogAppliInfo("TokenUserId validé. User = " + reponse[0].User)
                     switch (Site) {
                         case "app":
@@ -736,7 +702,6 @@ class corex {
             res.json({Error: true, ErrorMsg:"Token non valide"})
         })
     }
-
     /* Recuperer le code de l'App */
     GetAppCode(){
         let MyApp = new Object()
@@ -790,16 +755,12 @@ class corex {
     ApiAdminGetAllUsers(type, res){
         this.LogAppliInfo("Call API Admin, FctName: GetAllUsers, Data: " + type)
         let mongocollection =""
-        if (type == "Admin") {
-            mongocollection = this._MongoLoginAdminCollection
-        } else {
-            mongocollection = this._MongoLoginClientCollection
-        }
-        let Mongo = require('./Mongo.js').Mongo
+        if (type == "Admin") {mongocollection = this._MongoLoginAdminCollection}
+        else {mongocollection = this._MongoLoginClientCollection}
         const Query = {}
         const Projection = { projection:{ _id: 1, [this._MongoLoginUserItem]: 1}}
         const Sort = {[this._MongoLoginUserItem]: 1}
-        Mongo.FindSortPromise(Query,Projection, Sort, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        this._Mongo.FindSortPromise(Query,Projection, Sort, mongocollection).then((reponse)=>{
             if(reponse.length == 0){
                 this.LogDebug("No user in BD")
                 res.json({Error: false, ErrorMsg: "No user in BD", Data: null})
@@ -814,22 +775,17 @@ class corex {
     /* Get list of user data via l'ApiAdmin */
     ApiAdminGetUserData(Data, res){
         this.LogAppliInfo("Call API Admin, FctName: GetUserData, Data: " + JSON.stringify(Data))
-        // Require pour Mongo
-        let Mongo = require('./Mongo.js').Mongo
         let MongoObjectId = require('./Mongo.js').MongoObjectId
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
-        if (Data.UserType == "Admin") {
-            mongocollection = this._MongoLoginAdminCollection
-        } else {
-            mongocollection = this._MongoLoginClientCollection
-        }
+        if (Data.UserType == "Admin") {mongocollection = this._MongoLoginAdminCollection}
+        else {mongocollection = this._MongoLoginClientCollection}
         // Definition de la Query de Mongo
         const Query = {'_id': new MongoObjectId(Data.UsesrId)}
         // Definition de la projection de Mongo en fonction du type de user
         let Projection = {projection:{}}
         // Find de type Promise de Mongo
-        Mongo.FindPromise(Query,Projection, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        this._Mongo.FindPromise(Query,Projection, mongocollection).then((reponse)=>{
             if(reponse.length == 0){
                 this.LogAppliError("Wrong User Id")
                 res.json({Error: true, ErrorMsg: "Wrong User Id", Data: null})
@@ -848,17 +804,12 @@ class corex {
     /* Delete d'un user via l'ApiAdmin */
     ApiAdminDeleteUser(Data, res){
         this.LogAppliInfo("Call API Admin, FctName: DeleteUser, Data: " + JSON.stringify(Data))
-        // Require pour Mongo
-        let Mongo = require('./Mongo.js').Mongo
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
-        if (Data.UserType == "Admin") {
-            mongocollection = this._MongoLoginAdminCollection
-        } else {
-            mongocollection = this._MongoLoginClientCollection
-        }
+        if (Data.UserType == "Admin") {mongocollection = this._MongoLoginAdminCollection}
+        else {mongocollection = this._MongoLoginClientCollection}
         // Delete de type Promise de Mongo
-        Mongo.DeleteByIdPromise(Data.UsesrId, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        this._Mongo.DeleteByIdPromise(Data.UsesrId, mongocollection).then((reponse)=>{
             if (reponse.deletedCount==1) {
                 res.json({Error: false, ErrorMsg: "User deleted in DB", Data: null})
             } else {
@@ -890,18 +841,13 @@ class corex {
     /** Creation d'un nouvel user */
     ApiAdminNewUser(Data, res){
         this.LogAppliInfo("Call API Admin, FctName: NewUser, Data: " + JSON.stringify(Data))
-        // Require pour Mongo
-        let Mongo = require('./Mongo.js').Mongo
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
-        if (Data.UserType == "Admin") {
-            mongocollection = this._MongoLoginAdminCollection
-        } else {
-            mongocollection = this._MongoLoginClientCollection
-        }
+        if (Data.UserType == "Admin") {mongocollection = this._MongoLoginAdminCollection}
+        else {mongocollection = this._MongoLoginClientCollection}
         let DataToDb = { [this._MongoLoginUserItem]: Data.Data[this._MongoLoginUserItem], [this._MongoLoginFirstNameItem]: Data.Data[this._MongoLoginFirstNameItem], [this._MongoLoginLastNameItem]: Data.Data[this._MongoLoginLastNameItem], [this._MongoLoginPassItem]: Data.Data[this._MongoLoginPassItem], [this._MongoLoginConfirmPassItem]: Data.Data[this._MongoLoginConfirmPassItem]}
         // Insert de type Promise de Mongo
-        Mongo.InsertOnePromise(DataToDb, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        this._Mongo.InsertOnePromise(DataToDb, mongocollection).then((reponse)=>{
             res.json({Error: false, ErrorMsg: "User added in DB", Data: null})
         },(erreur)=>{
             this.LogAppliError("ApiAdminNewUser DB error : " + erreur)
@@ -911,12 +857,11 @@ class corex {
     /** Get des log de l'application */
     ApiAdminGetLog(Data, res){
         this.LogAppliInfo("Call API Admin, FctName: GetLog, Skip data value: " + Data)
-        let Mongo = require('./Mongo.js').Mongo
         let mongocollection = this._MongoLogAppliCollection
         const Query = {}
         const Projection = {}
         const Sort = {[this._MongoLogAppliNow]: -1}
-        Mongo.FindSortLimitSkipPromise(Query,Projection, Sort, 10, parseInt(Data), mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        this._Mongo.FindSortLimitSkipPromise(Query,Projection, Sort, 10, parseInt(Data), mongocollection).then((reponse)=>{
             if(reponse.length == 0){
                 this.LogDebug("No Log in BD")
                 res.json({Error: false, ErrorMsg: "No Log in BD", Data: null})
@@ -932,22 +877,17 @@ class corex {
     /** Get My Data of a connected user (meme fonction pour Api et ApiAdmin) */
     ApiGetMyData(App, Id, res){
         this.LogAppliInfo("Call API Admin, FctName: ApiGetMyData, Data: App=" + App + " Id="+Id)
-        // Require pour Mongo
-        let Mongo = require('./Mongo.js').Mongo
         let MongoObjectId = require('./Mongo.js').MongoObjectId
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
-        if (App == "Admin") {
-            mongocollection = this._MongoLoginAdminCollection
-        } else {
-            mongocollection = this._MongoLoginClientCollection
-        }
+        if (App == "Admin") {mongocollection = this._MongoLoginAdminCollection}
+        else {mongocollection = this._MongoLoginClientCollection}
         // Definition de la Query de Mongo
         const Query = {'_id': new MongoObjectId(Id)}
         // Definition de la projection de Mongo en fonction du type de user
         let Projection = { projection:{ _id: 0}}
         // Find de type Promise de Mongo
-        Mongo.FindPromise(Query,Projection, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        this._Mongo.FindPromise(Query,Projection, mongocollection).then((reponse)=>{
             if(reponse.length == 0){
                 this.LogAppliError("Wrong User Id")
                 res.json({Error: true, ErrorMsg: "Wrong User Id", Data: null})
@@ -966,22 +906,17 @@ class corex {
     /* Update d'un user (meme fonction pour Api et ApiAdmin) */
     ApiAUpdateUser(Data, res){
         this.LogAppliInfo("Call API "+ Data.UserType + ", FctName: UpdateUser, Data: " + JSON.stringify(Data))
-        // Require pour Mongo
-        let Mongo = require('./Mongo.js').Mongo
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
-        if (Data.UserType == "Admin") {
-            mongocollection = this._MongoLoginAdminCollection
-        } else {
-            mongocollection = this._MongoLoginClientCollection
-        }
+        if (Data.UserType == "Admin") {mongocollection = this._MongoLoginAdminCollection}
+        else {mongocollection = this._MongoLoginClientCollection}
         // changement du password que si il est different de vide
         if (Data.Data[this._MongoLoginPassItem] == ""){
             delete Data.Data[this._MongoLoginPassItem]
             delete Data.Data[this._MongoLoginConfirmPassItem]
         }
         // Update de type Promise de Mongo
-         Mongo.UpdateByIdPromise(Data.UsesrId, Data.Data, mongocollection, this._MongoUrl, this._MongoDbName).then((reponse)=>{
+        this._Mongo.UpdateByIdPromise(Data.UsesrId, Data.Data, mongocollection).then((reponse)=>{
             if (reponse.matchedCount==1) {
                 res.json({Error: false, ErrorMsg: "User Updated in DB", Data: null})
             } else {
