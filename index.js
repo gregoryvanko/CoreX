@@ -47,12 +47,16 @@ class corex {
     set CSS(val){this._CSS = val}
     set Usesocketio(val){this._Usesocketio = val}
     set IconRelPath(val){
-        var appRoot = process.cwd()
-        this._Icon = appRoot + val
+        //var appRoot = process.cwd()
+        //this._Icon = appRoot + val
+        this._Icon = this._ClientAppFolderRoot + val
     }
     set ClientAppFolder(val){
-        this._ClientAppFolderRoot = process.cwd()
+        //this._ClientAppFolderRoot = process.cwd()   
         this._ClientAppFolder = val
+    }
+    set ClientAppRoot(val){
+        this._ClientAppFolderRoot = val  
     }
 
     /* Start du Serveur de l'application */

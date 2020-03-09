@@ -88,6 +88,8 @@ class ServeurTestCoreX{
         this._MyServeurApp.Usesocketio = false
         // Chemin relatif de l'icone
         this._MyServeurApp.IconRelPath = "/apple-icon-192x192.png"
+        // Chemin du repertoire root du projet
+        this._MyServeurApp.ClientAppRoot = __dirname
         // Chemin vers le dossier contenant les sources Js et CSS du client
         this._MyServeurApp.ClientAppFolder = "/TestClient"
         // Add serveur api for FctName = Test
