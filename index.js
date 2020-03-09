@@ -716,25 +716,30 @@ class corex {
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8') + os.EOL
 
         let folder = this._ClientAppFolderRoot + this._ClientAppFolder
-        var files = fs.readdirSync(folder)
-        for (var i in files){
-            if(fs.existsSync(folder + "/" + files[i])){
-                switch (path.extname(files[i])) {
-                    case ".js":
-                        MyApp.JS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
-                        break;
-                    case ".css":
-                        MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
-                        break;
-                    default:
-                        this.LogAppliError("file extension not know: " + path.extname(files[i]))
-                        console.log("file extension not know: " + path.extname(files[i]))
-                        break;
+        if(fs.existsSync(folder)){
+            var files = fs.readdirSync(folder)
+            for (var i in files){
+                if(fs.existsSync(folder + "/" + files[i])){
+                    switch (path.extname(files[i])) {
+                        case ".js":
+                            MyApp.JS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
+                            break;
+                        case ".css":
+                            MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
+                            break;
+                        default:
+                            this.LogAppliError("file extension not know: " + path.extname(files[i]))
+                            console.log("file extension not know: " + path.extname(files[i]))
+                            break;
+                    }
+                } else {
+                    this.LogAppliError("file not found: " + this._ClientAppFolderRoot + files[i])
+                    console.log("file not found: " + this._ClientAppFolderRoot + files[i])
                 }
-            } else {
-                this.LogAppliError("file not found: " + this._ClientAppFolderRoot + files[i])
-                console.log("file not found: " + this._ClientAppFolderRoot + files[i])
             }
+        } else {
+            this.LogAppliError("Client folder not found: " + this._ClientAppFolderRoot)
+            console.log("Client folder not found: " + this._ClientAppFolderRoot)
         }
         return MyApp
     }
