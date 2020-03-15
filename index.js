@@ -243,6 +243,11 @@ class corex {
             me.LogDebug("Get apple-icon.png: " + me._Icon)
             res.send(me._Icon)
         })
+        // Creation d'un route pour l'icone
+        this._Express.get('/apple-touch-icon.png', function (req, res) {
+            me.LogDebug("Get apple-touch-icon.png: " + me._Icon)
+            res.send(me._Icon)
+        })
         // Creation d'un route pour favicon.ico
         this._Express.get('/favicon.ico', function (req, res) {
             me.LogDebug("Get favicon.ico: " + me._Icon)
