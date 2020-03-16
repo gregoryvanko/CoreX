@@ -169,10 +169,14 @@ class corex {
                         }
                         break
                     default:
+                        let UserId = null
+                        if (DecryptTokenReponse != null){
+                            UserId = DecryptTokenReponse.TokenData.data.UserData._id
+                        }
                         let FctNotFound = true
                         me._ApiFctList.forEach(element => {
                             if (element.FctName == req.body.FctName){
-                                element.Fct(req.body.FctData, res)
+                                element.Fct(req.body.FctData, res, UserId)
                                 FctNotFound = false
                             }
                         })
@@ -241,17 +245,17 @@ class corex {
         // Creation d'un route pour l'icone
         this._Express.get('/apple-icon.png', function (req, res) {
             me.LogDebug("Get apple-icon.png: " + me._Icon)
-            res.send(me._Icon)
+            res.send(fs.readFileSync(me._Icon))
         })
         // Creation d'un route pour l'icone
         this._Express.get('/apple-touch-icon.png', function (req, res) {
             me.LogDebug("Get apple-touch-icon.png: " + me._Icon)
-            res.send(me._Icon)
+            res.send(fs.readFileSync(me._Icon))
         })
         // Creation d'un route pour favicon.ico
         this._Express.get('/favicon.ico', function (req, res) {
             me.LogDebug("Get favicon.ico: " + me._Icon)
-            res.send(me._Icon)
+            res.send(fs.readFileSync(me._Icon))
         })
         // Creation de la route 404
         this._Express.use(function(req, res, next) {

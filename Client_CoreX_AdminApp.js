@@ -69,7 +69,7 @@ class CoreXAdminApp{
         let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
         let View = /*html*/`
         <div id="Titre" style="margin-top:4%">Liste of `+ TypeTexte + /*html*/`</div>
-        <div id="ListOfUser" class="FlexRowCenterSpaceevenly">
+        <div id="ListOfUser" class="FlexRowCenterspacearound">
             <div class="Text">Get list of `+ TypeTexte + /*html*/`...</div>
         </div>`
 
@@ -407,7 +407,7 @@ class CoreXAdminApp{
             })
             reponse += `</div>`
             reponse += `
-                <div class="FlexRowCenterSpaceevenly" style="width:90%; border-top: 1px solid black; margin-top:1%;">
+                <div class="FlexRowCenterspacearound" style="width:90%; border-top: 1px solid black; margin-top:1%;">
                     <button id="ButtonNext" class="Button">Next</button>
                 </div>`
             // ajout des user dans l'interface
@@ -450,7 +450,7 @@ class CoreXAdminApp{
         document.getElementById("ButtonNext").innerHTML = "Next"
         let reponse = ""
         if (Data == null) {
-            document.getElementById("Liste").insertAdjacentHTML('beforeend', /*html*/`<div class="FlexRowCenterSpaceevenly" style="width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;">Sorry, end of log</div>`)
+            document.getElementById("Liste").insertAdjacentHTML('beforeend', /*html*/`<div class="FlexRowCenterspacearound" style="width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;">Sorry, end of log</div>`)
             document.getElementById("ButtonNext").style.visibility = 'hidden'
         } else {
             Data.forEach(element => {
@@ -559,10 +559,10 @@ class CoreXAdminApp{
                 align-items: center;
             }
             /* Felx row center  space-evenly*/
-            .FlexRowCenterSpaceevenly{
+            .FlexRowCenterspacearound{
                 display: flex;
                 flex-direction: row;
-                justify-content:space-evenly;
+                justify-content:space-around;
                 align-content:center;
                 align-items: center;
                 flex-wrap: wrap;
