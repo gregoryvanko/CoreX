@@ -151,6 +151,7 @@ class CoreXActionButton{
             cursor: pointer;
             height: 50px;
             width: 50px;
+            text-align: center;
         }
         .CoreXActionMenuButton:hover,
         .CoreXActionMenuButton:active{opacity: 1;}
@@ -160,7 +161,7 @@ class CoreXActionButton{
         {
             .CoreXActionButtonButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px; height: 12VW;}
             .CoreXActionButtonImageButton{width:10%;}
-            .CoreXActionMenuButton{font-size: var(--CoreX-Iphone-font-size);height: 10VW; width: 10VW;}
+            .CoreXActionMenuButton{font-size: calc(var(--CoreX-Iphone-font-size)*1.5);height: 10VW; width: 10VW;}
         }
         @media screen and (min-width: 1200px)
         {
@@ -227,7 +228,7 @@ class CoreXWindow{
             screen and (max-width: 700px)
             {
                 #CoreXWindowScreen{width: 90%;}
-                .CoreXWindowCloseButton{width:10%;}
+                .CoreXWindowCloseButton{width:7%;}
             }
             @media screen and (min-width: 1200px)
             {
