@@ -42,6 +42,7 @@ class corex {
         this._http = require('http').Server(this._Express)
     }
     
+
     set Debug(val){this._Debug = val}
     set AppIsSecured(val){this._AppIsSecured = val}
     set CSS(val){this._CSS = val}
