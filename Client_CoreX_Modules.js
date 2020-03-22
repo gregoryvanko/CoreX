@@ -514,3 +514,273 @@ class CoreXWindowUserConfig{
         }
     }
 }
+
+/** Construction d'élements de base d'une application */
+class CoreXBuild{
+    constructor(){}
+
+    static GetDateTimeString(DateString){
+        var Now = new Date(DateString)
+        var dd = Now.getDate()
+        var mm = Now.getMonth()+1
+        var yyyy = Now.getFullYear()
+        var heure = Now.getHours()
+        var minute = Now.getMinutes()
+        var seconde = Now.getSeconds()
+        if(dd<10) {dd='0'+dd} 
+        if(mm<10) {mm='0'+mm}
+        if(heure<10) {heure='0'+heure}
+        if(minute<10) {minute='0'+minute}
+        if(seconde<10) {seconde='0'+seconde}
+        return yyyy + "-" + mm + "-" + dd + " " + heure + ":" + minute + ":" + seconde
+    }
+
+    static GetDateString(DateString){
+        var Now = new Date(DateString)
+        var dd = Now.getDate()
+        var mm = Now.getMonth()+1
+        var yyyy = Now.getFullYear()
+        if(dd<10) {dd='0'+dd} 
+        if(mm<10) {mm='0'+mm}
+        return yyyy + "-" + mm + "-" + dd
+    }
+
+    static Div(Id,Class, Style){
+        let element = document.createElement("div")
+        if (Id){element.setAttribute("id", Id)}
+        if (Class){element.setAttribute("Class", Class)}
+        if (Style){element.setAttribute("Style", Style)}
+        return element
+    }
+
+    static DivFlexColumn(Id){
+        let element = document.createElement("div")
+        if (Id){element.setAttribute("id", Id)}
+        element.setAttribute("style","width: 100%; display: -webkit-flex; display: flex; flex-direction: column; justify-content:space-around; align-content:center; align-items: center; flex-wrap: wrap;")
+        return element
+    }
+
+    static DivFlexRowAr(Id){
+        let element = document.createElement("div")
+        if (Id){element.setAttribute("id", Id)}
+        element.setAttribute("style","width: 100%; display: -webkit-flex; display: flex; flex-direction: row; justify-content:space-around; align-content:center; align-items: center; flex-wrap: wrap;")
+        return element
+    }
+
+    static DivFlexRowStart(Id){
+        let element = document.createElement("div")
+        if (Id){element.setAttribute("id", Id)}
+        element.setAttribute("style","width: 100%; display: -webkit-flex; display: flex; flex-direction: row; justify-content:start; align-content:center; align-items: center; flex-wrap: wrap;")
+        return element
+    }
+
+    static DivTexte(Texte, Id, Class, Style){
+        let element = document.createElement("div")
+        if (Id){element.setAttribute("id", Id)}
+        if (Class){element.setAttribute("Class", Class)}
+        if (Style){element.setAttribute("Style", Style)}
+        element.innerHTML = Texte
+        return element
+    }
+
+    static Image64(Base64, Id, Class, Style){
+        let element = document.createElement("img")
+        element.setAttribute("src", Base64)
+        if (Id){element.setAttribute("id", Id)}
+        if (Class){element.setAttribute("Class", Class)}
+        if (Style){element.setAttribute("Style", Style)}
+        return element
+    }
+
+    static Line (Width, Style){
+        let element = document.createElement("hr")
+        element.setAttribute("Style", "width: " + Width + "; border: 1px solid var(--CoreX-color); margin:0;" + Style)
+        return element
+    }
+
+    static Button (Titre, OnClick, Class){
+        let element = document.createElement("button")
+        if (Class){element.setAttribute("Class", Class)}
+        element.innerHTML = Titre
+        element.onclick = OnClick
+        return element
+    }
+
+    static ProgressBar(Id,Class, Style){
+        let elementdiv = document.createElement("div")
+        elementdiv.setAttribute("style","width: 100%; display: -webkit-flex; display: flex; flex-direction: column; justify-content:space-around; align-content:center; align-items: center; flex-wrap: wrap;")
+
+        let element = document.createElement("progress")
+        if (Id){element.setAttribute("id",Id)}
+        element.setAttribute("value","0")
+        element.setAttribute("max","100")
+        if (Class){element.setAttribute("Class", Class)}
+        if (Style){element.setAttribute("Style", Style)}
+        elementdiv.appendChild(element)
+        return elementdiv
+    }
+    
+    static ToggleSwitch(Id, Checked, PxHeight){
+        let HeightLable = 34
+        let Border = 4
+        if(PxHeight) {
+            HeightLable = PxHeight
+        }
+        let HeigtSlider = HeightLable - (2 * Border)
+        let WidthLable = (1.5 * HeightLable)  + Border
+        let translate = (HeightLable / 2)  + Border
+        let CheckedData = ""
+        if(Checked) {CheckedData = "checked"}
+        let element = Build.Div("")
+        element.innerHTML = `
+        <style>
+            .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: `+HeightLable+`px;
+            }
+
+            .slider:before {
+            position: absolute;
+            content: "";
+            height: `+HeigtSlider+`px;
+            width: `+HeigtSlider+`px;
+            left: `+Border+`px;
+            bottom: `+Border+`px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 50%;
+            }
+
+            input:checked + .slider {
+            background-color: #2196F3;
+            }
+
+
+            input:checked + .slider:before {
+            -webkit-transform: translateX(`+translate+`px);
+            -ms-transform: translateX(`+translate+`px);
+            transform: translateX(`+translate+`px);
+            }
+        </style>
+        <label style="position: relative; display: inline-block; width: `+WidthLable+`px; height: `+HeightLable+`px;">
+        <input id="`+Id+`" type="checkbox" `+CheckedData+` style="opacity: 0; width: 0; height: 0;">
+        <span class="slider"></span>
+        </label>
+        `
+        return element
+    }
+}
+
+/** Core de la gestion d'un application par page */
+class CoreXApp{
+    constructor(){
+        this._ContentAppId = "CoreXAppContent"
+        this._MyCoreXActionButton = new CoreXActionButton()
+        this._ListApplications = new Array()
+    }
+
+    /** Get Set */
+    get ContentAppId(){return this._ContentAppId}
+    set ContentAppId(NewContentAppId){this._ContentAppId = NewContentAppId}
+
+    /** Start de l'application */
+    Start(){
+        this._MyCoreXActionButton.Start()
+        document.body.appendChild(CoreXBuild.Div(this._ContentAppId))
+        this.LoadViewStart()
+    }
+
+    /** Vider la vue actuelle */
+    ClearView(){
+        document.getElementById(this._ContentAppId).innerHTML = ""
+        this.ClearActionList()
+    }
+
+    /** Load de la vue Start de l'application */
+    LoadViewStart(){
+        // Clear de la page start
+        this.ClearView()
+        // Ajout du CSS
+        document.getElementById(this._ContentAppId).innerHTML = this.GetCss()
+        // Div content de la page start
+        let DivContent = CoreXBuild.DivFlexColumn()
+        document.getElementById(this._ContentAppId).appendChild(DivContent)
+        // Titre de la page
+        DivContent.appendChild(CoreXBuild.DivTexte(document.title,"", "Titre", ""))
+        // Container des pages
+        let DivContainerCommand = CoreXBuild.Div("","ContainerCommand","")
+        DivContent.appendChild(DivContainerCommand)
+        // Flex container
+        let DivFlexContainerCommand = CoreXBuild.DivFlexRowAr()
+        DivContainerCommand.appendChild(DivFlexContainerCommand)
+        // afficher toutes les pages
+        if (this._ListApplications.length == 0){
+            DivFlexContainerCommand.appendChild(CoreXBuild.DivTexte("No Application is defined","", "Text", ""))
+        } else {
+            // ToDo si il y a une seule application, on la demarre
+            this._ListApplications.forEach(element => {
+                // ToDo afficher les differentes appli
+                DivFlexContainerCommand.appendChild(CoreXBuild.Button(element.Titre, element.Start,""))
+            })
+        }
+
+    }
+
+    /** Add une application*/
+    AddApp(Titre, ImgSrc, Start){
+        let App = new Object()
+        App.Titre = Titre
+        App.ImgSrc = ImgSrc
+        App.Start = Start
+        this._ListApplications.push(App)
+    }
+
+    /** Css de base de l'application */
+    GetCss(){
+        return /*html*/`
+        <style>
+        .Titre{
+            margin: 1% 1% 4% 1%;
+            font-size: var(--CoreX-Titrefont-size);
+            color: var(--CoreX-color);
+        }
+        .ContainerCommand{width: 70%;}
+        .Text{font-size: var(--CoreX-font-size);}
+
+        @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
+        only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
+        screen and (max-width: 700px)
+        {
+            .Titre{font-size: var(--CoreX-TitreIphone-font-size);}
+            .ContainerCommand{width: 90%;}
+            .Text{font-size: var(--CoreX-Iphone-font-size);}
+        }
+
+        @media screen and (min-width: 1200px)
+        {
+            .Titre{font-size: var(--CoreX-TitreMax-font-size);}
+            .Text{font-size: var(--CoreX-Max-font-size);}
+        }
+        </style>`
+    }
+
+    /** Clear ActionList */
+    ClearActionList(){
+        this._MyCoreXActionButton.ClearActionList()
+        this.AddActionInList("Home", this.LoadViewStart.bind(this))
+    }
+
+    /** Add Action in ActionList */
+    AddActionInList(Titre, Action){
+        this._MyCoreXActionButton.AddAction(Titre, Action)
+    }
+}
