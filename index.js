@@ -486,6 +486,28 @@ class corex {
         let JS = `
         <script id="CodeJS" type="text/javascript"> 
         ` + GlobalCallApiPromise +`
+            // Creation de l'application
+            let MyApp = new CoreXApp()
+            // Fonction globale GlobalClearActionList
+            function GlobalClearActionList() {
+                MyApp.ClearActionList()
+            }
+            // Fonction gloable AddActionInList
+            function GlobalAddActionInList(Titre, Action) {
+                MyApp.AddActionInList(Titre, Action)
+            }
+            // Fonction globale GetContentAppId
+            function GlobalCoreXGetAppContentId() {
+                return MyApp.ContentAppId
+            }
+            // Fonction globale Add App in CoreXApp
+            function GlobalCoreXAddApp(AppTitre, AppSrc, AppStart) {
+                MyApp.AddApp(AppTitre, AppSrc, AppStart)
+            }
+            // Fonction globale Start App CoreXApp
+            function GlobalCoreXStart(){
+                MyApp.Start()
+            }
         ` + MyApp.JS + `
         </script>`
         let HTMLEnd = ` 
@@ -727,6 +749,30 @@ class corex {
 
         // Ajout des modules de CoreX
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8') + os.EOL
+        MyApp.JS += `
+            // Creation de l'application
+            let MyApp = new CoreXApp()
+            // Fonction globale GlobalClearActionList
+            function GlobalClearActionList() {
+                MyApp.ClearActionList()
+            }
+            // Fonction gloable AddActionInList
+            function GlobalAddActionInList(Titre, Action) {
+                MyApp.AddActionInList(Titre, Action)
+            }
+            // Fonction globale GetContentAppId
+            function GlobalCoreXGetAppContentId() {
+                return MyApp.ContentAppId
+            }
+            // Fonction globale Add App in CoreXApp
+            function GlobalCoreXAddApp(AppTitre, AppSrc, AppStart) {
+                MyApp.AddApp(AppTitre, AppSrc, AppStart)
+            }
+            // Fonction globale Start App CoreXApp
+            function GlobalCoreXStart(){
+                MyApp.Start()
+            }
+            `
 
         let folder = this._ClientAppFolderRoot + this._ClientAppFolder
         if(fs.existsSync(folder)){
@@ -766,6 +812,30 @@ class corex {
         reponse += os.EOL
         reponse += fs.readFileSync(__dirname + "/Client_CoreX_AdminApp.js", 'utf8')
         reponse += os.EOL
+        reponse += `
+            // Creation de l'application
+            let MyApp = new CoreXApp()
+            // Fonction globale GlobalClearActionList
+            function GlobalClearActionList() {
+                MyApp.ClearActionList()
+            }
+            // Fonction gloable AddActionInList
+            function GlobalAddActionInList(Titre, Action) {
+                MyApp.AddActionInList(Titre, Action)
+            }
+            // Fonction globale GetContentAppId
+            function GlobalCoreXGetAppContentId() {
+                return MyApp.ContentAppId
+            }
+            // Fonction globale Add App in CoreXApp
+            function GlobalCoreXAddApp(AppTitre, AppSrc, AppStart) {
+                MyApp.AddApp(AppTitre, AppSrc, AppStart)
+            }
+            // Fonction globale Start App CoreXApp
+            function GlobalCoreXStart(){
+                MyApp.Start()
+            }
+            `
         return reponse
     }
 

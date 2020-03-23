@@ -129,12 +129,25 @@ this._MyServeurApp.LogAppliError(Valeur)
 ### Le frontend client de l'application
 
 Les fichiers JS et CSS du frontend client de l'application doivent se trouver sous répertoire défini par la variable "ClientAppFolder".
-
 ```js
 /** Logout de l'application securisée */
 GlobalLogout()
-```
-```js
+
+/** Vider la liste des action de l'application */
+GlobalClearActionList()
+
+/** Ajouter une action a la liste des actions de l'application */
+GlobalAddActionInList(Titre, Action) 
+
+/** Get html id du content de l'application */
+GlobalCoreXGetAppContentId()
+
+/** Ajouter une application */
+GlobalCoreXAddApp(AppTitre, AppSrc, AppStart)
+
+/** Start de l'application */
+GlobalCoreXStart()
+
 /** Appel à l'Api du serveur */
 // FctName: le nom de la fonction a executer
 // FctData: les donnes a passer à la fonction
@@ -151,21 +164,17 @@ UpProg(event){
 DownProg(event){
     console.log("Down => Loaded: " + event.loaded + " Total: " +event.total)
 }
+
+/** Ajouter une application */
+// Creation de l'application 1
+let App1 = new TestCoreXApp(GlobalCoreXGetAppContentId())
+// Ajout de l'application 1
+GlobalCoreXAddApp(App1.GetTitre(), App1.GetImgSrc(),App1.Start.bind(App1))
+// Lancement de l'application
+GlobalCoreXStart()
 ```
 
 Les modules disponible
-
-```js
-//** Action Button en haut a droite de l'écran */
-// Creation du boutton
-var GlobalActionButton = new CoreXActionButton()
-GlobalActionButton.Start()
-// Clear de la liste des Action
-GlobalActionButton.ClearActionList()
-// Add d'une action
-GlobalActionButton.AddAction(Titre, Fct)
-```
-
 ```js
 //** Les fenetres */
 // Creation d'un fenetre
