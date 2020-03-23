@@ -33,8 +33,11 @@ class TestCoreXApp{
 
 // Creation de l'application 1
 let App1 = new TestCoreXApp(GlobalCoreXGetAppContentId())
+//let App2 = new TestCoreXApp(GlobalCoreXGetAppContentId())
+
 // Ajout de l'application 1
 GlobalCoreXAddApp(App1.GetTitre(), App1.GetImgSrc(),App1.Start.bind(App1))
+//GlobalCoreXAddApp("", "",App2.Start.bind(App1))
 
 // Lancement de l'application
 GlobalCoreXStart()

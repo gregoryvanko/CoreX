@@ -719,12 +719,16 @@ class CoreXApp{
         DivContainerCommand.appendChild(DivFlexContainerCommand)
         // afficher toutes les pages
         if (this._ListApplications.length == 0){
-            DivFlexContainerCommand.appendChild(CoreXBuild.DivTexte("No Application is defined","", "Text", ""))
+            DivFlexContainerCommand.appendChild(CoreXBuild.DivTexte("No Application defined","", "Text", ""))
         } else {
-            // ToDo si il y a une seule application, on la demarre
-            this._ListApplications.forEach(element => {
-                DivFlexContainerCommand.appendChild(this.BuildAppCard(element.Titre, element.ImgSrc, element.Start))
-            })
+            // si il y a une seule application, on la demarre
+            if (this._ListApplications.length ==1){
+                this.ClickAppCard(this._ListApplications[0].Start)
+            } else {
+                this._ListApplications.forEach(element => {
+                    DivFlexContainerCommand.appendChild(this.BuildAppCard(element.Titre, element.ImgSrc, element.Start))
+                })
+            }
         }
 
     }
@@ -815,7 +819,9 @@ class CoreXApp{
     /** Clear ActionList */
     ClearActionList(){
         this._MyCoreXActionButton.ClearActionList()
-        this.AddActionInList("Home", this.Start.bind(this))
+        if(this._ListApplications.length >=2){
+            this.AddActionInList("Home", this.Start.bind(this))
+        }
     }
 
     /** Add Action in ActionList */
