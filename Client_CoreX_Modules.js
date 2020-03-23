@@ -737,8 +737,13 @@ class CoreXApp{
         element.appendChild(Contentimg)
         let ContentTxt = CoreXBuild.DivTexte(Titre, "", "Text", "")
         element.appendChild(ContentTxt)
-        element.onclick = Start
+        element.addEventListener("click", this.ClickAppCard.bind(this,Start))
         return element
+    }
+    /** Click on a AppCard */
+    ClickAppCard(Start){
+        this.ClearView()
+        Start()
     }
 
     /** Add une application*/
