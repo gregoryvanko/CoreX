@@ -685,19 +685,14 @@ class CoreXApp{
     constructor(){
         this._ContentAppId = "CoreXAppContent"
         this._MyCoreXActionButton = new CoreXActionButton()
+        this._MyCoreXActionButton.Start()
         this._ListApplications = new Array()
+        document.body.appendChild(CoreXBuild.Div(this._ContentAppId))
     }
 
     /** Get Set */
     get ContentAppId(){return this._ContentAppId}
     set ContentAppId(NewContentAppId){this._ContentAppId = NewContentAppId}
-
-    /** Start de l'application */
-    Start(){
-        this._MyCoreXActionButton.Start()
-        document.body.appendChild(CoreXBuild.Div(this._ContentAppId))
-        this.LoadViewStart()
-    }
 
     /** Vider la vue actuelle */
     ClearView(){
@@ -706,7 +701,7 @@ class CoreXApp{
     }
 
     /** Load de la vue Start de l'application */
-    LoadViewStart(){
+    Start(){
         // Clear de la page start
         this.ClearView()
         // Ajout du CSS
@@ -815,7 +810,7 @@ class CoreXApp{
     /** Clear ActionList */
     ClearActionList(){
         this._MyCoreXActionButton.ClearActionList()
-        this.AddActionInList("Home", this.LoadViewStart.bind(this))
+        this.AddActionInList("Home", this.Start.bind(this))
     }
 
     /** Add Action in ActionList */
