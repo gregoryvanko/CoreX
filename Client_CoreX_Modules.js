@@ -631,7 +631,7 @@ class CoreXBuild{
         let translate = (HeightLable / 2)  + Border
         let CheckedData = ""
         if(Checked) {CheckedData = "checked"}
-        let element = Build.Div("")
+        let element = CoreXBuild.Div("")
         element.innerHTML = `
         <style>
             .slider {
