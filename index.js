@@ -835,6 +835,8 @@ class corex {
         // Ajout de la classe de l'application admin
         reponse += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8')
         reponse += os.EOL
+        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Admin_User.js", 'utf8')
+        reponse += os.EOL
         reponse += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Start.js", 'utf8')
         reponse += os.EOL
         //reponse += fs.readFileSync(__dirname + "/Client_CoreX_AdminApp.js", 'utf8')

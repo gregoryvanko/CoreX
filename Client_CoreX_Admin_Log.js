@@ -18,7 +18,7 @@ class CoreXAdminLogApp{
         // Add CSS
         this._DivApp.innerHTML = this.GetCss()
         // Global action
-        GlobalAddActionInList("Home", this.Start.bind(this))
+        GlobalAddActionInList("Refresh", this.Start.bind(this))
         // Titre
         this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of logs", "Titre", "", "margin-top:4%"))
         // Liste of log
@@ -32,7 +32,7 @@ class CoreXAdminLogApp{
         },(erreur)=>{
             // Ajout des des action a ActionButton
             GlobalClearActionList()
-            GlobalAddActionInList("Home", this.Start.bind(this))
+            GlobalAddActionInList("Refresh", this.Start.bind(this))
             document.getElementById("ListOfLog").innerHTML=""
             document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte(erreur,"","Text","color:red;"))
         })
@@ -81,7 +81,7 @@ class CoreXAdminLogApp{
         },(erreur)=>{
             // Ajout des des action a ActionButton
             GlobalClearActionList()
-            GlobalAddActionInList("Home", this.Start.bind(this))
+            GlobalAddActionInList("Refresh", this.Start.bind(this))
             document.getElementById("ListOfLog").innerHTML=""
             document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte(erreur,"","Text","color:red;"))
         })
