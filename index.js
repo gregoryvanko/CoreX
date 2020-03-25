@@ -805,12 +805,8 @@ class corex {
     /* Recuperer le code de l'Admin App */
     GetAdminAppCode(){
         let fs = require('fs')
-        let os = require('os');
-        let reponse = ""
-        // Ajout de la classe de l'application admin
-        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8')
-        reponse += os.EOL
-        reponse += fs.readFileSync(__dirname + "/Client_CoreX_AdminApp.js", 'utf8')
+        let os = require('os')
+        let reponse = fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8')
         reponse += os.EOL
         reponse += `
             // Creation de l'application
@@ -836,6 +832,13 @@ class corex {
                 MyApp.Start()
             }
             `
+        // Ajout de la classe de l'application admin
+        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8')
+        reponse += os.EOL
+        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Start.js", 'utf8')
+        reponse += os.EOL
+        //reponse += fs.readFileSync(__dirname + "/Client_CoreX_AdminApp.js", 'utf8')
+        //reponse += os.EOL
         return reponse
     }
 

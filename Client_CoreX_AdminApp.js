@@ -664,5 +664,5 @@ class CoreXAdminApp{
 }
 
 // Lancement de l'application Admin
-let MyAdminApp = new CoreXAdminApp()
-MyAdminApp.RenderSart()
+//let MyAdminApp = new CoreXAdminApp()
+//MyAdminApp.RenderSart()
