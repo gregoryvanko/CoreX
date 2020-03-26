@@ -8,12 +8,34 @@ class CoreXAdminUserApp{
     Start(){
         // Clear view
         document.getElementById(this._HtmlId).innerHTML = ""
+        // Add CSS
+        document.getElementById(this._HtmlId).innerHTML = this.GetCss()
         // construction et ajout au body de la page HTML start
         this._DivApp = CoreXBuild.Div("App","DivContent")
         document.getElementById(this._HtmlId).appendChild(this._DivApp)
-        // Add CSS
-        this._DivApp.innerHTML = this.GetCss()
-        // ToDo
+        let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
+        // Titre
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of " + TypeTexte, "Titre", "", "margin-top:4%"))
+        // Liste of User
+        let ListOfUser = CoreXBuild.Div("ListOfUser", "FlexRowCenterspacearound", "")
+        this._DivApp.appendChild(ListOfUser)
+        // Waiting text
+        ListOfUser.appendChild(CoreXBuild.DivTexte("Get list of " + TypeTexte +"...", "", "Text",""))
+        // Global action
+        GlobalClearActionList()
+        GlobalAddActionInList("Refresh", this.Start.bind(this))
+        GlobalAddActionInList("Add User", this.LoadViewCallForNewUser.bind(this))
+        // Get All user
+        let Dataofcall = (this._ClickOnAdminBox) ? "Admin" : "User"
+        GlobalCallApiPromise("GetAllUser", Dataofcall).then((reponse)=>{
+            this.LoadUserList(reponse)
+        },(erreur)=>{
+            // Ajout des des action a ActionButton
+            GlobalClearActionList()
+            GlobalAddActionInList("Refresh", this.Start.bind(this))
+            document.getElementById("ListOfUser").innerHTML=""
+            document.getElementById("ListOfUser").appendChild(CoreXBuild.DivTexte(erreur,"","Text","color:red;"))
+        })
     }
     GetTitreUser(){
         return "User"
@@ -29,6 +51,262 @@ class CoreXAdminUserApp{
     GetImgSrcAdmin(){
         return "data:image/png;base64,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"
     }
+
+    /** Clear view */
+    ClearView(){
+        // Clear app
+        this._DivApp.innerHTML=""
+        // Global action
+        GlobalClearActionList()
+        GlobalAddActionInList("Refresh", this.Start.bind(this))
+    }
+    /** Load de la vue contenant la liste de tous les users */
+    LoadUserList(Users){
+        let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
+        document.getElementById("ListOfUser").innerHTML =""
+        if (Users == null) {
+            document.getElementById("ListOfUser").appendChild(CoreXBuild.DivTexte("Sorry, no "+TypeTexte+" defined", "", "Text", ""))
+        } else {
+            // Creation des box pour chaque User
+            Users.forEach(User => {
+                let divuser = CoreXBuild.Div(User._id, "UserConteneur FlexColumnCenterSpaceAround", "")
+                divuser.onclick = this.LoadViewCallForUserData.bind(this,User._id)
+                divuser.appendChild(CoreXBuild.DivTexte(User.User,"","Text",""))
+                document.getElementById("ListOfUser").appendChild(divuser)
+            })
+        }
+    }
+    /** Load de la vue qui structure l'ajout d'un nouveau user */
+    LoadViewCallForNewUser(){
+        this.ClearView()
+        // Ajout des des action a ActionButton
+        GlobalAddActionInList("Save User", this.SaveNewUser.bind(this))
+        // Titre
+        this._DivApp.appendChild(CoreXBuild.DivTexte("New user", "Titre", "", "margin-top:4%"))
+        let divdatastruct = CoreXBuild.Div("ListOfUserDataStructure", "FlexColumnCenterSpaceAround DivListOfUserData")
+        divdatastruct.appendChild(CoreXBuild.DivTexte("Get data structure for user...", "", "Text",""))
+        this._DivApp.appendChild(divdatastruct)
+        this._DivApp.appendChild(CoreXBuild.Div("ErrorOfUserDataStructure", "Text", "color:red; text-align:center;"))
+        let divButton = CoreXBuild.Div("", "DivListOfUserData", "display:flex; flex-direction:row; justify-content:space-around; align-content:center; align-items: center;")
+        let buttonsave = CoreXBuild.Button("Save",this.SaveNewUser.bind(this),"Button","ButtonSave")
+        buttonsave.setAttribute("Style", "display: none;")
+        divButton.appendChild(buttonsave)
+        let buttoncancel = CoreXBuild.Button("Cancel",this.Start.bind(this),"Button","ButtonCancel")
+        buttoncancel.setAttribute("Style", "display: none;")
+        divButton.appendChild(buttoncancel)
+        this._DivApp.appendChild(divButton)
+
+        // Data for the api Call
+        let UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
+        // Call Get user data
+        GlobalCallApiPromise("GetUserDataStructure", UserType).then((reponse)=>{
+            this.LoadUserDataStrucutre(reponse)
+        },(erreur)=>{
+            // Ajout des des action a ActionButton
+            GlobalClearActionList()
+            GlobalAddActionInList("Refresh", this.Start.bind(this))
+            document.getElementById("ListOfUserDataStructure").innerHTML =""
+            document.getElementById("ErrorOfUserDataStructure").innerHTML = erreur
+        })
+    }
+    /* Load de la vue montrant la strucutre des donnes d'un user */
+    LoadUserDataStrucutre(Data){
+        // Creation de la liste HTML des données du user
+        document.getElementById("ListOfUserDataStructure").innerHTML = ""
+        Data.forEach(element => {
+            document.getElementById("ListOfUserDataStructure").appendChild(this.UserDataBuilder(element, ""))
+        })
+        document.getElementById("ButtonSave").style.display = "inline"
+        document.getElementById("ButtonCancel").style.display = "inline"
+    }
+    /* Load de la vue qui structure la liste des donnees d'un user */
+    LoadViewCallForUserData(UserId){
+        // ToDo
+        this.ClearView()
+        let View = /*html*/`
+        <div id="Titre" style="margin-top:4%">User information</div>
+        <div id="ListOfUserData" class="FlexColumnCenterSpaceAround DivListOfUserData">
+            <div class="Text">Get data of user...</div>
+        </div>
+        <div id="ErrorOfUserData" class="Text" style="color:red; text-align:center;"></div>
+        <div class="DivListOfUserData" style="display:flex; flex-direction:row; justify-content:space-around; align-content:center; align-items: center;">
+            <button id="ButtonSave" class="Button" style="display: none;">Save</button>
+            <button id="ButtonCancel" class="Button" style="display: none;">Cancel</button>
+        </div>`
+
+        // Ajout de la vue
+        this.SetView(View)
+        // Ajout des des action a ActionButton
+        this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+        this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
+        this._MyCoreXActionButton.AddAction("Save User", this.UpdateUser.bind(this,UserId))
+        this._MyCoreXActionButton.AddAction("Delete User", this.DeleteUser.bind(this,UserId))
+        // ajout event onclick
+        ButtonSave.onclick = this.UpdateUser.bind(this,UserId)
+        ButtonCancel.onclick = this.LoadViewCallForUserList.bind(this)
+        // Data for the api Call
+        let DataCall = new Object()
+        DataCall.UsesrId = UserId
+        DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
+        // Call Get user data
+        GlobalCallApiPromise("GetUserData", DataCall).then((reponse)=>{
+            this.LoadUserData(reponse)
+        },(erreur)=>{
+            // Ajout des des action a ActionButton
+            this._MyCoreXActionButton.ClearActionList()
+            this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+            this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
+            document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+        })
+    }
+    /* Load de la vue montrant les donnes d'un user */
+    LoadUserData(Data){
+        // Supprimer les proprietés du user a ne pas afficher
+        let UserDataToShow = Data[0]
+        delete UserDataToShow._id
+        // Creation de la liste HTML des données du user
+        let reponse =""
+        Object.keys(UserDataToShow).forEach(element => {
+            reponse += this.UserDataBuilder(element, UserDataToShow[element])
+        })
+        document.getElementById("ListOfUserData").innerHTML = reponse
+        document.getElementById("ButtonSave").style.display = "inline"
+        document.getElementById("ButtonCancel").style.display = "inline"
+    }
+    /** Construcuteur d'un element html pour une Key et une valeur */
+    UserDataBuilder(Key, Value){
+        let reponse = CoreXBuild.Div("", "FlexRowLeftCenter", "width:90%;")
+        reponse.appendChild(CoreXBuild.DivTexte(Key.replace("-", " ") + " :","", "Text InputKey"))
+        let input = ""
+        switch (Key) {
+            case "Password":
+                // input de type Password
+                input = CoreXBuild.Input(Key,Value,"Input","","password",Key,"")
+                input.setAttribute("data-Input", "CoreXInput")
+                reponse.appendChild(input)
+                break
+            case "Confirm-Password":
+                // input de type Password
+                input = CoreXBuild.Input(Key,Value,"Input","","password",Key,"")
+                input.setAttribute("data-Input", "CoreXInput")
+                reponse.appendChild(input)
+                break;
+            default:
+                // input de type texte
+                input = CoreXBuild.Input(Key,Value,"Input","","name",Key,"")
+                input.setAttribute("data-Input", "CoreXInput")
+                reponse.appendChild(input)
+                break
+        }
+        return reponse
+    }
+    /** Save d'un nouveau user */
+    SaveNewUser(){
+        document.getElementById("ErrorOfUserDataStructure").innerHTML= ""
+        let InputDataValide = true
+        // Data for the api Call
+        let DataCall = new Object()
+        DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
+        // selectionner et ajouter tous les input de type CoreXInput dans DataCall
+        let AllData = new Object()
+        let el = document.querySelectorAll('[data-Input="CoreXInput"]')
+        el.forEach(element => {
+            AllData[element.name] = element.value
+        })
+        DataCall.Data = AllData
+        // verifier si le user est non vide
+        if(document.getElementById("User").value == ""){
+            InputDataValide = false
+            document.getElementById("ErrorOfUserDataStructure").innerHTML= "User not empty!"
+        }
+        // verifier si le password est non vide
+        if(document.getElementById("Password").value == ""){
+            InputDataValide = false
+            document.getElementById("ErrorOfUserDataStructure").innerHTML= "Password not empty!"
+        }
+        // verifier si le password = confirm password
+        if(document.getElementById("Password").value != document.getElementById("Confirm-Password").value){
+            InputDataValide = false
+            document.getElementById("ErrorOfUserDataStructure").innerHTML= "Password not confirmed!"
+        }
+        // Sit tout les input son valide en envoie les data
+        if (InputDataValide){ 
+            // afficher le message d'update
+            document.getElementById("ListOfUserDataStructure").innerHTML='<div class="Text">Saving user...</div>'
+            document.getElementById("ButtonSave").style.display = "none"
+            document.getElementById("ButtonCancel").style.display = "none"
+            // Call delete user
+            GlobalCallApiPromise("NewUser", DataCall).then((reponse)=>{
+                this.LoadViewCallForUserList()
+            },(erreur)=>{
+                // Ajout des des action a ActionButton
+                this._MyCoreXActionButton.ClearActionList()
+                this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+                this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
+                document.getElementById("ListOfUserDataStructure").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+            })
+        }
+    }
+    /* Delete d'un user */
+    DeleteUser(UserId){
+        if (confirm('Are you sure you want to Dete this User?')){
+            document.getElementById("ListOfUserData").innerHTML='<div class="Text">Delete du user...</div>'
+            document.getElementById("ButtonSave").style.display = "none"
+            document.getElementById("ButtonCancel").style.display = "none"
+            // Data for the api Call
+            let DataCall = new Object()
+            DataCall.UsesrId = UserId
+            DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
+            // Call delete user
+            GlobalCallApiPromise("DeleteUser", DataCall).then((reponse)=>{
+                this.LoadViewCallForUserList()
+            },(erreur)=>{
+                // Ajout des des action a ActionButton
+                this._MyCoreXActionButton.ClearActionList()
+                this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+                this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
+                document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+            })
+        }
+    }
+    /* Update d'un user */
+    UpdateUser(UserId){
+        document.getElementById("ErrorOfUserData").innerHTML= ""
+        let InputDataValide = true
+        // Data for the api Call
+        let DataCall = new Object()
+        DataCall.UsesrId = UserId
+        DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
+        // selectionner et ajouter tous les input de type CoreXInput dans DataCall
+        let AllData = new Object()
+        let el = document.querySelectorAll('[data-Input="CoreXInput"]')
+        el.forEach(element => {
+            AllData[element.name] = element.value
+        })
+        DataCall.Data = AllData
+        // verifier si le password = confirm password
+        if(document.getElementById("Password").value != document.getElementById("Confirm-Password").value){
+            InputDataValide = false
+            document.getElementById("ErrorOfUserData").innerHTML= "Password not confirmed!"
+        }
+        // Sit tout les input son valide en envoie les data
+        if (InputDataValide){
+            // afficher le message d'update
+            document.getElementById("ListOfUserData").innerHTML='<div class="Text">Update du user...</div>'
+            document.getElementById("ButtonSave").style.display = "none"
+            document.getElementById("ButtonCancel").style.display = "none"
+            // Call delete user
+            GlobalCallApiPromise("UpdateUser", DataCall).then((reponse)=>{
+                this.LoadViewCallForUserList()
+            },(erreur)=>{
+                // Ajout des des action a ActionButton
+                this._MyCoreXActionButton.ClearActionList()
+                this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
+                this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
+                document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+            })
+        }
+    }
     
     GetCss(){
         return /*html*/`
@@ -39,6 +317,171 @@ class CoreXAdminUserApp{
                 width: 96%;
                 margin-left: auto;
                 margin-right: auto;
+            }
+            #Titre{
+                margin: 1% 1% 4% 1%;
+                font-size: var(--CoreX-Titrefont-size);
+                color: var(--CoreX-color);
+            }
+            .Text{font-size: var(--CoreX-font-size);}
+            /*
+            .ContainerCommand{width: 60%;}
+            .ImageConteneur{
+                border: 1px solid black;
+                border-radius: 5px;
+                width: 14vw;
+                height: 14vw;
+                cursor: pointer;
+                padding: 3px;
+            }
+            */
+            .UserConteneur{
+                border: 1px solid black;
+                border-radius: 5px;
+                width: 35vw;
+                height: 5vw;
+                margin: 0.5%;
+                cursor: pointer;
+            }
+            /*
+            .UserImg{
+                max-width: 100%;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                max-height: 10vw;
+                border: 0px solid grey;
+                border-radius: 5px;
+                flex: 0 0 auto;
+            }
+            */
+            .DivListOfUserData {
+                width: 70%;
+                margin: auto;
+            }
+            .Input {
+                width: 75%;
+                font-size: var(--CoreX-font-size);
+                padding: 1vh;
+                border: solid 0px #dcdcdc;
+                border-bottom: solid 1px transparent;
+                margin: 1% 0px 1% 0px;
+            }
+            .Input:focus,
+            .Input.focus {
+                outline: none;
+                border: solid 0px #707070;
+                border-bottom-width: 1px;
+                border-color: var(--CoreX-color);
+            }
+            .Input:hover{
+                border-bottom-width: 1px;
+                border-color: var(--CoreX-color);
+            }
+            .InputKey{
+                color: gray; 
+                width:25%; 
+                margin:1%; 
+                text-align:right;
+            }
+            .FlexColumnCenterSpaceAround{
+                display: flex;
+                flex-direction: column;
+                justify-content:space-around;
+                align-content:center;
+                align-items: center;
+            }
+            .FlexRowCenterspacearound{
+                display: flex;
+                flex-direction: row;
+                justify-content:space-around;
+                align-content:center;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .FlexRowLeftCenter{
+                display: flex;
+                flex-direction: row;
+                justify-content : left;
+                align-items: center;
+                align-content:center;
+            }
+            /*
+            .FlexRowStartCenter{
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-content: center;
+                align-items: center;
+            }
+            */
+            .Button{
+                margin: 4vh 0vh 1vh 0vh;
+                padding: 1vh 2vh 1vh 2vh;
+                cursor: pointer;
+                border: 1px solid var(--CoreX-color);
+                border-radius: 20px;
+                text-align: center;
+                display: inline-block;
+                font-size: var(--CoreX-font-size);
+                box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7);
+                color: rgb(44,1,21);
+                background: white;
+                outline: none;
+            }
+            .Button:hover{
+                box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+            }
+            @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
+            only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
+            screen and (max-width: 700px)
+            {
+                #Titre{font-size: var(--CoreX-TitreIphone-font-size);}
+                .Text{font-size: var(--CoreX-Iphone-font-size);}
+                /*
+                .ContainerCommand{width: 90%;}
+                .ImageConteneur{
+                    width: 25vw;
+                    height: 25vw;
+                }
+                */
+                .UserConteneur{
+                    width: 55vw;
+                    height: 15vw;
+                    margin: 2%;
+                }
+                /*
+                .UserImg{max-height: 20vw;}
+                */
+                .DivListOfUserData{width: 100%;}
+                .Input {
+                    width: 65%;
+                    font-size: var(--CoreX-Iphone-font-size);
+                    border-bottom: solid 1px #dcdcdc;
+                }
+                .InputKey {width:30%;}
+                .Button{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
+            }
+            @media screen and (min-width: 1200px)
+            {
+                #Titre{font-size: var(--CoreX-TitreMax-font-size);}
+                .Text{font-size: var(--CoreX-Max-font-size);}
+                /*
+                .ImageConteneur{
+                    width: 148px;
+                    height: 148px;
+                }
+                */
+                .UserConteneur{
+                    width: 350px;
+                    height: 50px;
+                }
+                /*
+                .UserImg{max-height: 120px;}
+                */
+                .DivListOfUserData{width: 800px;}
+                .Input {font-size: var(--CoreX-Max-font-size);}
+                .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
             }
         </style>`
     }

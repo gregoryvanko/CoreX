@@ -18,6 +18,7 @@ class CoreXAdminLogApp{
         // Add CSS
         this._DivApp.innerHTML = this.GetCss()
         // Global action
+        GlobalClearActionList()
         GlobalAddActionInList("Refresh", this.Start.bind(this))
         // Titre
         this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of logs", "Titre", "", "margin-top:4%"))

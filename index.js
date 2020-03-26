@@ -749,6 +749,8 @@ class corex {
 
         // Ajout des modules de CoreX
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8') + os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXBuild.js", 'utf8') + os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXApp.js", 'utf8') + os.EOL
         MyApp.JS += `
             // Creation de l'application
             let MyApp = new CoreXApp()
@@ -806,8 +808,10 @@ class corex {
     GetAdminAppCode(){
         let fs = require('fs')
         let os = require('os')
-        let reponse = fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8')
-        reponse += os.EOL
+        let reponse = fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8')+ os.EOL
+        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXBuild.js", 'utf8') + os.EOL
+        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXApp.js", 'utf8') + os.EOL
+
         reponse += `
             // Creation de l'application
             let MyApp = new CoreXApp()
