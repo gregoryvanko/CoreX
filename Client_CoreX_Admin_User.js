@@ -121,29 +121,25 @@ class CoreXAdminUserApp{
     }
     /* Load de la vue qui structure la liste des donnees d'un user */
     LoadViewCallForUserData(UserId){
-        // ToDo
         this.ClearView()
-        let View = /*html*/`
-        <div id="Titre" style="margin-top:4%">User information</div>
-        <div id="ListOfUserData" class="FlexColumnCenterSpaceAround DivListOfUserData">
-            <div class="Text">Get data of user...</div>
-        </div>
-        <div id="ErrorOfUserData" class="Text" style="color:red; text-align:center;"></div>
-        <div class="DivListOfUserData" style="display:flex; flex-direction:row; justify-content:space-around; align-content:center; align-items: center;">
-            <button id="ButtonSave" class="Button" style="display: none;">Save</button>
-            <button id="ButtonCancel" class="Button" style="display: none;">Cancel</button>
-        </div>`
-
-        // Ajout de la vue
-        this.SetView(View)
         // Ajout des des action a ActionButton
-        this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
-        this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
-        this._MyCoreXActionButton.AddAction("Save User", this.UpdateUser.bind(this,UserId))
-        this._MyCoreXActionButton.AddAction("Delete User", this.DeleteUser.bind(this,UserId))
-        // ajout event onclick
-        ButtonSave.onclick = this.UpdateUser.bind(this,UserId)
-        ButtonCancel.onclick = this.LoadViewCallForUserList.bind(this)
+        GlobalAddActionInList("Save User", this.UpdateUser.bind(this,UserId))
+        GlobalAddActionInList("Delete User", this.DeleteUser.bind(this,UserId))
+
+        this._DivApp.appendChild(CoreXBuild.DivTexte("User information", "Titre", "", "margin-top:4%"))
+        let divdatastruct = CoreXBuild.Div("ListOfUserData", "FlexColumnCenterSpaceAround DivListOfUserData")
+        divdatastruct.appendChild(CoreXBuild.DivTexte("Get data of user...", "", "Text",""))
+        this._DivApp.appendChild(divdatastruct)
+        this._DivApp.appendChild(CoreXBuild.Div("ErrorOfUserData", "Text", "color:red; text-align:center;"))
+        let divButton = CoreXBuild.Div("", "DivListOfUserData", "display:flex; flex-direction:row; justify-content:space-around; align-content:center; align-items: center;")
+        let buttonsave = CoreXBuild.Button("Save",this.UpdateUser.bind(this, UserId),"Button","ButtonSave")
+        buttonsave.setAttribute("Style", "display: none;")
+        divButton.appendChild(buttonsave)
+        let buttoncancel = CoreXBuild.Button("Cancel",this.Start.bind(this),"Button","ButtonCancel")
+        buttoncancel.setAttribute("Style", "display: none;")
+        divButton.appendChild(buttoncancel)
+        this._DivApp.appendChild(divButton)
+
         // Data for the api Call
         let DataCall = new Object()
         DataCall.UsesrId = UserId
@@ -153,10 +149,10 @@ class CoreXAdminUserApp{
             this.LoadUserData(reponse)
         },(erreur)=>{
             // Ajout des des action a ActionButton
-            this._MyCoreXActionButton.ClearActionList()
-            this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
-            this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
-            document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+            GlobalClearActionList()
+            GlobalAddActionInList("Refresh", this.Start.bind(this))
+            document.getElementById("ListOfUserData").innerHTML =""
+            document.getElementById("ErrorOfUserData").innerHTML = erreur
         })
     }
     /* Load de la vue montrant les donnes d'un user */
@@ -164,12 +160,13 @@ class CoreXAdminUserApp{
         // Supprimer les proprietés du user a ne pas afficher
         let UserDataToShow = Data[0]
         delete UserDataToShow._id
+        document.getElementById("ListOfUserData").innerHTML = ""
+
         // Creation de la liste HTML des données du user
-        let reponse =""
         Object.keys(UserDataToShow).forEach(element => {
-            reponse += this.UserDataBuilder(element, UserDataToShow[element])
+            document.getElementById("ListOfUserData").appendChild(this.UserDataBuilder(element, UserDataToShow[element]))
+
         })
-        document.getElementById("ListOfUserData").innerHTML = reponse
         document.getElementById("ButtonSave").style.display = "inline"
         document.getElementById("ButtonCancel").style.display = "inline"
     }
@@ -232,25 +229,28 @@ class CoreXAdminUserApp{
         // Sit tout les input son valide en envoie les data
         if (InputDataValide){ 
             // afficher le message d'update
-            document.getElementById("ListOfUserDataStructure").innerHTML='<div class="Text">Saving user...</div>'
+            document.getElementById("ListOfUserDataStructure").innerHTML=""
+            document.getElementById("ListOfUserDataStructure").appendChild(CoreXBuild.DivTexte("Saving user...", "", "Text", ""))
             document.getElementById("ButtonSave").style.display = "none"
             document.getElementById("ButtonCancel").style.display = "none"
             // Call delete user
             GlobalCallApiPromise("NewUser", DataCall).then((reponse)=>{
-                this.LoadViewCallForUserList()
+                this.Start()
             },(erreur)=>{
                 // Ajout des des action a ActionButton
-                this._MyCoreXActionButton.ClearActionList()
-                this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
-                this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
-                document.getElementById("ListOfUserDataStructure").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+                GlobalClearActionList()
+                GlobalAddActionInList("Refresh", this.Start.bind(this))
+                document.getElementById("ListOfUserDataStructure").innerHTML =""
+                document.getElementById("ErrorOfUserDataStructure").innerHTML = erreur
             })
         }
     }
     /* Delete d'un user */
     DeleteUser(UserId){
         if (confirm('Are you sure you want to Dete this User?')){
-            document.getElementById("ListOfUserData").innerHTML='<div class="Text">Delete du user...</div>'
+            document.getElementById("ErrorOfUserData").innerHTML = ""
+            document.getElementById("ListOfUserData").innerHTML=""
+            document.getElementById("ListOfUserData").appendChild(CoreXBuild.DivTexte("Delete user...", "", "Text", ""))
             document.getElementById("ButtonSave").style.display = "none"
             document.getElementById("ButtonCancel").style.display = "none"
             // Data for the api Call
@@ -259,13 +259,13 @@ class CoreXAdminUserApp{
             DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
             // Call delete user
             GlobalCallApiPromise("DeleteUser", DataCall).then((reponse)=>{
-                this.LoadViewCallForUserList()
+                this.Start()
             },(erreur)=>{
                 // Ajout des des action a ActionButton
-                this._MyCoreXActionButton.ClearActionList()
-                this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
-                this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
-                document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+                GlobalClearActionList()
+                GlobalAddActionInList("Refresh", this.Start.bind(this))
+                document.getElementById("ListOfUserData").innerHTML =""
+                document.getElementById("ErrorOfUserData").innerHTML = erreur
             })
         }
     }
@@ -284,6 +284,11 @@ class CoreXAdminUserApp{
             AllData[element.name] = element.value
         })
         DataCall.Data = AllData
+        // verifier si le user est non vide
+        if(document.getElementById("User").value == ""){
+            InputDataValide = false
+            document.getElementById("ErrorOfUserData").innerHTML= "User not empty!"
+        }
         // verifier si le password = confirm password
         if(document.getElementById("Password").value != document.getElementById("Confirm-Password").value){
             InputDataValide = false
@@ -292,18 +297,19 @@ class CoreXAdminUserApp{
         // Sit tout les input son valide en envoie les data
         if (InputDataValide){
             // afficher le message d'update
-            document.getElementById("ListOfUserData").innerHTML='<div class="Text">Update du user...</div>'
+            document.getElementById("ListOfUserData").innerHTML=""
+            document.getElementById("ListOfUserData").appendChild(CoreXBuild.DivTexte("Update user...", "", "Text", ""))
             document.getElementById("ButtonSave").style.display = "none"
             document.getElementById("ButtonCancel").style.display = "none"
             // Call delete user
             GlobalCallApiPromise("UpdateUser", DataCall).then((reponse)=>{
-                this.LoadViewCallForUserList()
+                this.Start()
             },(erreur)=>{
                 // Ajout des des action a ActionButton
-                this._MyCoreXActionButton.ClearActionList()
-                this._MyCoreXActionButton.AddAction("Home", this.LoadViewStart.bind(this))
-                this._MyCoreXActionButton.AddAction("Back", this.LoadViewCallForUserList.bind(this))
-                document.getElementById("ListOfUserData").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+                GlobalClearActionList()
+                GlobalAddActionInList("Refresh", this.Start.bind(this))
+                document.getElementById("ListOfUserData").innerHTML =""
+                document.getElementById("ErrorOfUserData").innerHTML = erreur
             })
         }
     }
@@ -324,17 +330,6 @@ class CoreXAdminUserApp{
                 color: var(--CoreX-color);
             }
             .Text{font-size: var(--CoreX-font-size);}
-            /*
-            .ContainerCommand{width: 60%;}
-            .ImageConteneur{
-                border: 1px solid black;
-                border-radius: 5px;
-                width: 14vw;
-                height: 14vw;
-                cursor: pointer;
-                padding: 3px;
-            }
-            */
             .UserConteneur{
                 border: 1px solid black;
                 border-radius: 5px;
@@ -343,18 +338,6 @@ class CoreXAdminUserApp{
                 margin: 0.5%;
                 cursor: pointer;
             }
-            /*
-            .UserImg{
-                max-width: 100%;
-                display: block;
-                margin-left: auto;
-                margin-right: auto;
-                max-height: 10vw;
-                border: 0px solid grey;
-                border-radius: 5px;
-                flex: 0 0 auto;
-            }
-            */
             .DivListOfUserData {
                 width: 70%;
                 margin: auto;
@@ -406,15 +389,6 @@ class CoreXAdminUserApp{
                 align-items: center;
                 align-content:center;
             }
-            /*
-            .FlexRowStartCenter{
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-start;
-                align-content: center;
-                align-items: center;
-            }
-            */
             .Button{
                 margin: 4vh 0vh 1vh 0vh;
                 padding: 1vh 2vh 1vh 2vh;
@@ -438,21 +412,11 @@ class CoreXAdminUserApp{
             {
                 #Titre{font-size: var(--CoreX-TitreIphone-font-size);}
                 .Text{font-size: var(--CoreX-Iphone-font-size);}
-                /*
-                .ContainerCommand{width: 90%;}
-                .ImageConteneur{
-                    width: 25vw;
-                    height: 25vw;
-                }
-                */
                 .UserConteneur{
                     width: 55vw;
                     height: 15vw;
                     margin: 2%;
                 }
-                /*
-                .UserImg{max-height: 20vw;}
-                */
                 .DivListOfUserData{width: 100%;}
                 .Input {
                     width: 65%;
@@ -466,19 +430,10 @@ class CoreXAdminUserApp{
             {
                 #Titre{font-size: var(--CoreX-TitreMax-font-size);}
                 .Text{font-size: var(--CoreX-Max-font-size);}
-                /*
-                .ImageConteneur{
-                    width: 148px;
-                    height: 148px;
-                }
-                */
                 .UserConteneur{
                     width: 350px;
                     height: 50px;
                 }
-                /*
-                .UserImg{max-height: 120px;}
-                */
                 .DivListOfUserData{width: 800px;}
                 .Input {font-size: var(--CoreX-Max-font-size);}
                 .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}

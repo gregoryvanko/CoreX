@@ -407,7 +407,7 @@ class CoreXWindowUserConfig{
 
         var Div2 = document.createElement("div")
         Div2.setAttribute("id", "CoreXWindowScreen")
-        Div2.setAttribute("style","top: " + divInputScreenTop + "; max-height: " + divInputScreenMaxHeight + ";")
+        Div2.setAttribute("style","top: " + divInputScreenTop + "; min-height:20vh; max-height: " + divInputScreenMaxHeight + "; display: flex; flex-direction: column; justify-content: center;")
         Div1.appendChild(Div2)
 
         var DivData = document.createElement("div")
@@ -443,6 +443,7 @@ class CoreXWindowUserConfig{
         DivButtonUpdateStruct1.appendChild(DivButtonUpdateStruct2)
 
         var ButtonClose = document.createElement("button")
+        ButtonClose.setAttribute("id", "ButtonClose")
         ButtonClose.setAttribute("class", "CoreXWindowUserConfigButton")
         ButtonClose.addEventListener("click", ()=>{CoreXWindowUserConfig.DeleteWindow()})
         var DivButtonCloseStruct1 = document.createElement("div")
@@ -523,6 +524,11 @@ class CoreXWindowUserConfig{
         el.forEach(element => {
             AllData[element.name] = element.value
         })
+        // verifier si le user est non vide
+        if(document.getElementById("User").value == ""){
+            InputDataValide = false
+            document.getElementById("ErrorOfMyUserData").innerHTML= "User not empty!"
+        }
         // verifier si le password = confirm password
         if(document.getElementById("Password").value != document.getElementById("Confirm-Password").value){
             InputDataValide = false
@@ -532,6 +538,7 @@ class CoreXWindowUserConfig{
         if (InputDataValide){
             // afficher le message d'update
             document.getElementById("CoreXWindowUserConfigData").innerHTML='<div class="Text" style="text-align: center;">Update du user...</div>'
+            document.getElementById("ButtonUpdateMyData").style.display = "none"
             // Call delete user
             GlobalCallApiPromise("UpdateMyUser", AllData).then((reponse)=>{
                 CoreXWindowUserConfig.DeleteWindow()
