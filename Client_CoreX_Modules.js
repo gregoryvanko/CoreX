@@ -1,6 +1,7 @@
 /** Bouton Action en haut a droite */
 class CoreXActionButton{
-    constructor(){
+    constructor(AppIsSecured){
+        this._AppIsSecured = AppIsSecured
         this._HtmlId = "AdminCoreXActionButton"
         this._ActionList=[]
         this._lastTap = 0
@@ -58,14 +59,24 @@ class CoreXActionButton{
             var DivLine = document.createElement("div")
             DivLine.setAttribute("style","height: 20px;")
             Div.appendChild(DivLine)
-            Div.appendChild(this.GetTemplateActionImagesButton())
+            if (this._AppIsSecured){
+                Div.appendChild(this.GetTemplateActionImagesButton())
+            }
         } else {
-            Div.appendChild(this.GetTemplateActionBoutton("Logout", GlobalLogout))
-            Div.appendChild(this.GetTemplateActionBoutton("User Configuration",  CoreXWindowUserConfig.BuildWindow))
-            if(window.location.pathname == "/"){
-                Div.appendChild(this.GetTemplateActionBoutton("Go to Admin App",  this.GoToApp.bind(this, false)))
+            if (this._AppIsSecured){
+                Div.appendChild(this.GetTemplateActionBoutton("Logout", GlobalLogout))
+                Div.appendChild(this.GetTemplateActionBoutton("User Configuration",  CoreXWindowUserConfig.BuildWindow))
+                if(window.location.pathname == "/"){
+                    Div.appendChild(this.GetTemplateActionBoutton("Go to Admin App",  this.GoToApp.bind(this, false)))
+                } else {
+                    Div.appendChild(this.GetTemplateActionBoutton("Go to App",  this.GoToApp.bind(this, true)))
+                }
             } else {
-                Div.appendChild(this.GetTemplateActionBoutton("Go to App",  this.GoToApp.bind(this, true)))
+                let Divtext = document.createElement("div")
+                Divtext.setAttribute("style", "text-align: center;")
+                Divtext.setAttribute("class", "Text")
+                Divtext.innerHTML="No Action defined"
+                Div.appendChild(Divtext)
             }
         }
         
@@ -128,6 +139,7 @@ class CoreXActionButton{
     GetCss(){
     return /*html*/`
         <style>
+        .Text{font-size: var(--CoreX-font-size);}
         .CoreXActionButtonButton{
             margin: 2% 2% 2% 2%;
             padding: 1vh;
@@ -178,12 +190,14 @@ class CoreXActionButton{
         only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
         screen and (max-width: 700px)
         {
+            .Text{font-size: var(--CoreX-Iphone-font-size);}
             .CoreXActionButtonButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px; height: 12VW;}
             .CoreXActionButtonImageButton{width:10%;}
             .CoreXActionMenuButton{font-size: calc(var(--CoreX-Iphone-font-size)*1.5);height: 10VW; width: 10VW;}
         }
         @media screen and (min-width: 1200px)
         {
+            .Text{font-size: var(--CoreX-Max-font-size);}
             .CoreXActionButtonButton {font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
             .CoreXActionButtonImageButton{width:33px;}
             .CoreXActionMenuButton {font-size: var(--CoreX-Max-font-size);}

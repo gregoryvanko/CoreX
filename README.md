@@ -145,9 +145,6 @@ GlobalCoreXGetAppContentId()
 /** Ajouter une application */
 GlobalCoreXAddApp(AppTitre, AppSrc, AppStart)
 
-/** Start de l'application */
-GlobalCoreXStart()
-
 /** Appel à l'Api du serveur */
 // FctName: le nom de la fonction a executer
 // FctData: les donnes a passer à la fonction
@@ -170,8 +167,6 @@ DownProg(event){
 let App1 = new TestCoreXApp(GlobalCoreXGetAppContentId())
 // Ajout de l'application 1
 GlobalCoreXAddApp(App1.GetTitre(), App1.GetImgSrc(),App1.Start.bind(App1))
-// Lancement de l'application
-GlobalCoreXStart()
 ```
 
 Les modules disponible

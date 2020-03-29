@@ -1,8 +1,9 @@
 /** Core de la gestion d'un application par page */
 class CoreXApp{
-    constructor(){
+    constructor(AppIsSecured){
+        this._AppIsSecured = AppIsSecured
         this._ContentAppId = "CoreXAppContent"
-        this._MyCoreXActionButton = new CoreXActionButton()
+        this._MyCoreXActionButton = new CoreXActionButton(this._AppIsSecured)
         this._MyCoreXActionButton.Start()
         this._ListApplications = new Array()
         document.body.appendChild(CoreXBuild.Div(this._ContentAppId))

@@ -13,7 +13,10 @@ class corex {
         this._CSS = {FontSize:{TexteNomrale:"2vw", TexteIphone:"3vw", TexteMax:"20px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},Color:{Normale:"rgb(20, 163, 255)"}}
         this._Icon = __dirname + "/apple-icon-192x192.png"
         this._ClientAppFolderRoot = __dirname
-        this._ClientAppFolder = "/Client_CoreX_DefaultApp"
+        // ToDo
+        console.log(this._ClientAppFolderRoot)
+        
+        this._ClientAppFolder = null
         this._Usesocketio = false
         this._ApiFctList = []
 
@@ -169,7 +172,7 @@ class corex {
                         }
                         break
                     default:
-                        let UserId = null
+                        let UserId = "Anonyme"
                         if (DecryptTokenReponse != null){
                             UserId = DecryptTokenReponse.TokenData.data.UserData._id
                         }
@@ -449,6 +452,7 @@ class corex {
                 height: 100VH;
             }
         </style>`
+        let apiurl = "api"
         let GlobalCallApiPromise = `
         function GlobalCallApiPromise(FctName, FctData, UploadProgress, DownloadProgress){
             return new Promise((resolve, reject)=>{
@@ -476,7 +480,7 @@ class corex {
                 }
                 xhttp.open("POST", "`+ apiurl +`", true)
                 xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-                xhttp.send(JSON.stringify({Token:MyCoreXLoader.GetTokenLogin(), FctName:FctName, FctData:FctData}))
+                xhttp.send(JSON.stringify({Token:null, FctName:FctName, FctData:FctData}))
             })
         }`
         let CSS = `
@@ -486,29 +490,8 @@ class corex {
         let JS = `
         <script id="CodeJS" type="text/javascript"> 
         ` + GlobalCallApiPromise +`
-            // Creation de l'application
-            let MyApp = new CoreXApp()
-            // Fonction globale GlobalClearActionList
-            function GlobalClearActionList() {
-                MyApp.ClearActionList()
-            }
-            // Fonction gloable AddActionInList
-            function GlobalAddActionInList(Titre, Action) {
-                MyApp.AddActionInList(Titre, Action)
-            }
-            // Fonction globale GetContentAppId
-            function GlobalCoreXGetAppContentId() {
-                return MyApp.ContentAppId
-            }
-            // Fonction globale Add App in CoreXApp
-            function GlobalCoreXAddApp(AppTitre, AppSrc, AppStart) {
-                MyApp.AddApp(AppTitre, AppSrc, AppStart)
-            }
-            // Fonction globale Start App CoreXApp
-            function GlobalCoreXStart(){
-                MyApp.Start()
-            }
         ` + MyApp.JS + `
+            MyApp.Start()
         </script>`
         let HTMLEnd = ` 
     </head>
@@ -753,7 +736,7 @@ class corex {
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXApp.js", 'utf8') + os.EOL
         MyApp.JS += `
             // Creation de l'application
-            let MyApp = new CoreXApp()
+            let MyApp = new CoreXApp(`+this._AppIsSecured+`)
             // Fonction globale GlobalClearActionList
             function GlobalClearActionList() {
                 MyApp.ClearActionList()
@@ -770,38 +753,41 @@ class corex {
             function GlobalCoreXAddApp(AppTitre, AppSrc, AppStart) {
                 MyApp.AddApp(AppTitre, AppSrc, AppStart)
             }
-            // Fonction globale Start App CoreXApp
-            function GlobalCoreXStart(){
-                MyApp.Start()
-            }
             `
 
-        let folder = this._ClientAppFolderRoot + this._ClientAppFolder
-        if(fs.existsSync(folder)){
-            var files = fs.readdirSync(folder)
-            for (var i in files){
-                if(fs.existsSync(folder + "/" + files[i])){
-                    switch (path.extname(files[i])) {
-                        case ".js":
-                            MyApp.JS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
-                            break;
-                        case ".css":
-                            MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
-                            break;
-                        default:
-                            this.LogAppliError("file extension not know: " + path.extname(files[i]))
-                            console.log("file extension not know: " + path.extname(files[i]))
-                            break;
+        if(this._ClientAppFolder != null){
+            let folder = this._ClientAppFolderRoot + this._ClientAppFolder
+            if(fs.existsSync(folder)){
+                var files = fs.readdirSync(folder)
+                for (var i in files){
+                    if(fs.existsSync(folder + "/" + files[i])){
+                        switch (path.extname(files[i])) {
+                            case ".js":
+                                MyApp.JS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
+                                break;
+                            case ".css":
+                                MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
+                                break;
+                            default:
+                                this.LogAppliError("file extension not know: " + path.extname(files[i]))
+                                console.log("file extension not know: " + path.extname(files[i]))
+                                break;
+                        }
+                    } else {
+                        this.LogAppliError("file not found: " + this._ClientAppFolderRoot + files[i])
+                        console.log("file not found: " + this._ClientAppFolderRoot + files[i])
                     }
-                } else {
-                    this.LogAppliError("file not found: " + this._ClientAppFolderRoot + files[i])
-                    console.log("file not found: " + this._ClientAppFolderRoot + files[i])
                 }
+            } else {
+                this.LogAppliError("Client folder not found: " + this._ClientAppFolderRoot)
+                console.log("Client folder not found: " + this._ClientAppFolderRoot)
             }
         } else {
-            this.LogAppliError("Client folder not found: " + this._ClientAppFolderRoot)
-            console.log("Client folder not found: " + this._ClientAppFolderRoot)
+            this.LogAppliError("Client folder not defined (=null) ")
+            console.log("Client folder not defined (=null) ")
         }
+        MyApp.JS += "MyApp.Start()"
+
         return MyApp
     }
     /* Recuperer le code de l'Admin App */
@@ -814,7 +800,7 @@ class corex {
 
         reponse += `
             // Creation de l'application
-            let MyApp = new CoreXApp()
+            let MyApp = new CoreXApp(true)
             // Fonction globale GlobalClearActionList
             function GlobalClearActionList() {
                 MyApp.ClearActionList()
@@ -831,10 +817,6 @@ class corex {
             function GlobalCoreXAddApp(AppTitre, AppSrc, AppStart) {
                 MyApp.AddApp(AppTitre, AppSrc, AppStart)
             }
-            // Fonction globale Start App CoreXApp
-            function GlobalCoreXStart(){
-                MyApp.Start()
-            }
             `
         // Ajout de la classe de l'application admin
         reponse += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8')
@@ -843,8 +825,7 @@ class corex {
         reponse += os.EOL
         reponse += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Start.js", 'utf8')
         reponse += os.EOL
-        //reponse += fs.readFileSync(__dirname + "/Client_CoreX_AdminApp.js", 'utf8')
-        //reponse += os.EOL
+        reponse += "MyApp.Start()"
         return reponse
     }
 

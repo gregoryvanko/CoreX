@@ -37,11 +37,11 @@ class ServeurTestCoreX{
         this._MyServeurApp.Start()                                                      // Lancement du module corex
     }
     TestApiCallForFctTest(Data, Res, UserId){
-        this._MyServeurApp.LogAppliInfo("Call de l API User avec la fonction Test")
+        this._MyServeurApp.LogAppliInfo("Call de l API User avec la fonction Test par le user: " + UserId)
         Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct Test=" + Data})
     }
     TestApiCallForFctTestC(Data, Res, UserId){
-        this._MyServeurApp.LogAppliError("Call de l API User avec la fonction TestC")
+        this._MyServeurApp.LogAppliError("Call de l API User avec la fonction TestC par le user: " + UserId)
         Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct TestC=" + Data})
     }
 }

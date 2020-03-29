@@ -7,6 +7,3 @@ let AppAdmin = new CoreXAdminUserApp(GlobalCoreXGetAppContentId(), true)
 GlobalCoreXAddApp(AppLog.GetTitre(), AppLog.GetImgSrc(),AppLog.Start.bind(AppLog))
 GlobalCoreXAddApp(AppUser.GetTitreUser(), AppUser.GetImgSrcUser(),AppUser.Start.bind(AppUser))
 GlobalCoreXAddApp(AppAdmin.GetTitreAdmin(), AppAdmin.GetImgSrcAdmin(),AppAdmin.Start.bind(AppAdmin))
-
-// Lancement de l'application CoreXApp
-GlobalCoreXStart()
