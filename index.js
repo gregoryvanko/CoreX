@@ -11,10 +11,8 @@ class corex {
         this._Debug = true
         this._AppIsSecured = true
         this._CSS = {FontSize:{TexteNomrale:"2vw", TexteIphone:"3vw", TexteMax:"20px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},Color:{Normale:"rgb(20, 163, 255)"}}
-        this._Icon = __dirname + "/apple-icon-192x192.png"
         this._ClientAppFolderRoot = this.SetClientAppFolderRoot()
-        //this._ClientAppFolderRoot = __dirname
-
+        this._Icon = this._ClientAppFolderRoot + "/apple-icon-192x192.png"
         this._ClientAppFolder = null
         this._Usesocketio = false
         this._ApiFctList = []
@@ -48,18 +46,8 @@ class corex {
     set AppIsSecured(val){this._AppIsSecured = val}
     set CSS(val){this._CSS = val}
     set Usesocketio(val){this._Usesocketio = val}
-    set IconRelPath(val){
-        //var appRoot = process.cwd()
-        //this._Icon = appRoot + val
-        this._Icon = this._ClientAppFolderRoot + val
-    }
-    set ClientAppFolder(val){
-        //this._ClientAppFolderRoot = process.cwd()   
-        this._ClientAppFolder = val
-    }
-    //set ClientAppRoot(val){
-    //    this._ClientAppFolderRoot = val  
-    //}
+    set IconRelPath(val){this._Icon = this._ClientAppFolderRoot + val}
+    set ClientAppFolder(val){this._ClientAppFolder = val}
 
     /* Start du Serveur de l'application */
     Start(){
@@ -344,11 +332,9 @@ class corex {
     /** Set du direcory root */
     SetClientAppFolderRoot(){
         var path = __dirname
-        console.log(path)
         if (path.includes("/node_modules/@gregvanko/corex")){
             path = path.replace('/node_modules/@gregvanko/corex', '')
         }
-        console.log(path)
         return path
     }
     /* LogDebug dans la console */

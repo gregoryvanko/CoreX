@@ -86,8 +86,6 @@ class ServeurTestCoreX{
         this._MyServeurApp.CSS = CSS
         // L'application utilise SocketIo
         this._MyServeurApp.Usesocketio = false
-        // Chemin du repertoire root du projet
-        //this._MyServeurApp.ClientAppRoot = __dirname
         // Chemin vers le dossier contenant les sources Js et CSS du client
         this._MyServeurApp.ClientAppFolder = "/TestClient"
         // Chemin relatif de l'icone
