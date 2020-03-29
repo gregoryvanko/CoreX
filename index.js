@@ -13,8 +13,10 @@ class corex {
         this._CSS = {FontSize:{TexteNomrale:"2vw", TexteIphone:"3vw", TexteMax:"20px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},Color:{Normale:"rgb(20, 163, 255)"}}
         this._Icon = __dirname + "/apple-icon-192x192.png"
         this._ClientAppFolder = null
+        this._AdminAppFolder = null
         this._Usesocketio = false
         this._ApiFctList = []
+        this._ApiAdminFctList = []
 
         // Varaible interne MongoDB
         let MongoR = require('./Mongo.js').Mongo
@@ -45,10 +47,9 @@ class corex {
     set AppIsSecured(val){this._AppIsSecured = val}
     set CSS(val){this._CSS = val}
     set Usesocketio(val){this._Usesocketio = val}
-    set IconRelPath(val){
-        this._Icon = val
-        }
+    set IconRelPath(val){this._Icon = val}
     set ClientAppFolder(val){this._ClientAppFolder = val}
+    set AdminAppFolder(val){this._AdminAppFolder = val}
 
     /* Start du Serveur de l'application */
     Start(){
@@ -220,8 +221,18 @@ class corex {
                             me.ApiAUpdateUser(DataCall, res)
                             break
                         default:
-                            me.LogAppliError(" => No API Admin for FctName: " + req.body.FctName)
-                            res.json({Error: true, ErrorMsg:"No API Admin for FctName: " + req.body.FctName})
+                            let UserId = DecryptTokenReponse.TokenData.data.UserData._id
+                            let FctNotFound = true
+                            me._ApiAdminFctList.forEach(element => {
+                                if (element.FctName == req.body.FctName){
+                                    element.Fct(req.body.FctData, res, UserId)
+                                    FctNotFound = false
+                                }
+                            })
+                            if (FctNotFound){
+                                me.LogAppliError(" => No API Admin for FctName: " + req.body.FctName)
+                                res.json({Error: true, ErrorMsg:"No API Admin for FctName: " + req.body.FctName})
+                            }
                             break
                     }
                 } else {
@@ -423,6 +434,13 @@ class corex {
         apiobject.FctName = FctName
         apiobject.Fct = Fct
         this._ApiFctList.push(apiobject)
+    }
+    /** Ajout d'un fonction a gerer via l'API Admin */
+    AddApiAdminFct(FctName, Fct){
+        let apiobject = new Object()
+        apiobject.FctName = FctName
+        apiobject.Fct = Fct
+        this._ApiAdminFctList.push(apiobject)
     }
     /* Generation du fichier HTML de base de l'application cliente securisée */
     GetInitialHTML(){
@@ -707,15 +725,17 @@ class corex {
                 let Projection = { projection:{[this._MongoLoginUserItem]: 1}}
                 this._Mongo.FindPromise(Query, Projection, Collection).then((reponse)=>{
                     this.LogAppliInfo("TokenUserId validé. User = " + reponse[0].User)
+                    let MyApp = null
                     switch (Site) {
                         case "app":
                             this.LogAppliInfo("Start loading App")
-                            let MyApp = this.GetAppCode()
-                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS:MyApp.CSS})
+                            MyApp = this.GetAppCode()
+                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
                             break
                         case "admin":
                             this.LogAppliInfo("Start loading App Admin")
-                            res.json({Error: false, ErrorMsg:"", CodeAppJS: this.GetAdminAppCode(),CodeAppCSS:"", CodeAppIMG:""})
+                            MyApp = this.GetAdminAppCode()
+                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
                             break
                         default:
                             this.LogAppliError("No app for site: " + Site)
@@ -806,13 +826,17 @@ class corex {
     }
     /* Recuperer le code de l'Admin App */
     GetAdminAppCode(){
-        let fs = require('fs')
-        let os = require('os')
-        let reponse = fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8')+ os.EOL
-        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXBuild.js", 'utf8') + os.EOL
-        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXApp.js", 'utf8') + os.EOL
+        let MyApp = new Object()
+        MyApp.JS = ""
+        MyApp.CSS = ""
 
-        reponse += `
+        let fs = require('fs')
+        let path = require('path')
+        let os = require('os')
+        MyApp.JS = fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8')+ os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXBuild.js", 'utf8') + os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXApp.js", 'utf8') + os.EOL
+        MyApp.JS += `
             // Creation de l'application
             let MyApp = new CoreXApp(true)
             // Fonction globale GlobalClearActionList
@@ -833,14 +857,42 @@ class corex {
             }
             `
         // Ajout de la classe de l'application admin
-        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8')
-        reponse += os.EOL
-        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Admin_User.js", 'utf8')
-        reponse += os.EOL
-        reponse += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Start.js", 'utf8')
-        reponse += os.EOL
-        reponse += "MyApp.Start()"
-        return reponse
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8') + os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_User.js", 'utf8') + os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Start.js", 'utf8') + os.EOL
+        // ToDo
+        if(this._AdminAppFolder != null){
+            let folder = this._AdminAppFolder
+            if(fs.existsSync(folder)){
+                var files = fs.readdirSync(folder)
+                for (var i in files){
+                    if(fs.existsSync(folder + "/" + files[i])){
+                        switch (path.extname(files[i])) {
+                            case ".js":
+                                MyApp.JS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
+                                break;
+                            case ".css":
+                                MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
+                                break;
+                            default:
+                                this.LogAppliError("file extension not know: " + path.extname(files[i]))
+                                console.log("file extension not know: " + path.extname(files[i]))
+                                break;
+                        }
+                    } else {
+                        this.LogAppliError("file not found: " + folder + "/" + files[i])
+                        console.log("file not found: " + folder + "/" + files[i])
+                    }
+                }
+            } else {
+                this.LogAppliError("Client folder not found: " + folder)
+                console.log("Client folder not found: " + folder)
+            }
+        } else {
+            this.LogAppliInfo("Admin folder not defined (=null) ")
+        }
+        MyApp.JS += "MyApp.Start()"
+        return MyApp
     }
 
     /* Get list of all user via l'ApiAdmin */

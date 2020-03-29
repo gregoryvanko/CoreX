@@ -6,18 +6,9 @@ class TestCoreXApp{
     Start(){
         document.getElementById(this._HtmlId).innerHTML = `<div id="TestCSS">coucou les amis</div>`
         GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
-        GlobalAddActionInList("Test 2", this.ClickTestCButton.bind(this))
     }
     ClickTestButton(){
         GlobalCallApiPromise("Test", "TestDataGreg").then((reponse)=>{
-            alert(reponse)
-        },(erreur)=>{
-            alert(erreur)
-        })
-    }
-    ClickTestCButton(){
-        GlobalCallApiPromise("TestC", "TestData for Fct C").then((reponse)=>{
-            GlobalClearActionList()
             alert(reponse)
         },(erreur)=>{
             alert(erreur)

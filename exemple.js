@@ -25,23 +25,34 @@ class ServeurTestCoreX{
                 Normale:"rgb(20, 163, 255)"         //--CoreX-color
             }
         }
-        this._MyServeurApp.Debug = true                                                 // Affichier les message de debug du serveur
-        this._MyServeurApp.AppIsSecured = true                                          // L'application est elle securisee par un login
-        this._MyServeurApp.CSS = CSS                                                    // Css de base de l'application
-        this._MyServeurApp.Usesocketio = false                                          // L'application utilise SocketIo
-        this._MyServeurApp.ClientAppFolder = __dirname + "/TestClient"                              // Chemin vers le dossier contenant sources Js et CSS du client
-        this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"                      // Chemin relatif de l'icone
-        this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this))     // Add serveur api for FctName = test
-        this._MyServeurApp.AddApiFct("TestC", this.TestApiCallForFctTestC.bind(this))   // Add serveur api for FctName = test
-        this._MyServeurApp.Start()                                                      // Lancement du module corex
+        // Affichier les message de debug du serveur
+        this._MyServeurApp.Debug = true
+        // L'application est elle securisee par un login
+        this._MyServeurApp.AppIsSecured = true
+        // Css de base de l'application
+        this._MyServeurApp.CSS = CSS
+        // L'application utilise SocketIo
+        this._MyServeurApp.Usesocketio = false
+        // Chemin vers le dossier contenant sources Js et CSS de l'app client
+        this._MyServeurApp.ClientAppFolder = __dirname + "/TestClient"
+        // Chemin vers le dossier contenant sources Js et CSS de l'app Admin
+        this._MyServeurApp.AdminAppFolder = __dirname + "/TestAdmin"
+        // Chemin relatif de l'icone
+        this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
+        // Add serveur api for FctName = test
+        this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this))
+        // Add serveur api Admin for FctName = test
+        this._MyServeurApp.AddApiAdminFct("Test", this.TestApiAdminCallForFctTest.bind(this))
+        // Lancement du module corex
+        this._MyServeurApp.Start()
     }
     TestApiCallForFctTest(Data, Res, UserId){
-        this._MyServeurApp.LogAppliInfo("Call de l API User avec la fonction Test par le user: " + UserId)
+        this._MyServeurApp.LogAppliInfo("Call de l API User, fonction Test par le user: " + UserId)
         Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct Test=" + Data})
     }
-    TestApiCallForFctTestC(Data, Res, UserId){
-        this._MyServeurApp.LogAppliError("Call de l API User avec la fonction TestC par le user: " + UserId)
-        Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct TestC=" + Data})
+    TestApiAdminCallForFctTest(Data, Res, UserId){
+        this._MyServeurApp.LogAppliInfo("Call de l API Admin, fonction Test par le user: " + UserId)
+        Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct Test=" + Data})
     }
 }
 
