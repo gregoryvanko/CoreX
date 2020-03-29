@@ -29,8 +29,8 @@ class ServeurTestCoreX{
         this._MyServeurApp.AppIsSecured = true                                          // L'application est elle securisee par un login
         this._MyServeurApp.CSS = CSS                                                    // Css de base de l'application
         this._MyServeurApp.Usesocketio = false                                          // L'application utilise SocketIo
-        this._MyServeurApp.ClientAppFolder = "/TestClient"                              // Chemin vers le dossier contenant sources Js et CSS du client
-        this._MyServeurApp.IconRelPath = "/apple-icon-192x192.png"                      // Chemin relatif de l'icone
+        this._MyServeurApp.ClientAppFolder = __dirname + "/TestClient"                              // Chemin vers le dossier contenant sources Js et CSS du client
+        this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"                      // Chemin relatif de l'icone
         this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this))     // Add serveur api for FctName = test
         this._MyServeurApp.AddApiFct("TestC", this.TestApiCallForFctTestC.bind(this))   // Add serveur api for FctName = test
         this._MyServeurApp.Start()                                                      // Lancement du module corex

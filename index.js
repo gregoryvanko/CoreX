@@ -11,8 +11,8 @@ class corex {
         this._Debug = true
         this._AppIsSecured = true
         this._CSS = {FontSize:{TexteNomrale:"2vw", TexteIphone:"3vw", TexteMax:"20px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},Color:{Normale:"rgb(20, 163, 255)"}}
-        this._ClientAppFolderRoot = this.SetClientAppFolderRoot()
-        this._Icon = this._ClientAppFolderRoot + "/apple-icon-192x192.png"
+        //this._ClientAppFolderRoot = this.SetClientAppFolderRoot()
+        this._Icon = __dirname + "/apple-icon-192x192.png"
         this._ClientAppFolder = null
         this._Usesocketio = false
         this._ApiFctList = []
@@ -46,7 +46,10 @@ class corex {
     set AppIsSecured(val){this._AppIsSecured = val}
     set CSS(val){this._CSS = val}
     set Usesocketio(val){this._Usesocketio = val}
-    set IconRelPath(val){this._Icon = this._ClientAppFolderRoot + val}
+    set IconRelPath(val){
+        //this._Icon = this._ClientAppFolderRoot + val
+        this._Icon = val
+        }
     set ClientAppFolder(val){this._ClientAppFolder = val}
 
     /* Start du Serveur de l'application */
@@ -235,17 +238,38 @@ class corex {
         // Creation d'un route pour l'icone
         this._Express.get('/apple-icon.png', function (req, res) {
             me.LogDebug("Get apple-icon.png: " + me._Icon)
-            res.send(fs.readFileSync(me._Icon))
+            //res.send(fs.readFileSync(me._Icon)) // ToDo tester le repertoire
+            let IconFile = me.GetIconFile(me._Icon)
+            if (IconFile!=null){
+                res.send(IconFile)
+            } else {
+                me.LogAppliError('Icon not found')
+                res.status(404).send("Sorry, the route Icon not found");
+            }
         })
         // Creation d'un route pour l'icone
         this._Express.get('/apple-touch-icon.png', function (req, res) {
             me.LogDebug("Get apple-touch-icon.png: " + me._Icon)
-            res.send(fs.readFileSync(me._Icon))
+            //res.send(fs.readFileSync(me._Icon))
+            let IconFile = me.GetIconFile(me._Icon)
+            if (IconFile!=null){
+                res.send(IconFile)
+            } else {
+                me.LogAppliError('Icon not found')
+                res.status(404).send("Sorry, the route Icon not found");
+            }
         })
         // Creation d'un route pour favicon.ico
         this._Express.get('/favicon.ico', function (req, res) {
             me.LogDebug("Get favicon.ico: " + me._Icon)
-            res.send(fs.readFileSync(me._Icon))
+            //res.send(fs.readFileSync(me._Icon))
+            let IconFile = me.GetIconFile(me._Icon)
+            if (IconFile!=null){
+                res.send(IconFile)
+            } else {
+                me.LogAppliError('Icon not found')
+                res.status(404).send("Sorry, the route Icon not found");
+            }
         })
         // Creation de la route 404
         this._Express.use(function(req, res, next) {
@@ -329,14 +353,23 @@ class corex {
 			console.log('listening on *:' + me._Port)
 		})
     }
-    /** Set du direcory root */
-    SetClientAppFolderRoot(){
-        var path = __dirname
-        if (path.includes("/node_modules/@gregvanko/corex")){
-            path = path.replace('/node_modules/@gregvanko/corex', '')
+    /** Get Icon file */
+    GetIconFile(val){
+        var fs = require('fs')
+        let file = null
+        if(fs.existsSync(val)){
+            file = fs.readFileSync(val)
         }
-        return path
+        return file
     }
+    /** Set du direcory root */
+    // SetClientAppFolderRoot(){
+    //     var path = __dirname
+    //     if (path.includes("/node_modules/@gregvanko/corex")){
+    //         path = path.replace('/node_modules/@gregvanko/corex', '')
+    //     }
+    //     return path
+    // }
     /* LogDebug dans la console */
     LogDebug(data){
         if(this._Debug){console.log(data)}
@@ -750,7 +783,8 @@ class corex {
             `
 
         if(this._ClientAppFolder != null){
-            let folder = this._ClientAppFolderRoot + this._ClientAppFolder
+            //let folder = this._ClientAppFolderRoot + this._ClientAppFolder
+            let folder = this._ClientAppFolder
             if(fs.existsSync(folder)){
                 var files = fs.readdirSync(folder)
                 for (var i in files){
@@ -768,13 +802,13 @@ class corex {
                                 break;
                         }
                     } else {
-                        this.LogAppliError("file not found: " + this._ClientAppFolderRoot + files[i])
-                        console.log("file not found: " + this._ClientAppFolderRoot + files[i])
+                        this.LogAppliError("file not found: " + folder + "/" + files[i])
+                        console.log("file not found: " + folder + "/" + files[i])
                     }
                 }
             } else {
-                this.LogAppliError("Client folder not found: " + this._ClientAppFolderRoot)
-                console.log("Client folder not found: " + this._ClientAppFolderRoot)
+                this.LogAppliError("Client folder not found: " + folder)
+                console.log("Client folder not found: " + folder)
             }
         } else {
             this.LogAppliError("Client folder not defined (=null) ")

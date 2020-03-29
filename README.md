@@ -87,9 +87,9 @@ class ServeurTestCoreX{
         // L'application utilise SocketIo
         this._MyServeurApp.Usesocketio = false
         // Chemin vers le dossier contenant les sources Js et CSS du client
-        this._MyServeurApp.ClientAppFolder = "/TestClient"
+        this._MyServeurApp.ClientAppFolder = __dirname + "/TestClient"
         // Chemin relatif de l'icone
-        this._MyServeurApp.IconRelPath = "/apple-icon-192x192.png"
+        this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
         // Add serveur api for FctName = Test
         this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this))
         // Add serveur api for FctName = TestC
