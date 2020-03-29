@@ -486,7 +486,6 @@ class corex {
         <script id="CodeJS" type="text/javascript"> 
         ` + GlobalCallApiPromise +`
         ` + MyApp.JS + `
-            MyApp.Start()
         </script>`
         let HTMLEnd = ` 
     </head>
