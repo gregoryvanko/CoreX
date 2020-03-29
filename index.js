@@ -12,10 +12,9 @@ class corex {
         this._AppIsSecured = true
         this._CSS = {FontSize:{TexteNomrale:"2vw", TexteIphone:"3vw", TexteMax:"20px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},Color:{Normale:"rgb(20, 163, 255)"}}
         this._Icon = __dirname + "/apple-icon-192x192.png"
-        this._ClientAppFolderRoot = __dirname
-        // ToDo
-        console.log(this._ClientAppFolderRoot)
-        
+        this._ClientAppFolderRoot = this.SetClientAppFolderRoot()
+        //this._ClientAppFolderRoot = __dirname
+
         this._ClientAppFolder = null
         this._Usesocketio = false
         this._ApiFctList = []
@@ -58,9 +57,9 @@ class corex {
         //this._ClientAppFolderRoot = process.cwd()   
         this._ClientAppFolder = val
     }
-    set ClientAppRoot(val){
-        this._ClientAppFolderRoot = val  
-    }
+    //set ClientAppRoot(val){
+    //    this._ClientAppFolderRoot = val  
+    //}
 
     /* Start du Serveur de l'application */
     Start(){
@@ -341,6 +340,16 @@ class corex {
 		this._http.listen(this._Port, function(){
 			console.log('listening on *:' + me._Port)
 		})
+    }
+    /** Set du direcory root */
+    SetClientAppFolderRoot(){
+        var path = __dirname
+        console.log(path)
+        if (path.includes("node_modules/@gregvanko/corex")){
+            path = path.replace('node_modules/@gregvanko/corex', '')
+        }
+        console.log(path)
+        return path
     }
     /* LogDebug dans la console */
     LogDebug(data){
