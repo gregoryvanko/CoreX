@@ -345,8 +345,8 @@ class corex {
     SetClientAppFolderRoot(){
         var path = __dirname
         console.log(path)
-        if (path.includes("node_modules/@gregvanko/corex")){
-            path = path.replace('node_modules/@gregvanko/corex', '')
+        if (path.includes("/node_modules/@gregvanko/corex")){
+            path = path.replace('/node_modules/@gregvanko/corex', '')
         }
         console.log(path)
         return path
