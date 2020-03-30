@@ -855,6 +855,16 @@ class corex {
             function GlobalCoreXAddApp(AppTitre, AppSrc, AppStart) {
                 MyApp.AddApp(AppTitre, AppSrc, AppStart)
             }
+            // Fonction globale Get User Data
+            function GlobalGetUserDataPromise(){
+                return new Promise((resolve, reject)=>{
+                    GlobalCallApiPromise("GetAllUser", "User").then((reponse)=>{
+                        resolve(reponse)
+                    },(erreur)=>{
+                        reject(erreur)
+                    })
+                })
+            }
             `
         // Ajout de la classe de l'application admin
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8') + os.EOL
