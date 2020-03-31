@@ -159,11 +159,17 @@ class CoreXActionButton{
             box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
         }
         .CoreXActionButtonImageButton{
-            width:10%;
+            width:15%;
             padding: 0px;
             cursor: pointer;
-            border: 0px solid black;
+            border: 2px solid transparent;
+            padding:2px;
+            border-radius: 10px;
             background-color: white;
+        }
+        .CoreXActionButtonImageButton:hover{
+            border-color: black;
+            box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
         }
         .CoreXActionMenuButton{
             position: fixed;
@@ -192,14 +198,14 @@ class CoreXActionButton{
         {
             .Text{font-size: var(--CoreX-Iphone-font-size);}
             .CoreXActionButtonButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px; height: 12VW;}
-            .CoreXActionButtonImageButton{width:10%;}
+            .CoreXActionButtonImageButton{width:15%;}
             .CoreXActionMenuButton{font-size: calc(var(--CoreX-Iphone-font-size)*1.5);height: 10VW; width: 10VW;}
         }
         @media screen and (min-width: 1200px)
         {
             .Text{font-size: var(--CoreX-Max-font-size);}
             .CoreXActionButtonButton {font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
-            .CoreXActionButtonImageButton{width:33px;}
+            .CoreXActionButtonImageButton{width:43px;}
             .CoreXActionMenuButton {font-size: var(--CoreX-Max-font-size);}
         }
         </style>
@@ -257,7 +263,7 @@ class CoreXWindow{
                 width:5%;
                 padding: 0px;
                 cursor: pointer;
-                border: 0px solid black;
+                border: 0px solid transparent;
                 background-color: white;
                 top: 0px;
                 right: 0px;

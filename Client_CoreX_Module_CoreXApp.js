@@ -96,7 +96,11 @@ class CoreXApp{
             height: 14vw;
             cursor: pointer;
             padding: 3px;
+            margin: 4px;
         }
+        .ImageConteneur:hover{
+                box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+            }
         .ImgAppCard{
             max-width: 100%;
             display: block;
