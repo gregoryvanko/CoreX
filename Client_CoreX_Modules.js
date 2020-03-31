@@ -197,7 +197,7 @@ class CoreXActionButton{
         screen and (max-width: 700px)
         {
             .Text{font-size: var(--CoreX-Iphone-font-size);}
-            .CoreXActionButtonButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px; height: 12VW;}
+            .CoreXActionButtonButton{font-size: calc(var(--CoreX-Iphone-font-size)*1.5); border-radius: 40px; height: 12VW;}
             .CoreXActionButtonImageButton{width:15%;}
             .CoreXActionMenuButton{font-size: calc(var(--CoreX-Iphone-font-size)*1.5);height: 10VW; width: 10VW;}
         }
@@ -401,9 +401,9 @@ class CoreXWindowUserConfig{
                 .Text{font-size: var(--CoreX-Iphone-font-size);}
                 #CoreXWindowScreen{width: 90%;}
                 .CoreXWindowUserConfigButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
-                .InputKey {width:30%;}
+                .InputKey {width:35%;}
                 .Input {
-                    width: 65%;
+                    width: 60%;
                     font-size: var(--CoreX-Iphone-font-size);
                     border-bottom: solid 1px #dcdcdc;
                 }
