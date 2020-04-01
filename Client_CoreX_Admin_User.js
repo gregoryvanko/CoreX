@@ -419,11 +419,11 @@ class CoreXAdminUserApp{
                 }
                 .DivListOfUserData{width: 100%;}
                 .Input {
-                    width: 65%;
+                    width: 60%;
                     font-size: var(--CoreX-Iphone-font-size);
                     border-bottom: solid 1px #dcdcdc;
                 }
-                .InputKey {width:30%;}
+                .InputKey {width:35%;}
                 .Button{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
             }
             @media screen and (min-width: 1200px)
