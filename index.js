@@ -354,10 +354,20 @@ class corex {
             //    }
             })
         }
+        // Gestion des erreur
+        this._http.on('error', function(error){
+            if (error.syscall !== 'listen') {
+                throw error;
+            }
+            if (error.code == "EADDRINUSE"){
+                console.error('Port is already in use')
+                process.exit(1)
+            }
+        })
         // Lancer le serveur
 		this._http.listen(this._Port, function(){
 			console.log('listening on *:' + me._Port)
-		})
+        })
     }
     /** Get Icon file */
     GetIconFile(val){
