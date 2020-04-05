@@ -18,6 +18,7 @@
     "socket.io": "^2.3.0"
   },
   "nodemonConfig": {
-    "ext": "css, js"
+    "ext": "css, js",
+    "delay": "5000"
   }
 }
