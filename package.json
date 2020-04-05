@@ -6,11 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon —inspect exemple.js",
-    "debug": "node --inspect=192.168.10.21:9229 exemple.js",
-    "nodemon": "nodemon —inspect exemple.js"
-  },
-  "commands": {
-    "Start nodemon": "nodemon --inspect exemple.js"
+    "save": "git add -A && git commit -a -m 'auto save' && npm version minor && npm publish && git push"
   },
   "author": "gregvanko",
   "license": "ISC",

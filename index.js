@@ -210,6 +210,9 @@ class corex {
                         case "GetLog":
                             me.ApiAdminGetLog(req.body.FctData, res)
                             break
+                        case "BackupNow":
+                            me.ApiAdminBackupNow(req.body.FctData, res)
+                            break
                         case "GetMyData":
                             me.ApiGetMyData("Admin",DecryptTokenReponse.TokenData.data.UserData._id, res)
                             break
@@ -877,6 +880,7 @@ class corex {
             }
             `
         // Ajout de la classe de l'application admin
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Backup.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_User.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Start.js", 'utf8') + os.EOL
@@ -1037,7 +1041,12 @@ class corex {
             res.json({Error: true, ErrorMsg: "DB Error", Data: ""})
         })
     }
-
+    /** Get des log de l'application */
+    ApiAdminBackupNow(Data, res){
+        this.LogAppliInfo("Call API Admin, FctName: BackupNow")
+        res.json({Error: false, ErrorMsg: "DB Backuped", Data: "DB Backuped"})
+        //ToDo
+    }
     /** Get My Data of a connected user (meme fonction pour Api et ApiAdmin) */
     ApiGetMyData(App, Id, res){
         this.LogAppliInfo("Call API Admin, FctName: ApiGetMyData, Data: App=" + App + " Id="+Id)
