@@ -45,6 +45,7 @@ class CoreXAdminBackupApp{
     BackupNow(){
         // Wainting text
         document.getElementById("InfoStart").innerHTML="Backup in progress"
+        document.getElementById("ErrorStart").innerHTML=""
         // Get All Log
         GlobalCallApiPromise("BackupNow", "").then((reponse)=>{
             document.getElementById("InfoStart").innerHTML=reponse

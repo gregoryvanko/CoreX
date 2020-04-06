@@ -1044,11 +1044,13 @@ class corex {
     /** Get des log de l'application */
     ApiAdminBackupNow(Data, res){
         this.LogAppliInfo("Call API Admin, FctName: BackupNow")
-        let GoogleBackup = require('./GoogleBackup').GoogleBackup
-        let MyGoogleBackup = new GoogleBackup(res)
-        MyGoogleBackup.Start()
-        //res.json({Error: false, ErrorMsg: "DB Backuped", Data: "DB Backuped"})
-        //ToDo
+        let DbBackup = require('./DbBackup').DbBackup
+        let MyDbBackup = new DbBackup(this._MongoDbName)
+        MyDbBackup.Start().then((reponse)=>{
+            res.json({Error: false, ErrorMsg: "DB Backuped", Data: reponse})
+        },(erreur)=>{
+            res.json({Error: true, ErrorMsg: "Error during Backup: "+ erreur, Data: ""})
+        })
     }
     /** Get My Data of a connected user (meme fonction pour Api et ApiAdmin) */
     ApiGetMyData(App, Id, res){
