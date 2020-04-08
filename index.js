@@ -210,8 +210,8 @@ class corex {
                         case "GetLog":
                             me.ApiAdminGetLog(req.body.FctData, res)
                             break
-                        case "BackupNow":
-                            me.ApiAdminBackupNow(req.body.FctData, res)
+                        case "Backup":
+                            me.ApiAdminBackup(req.body.FctData, res)
                             break
                         case "GetMyData":
                             me.ApiGetMyData("Admin",DecryptTokenReponse.TokenData.data.UserData._id, res)
@@ -1042,15 +1042,28 @@ class corex {
         })
     }
     /** Get des log de l'application */
-    ApiAdminBackupNow(Data, res){
-        this.LogAppliInfo("Call API Admin, FctName: BackupNow")
-        let DbBackup = require('./DbBackup').DbBackup
-        let MyDbBackup = new DbBackup(this._MongoDbName)
-        MyDbBackup.Backup().then((reponse)=>{
-            res.json({Error: false, ErrorMsg: "DB Backuped", Data: reponse})
-        },(erreur)=>{
-            res.json({Error: true, ErrorMsg: "Error during Backup: "+ erreur, Data: ""})
-        })
+    ApiAdminBackup(Data, res){
+        this.LogAppliInfo("Call API Admin, FctName: Backup")
+        if (Data == "BackupNow"){
+            let DbBackup = require('./DbBackup').DbBackup
+            let MyDbBackup = new DbBackup(this._MongoDbName)
+            MyDbBackup.Backup().then((reponse)=>{
+                res.json({Error: false, ErrorMsg: "DB Backuped", Data: reponse})
+            },(erreur)=>{
+                res.json({Error: true, ErrorMsg: "Error during Backup: "+ erreur, Data: ""})
+            })
+        } else if (Data == "RestoreNow"){
+            let DbBackup = require('./DbBackup').DbBackup
+            let MyDbBackup = new DbBackup(this._MongoDbName)
+            MyDbBackup.Restore().then((reponse)=>{
+                res.json({Error: false, ErrorMsg: "DB Restored", Data: reponse})
+            },(erreur)=>{
+                res.json({Error: true, ErrorMsg: "Error during Restore: "+ erreur, Data: ""})
+            })
+        } else {
+            res.json({Error: true, ErrorMsg: "Error during Backup: CmdData not found: "+ Data, Data: ""})
+        }
+
     }
     /** Get My Data of a connected user (meme fonction pour Api et ApiAdmin) */
     ApiGetMyData(App, Id, res){

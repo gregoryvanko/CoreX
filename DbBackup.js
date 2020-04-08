@@ -3,6 +3,8 @@ class DbBackup{
         this._BdName = BdName
         this._GoogleBackupFolderId = "1JCZoiwqL7Il_0jcGIPUwKPI_YjY6iOO4"
     }
+
+    /** Backup */
     Backup(){
         var me = this
         return new Promise((resolve, reject)=>{
@@ -106,6 +108,15 @@ class DbBackup{
             }
         })
     }
+
+    /** Restore */
+    Restore(){
+        var me = this
+        return new Promise((resolve, reject)=>{
+            resolve("DB Restored")
+        })
+    }
+
 }
 
 

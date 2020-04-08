@@ -27,6 +27,14 @@ class CoreXAdminBackupApp{
         DivBackupNowSection.appendChild(txtBackupNow)
         DivBackupNowSection.appendChild(CoreXBuild.Button("Backup",this.BackupNow.bind(this),"Button"))
         this._DivApp.appendChild(DivBackupNowSection)
+        // Restore now
+        let DivRstoreNowSection = CoreXBuild.DivFlexRowStart()
+        DivRstoreNowSection.style.margin = "2vh 0px 2vh 0px"
+        let txtRestoreNow = CoreXBuild.DivTexte("Restore now the DB :", "", "Text", "margin:1%;")
+        txtRestoreNow.classList.add("WidthInfoText")
+        DivRstoreNowSection.appendChild(txtRestoreNow)
+        DivRstoreNowSection.appendChild(CoreXBuild.Button("Restore",this.RestoreNow.bind(this),"Button"))
+        this._DivApp.appendChild(DivRstoreNowSection)
         // on ajoute un espace vide
         this._DivApp.appendChild(CoreXBuild.Div("","","height:2vh;"))
         // on construit le texte du message d'info
@@ -47,7 +55,20 @@ class CoreXAdminBackupApp{
         document.getElementById("InfoStart").innerHTML="Backup in progress"
         document.getElementById("ErrorStart").innerHTML=""
         // Get All Log
-        GlobalCallApiPromise("BackupNow", "").then((reponse)=>{
+        GlobalCallApiPromise("Backup", "BackupNow").then((reponse)=>{
+            document.getElementById("InfoStart").innerHTML=reponse
+        },(erreur)=>{
+            document.getElementById("InfoStart").innerHTML=""
+            document.getElementById("ErrorStart").innerHTML=erreur
+        })
+    }
+    /** Restore Now */
+    RestoreNow(){
+        // Wainting text
+        document.getElementById("InfoStart").innerHTML="Restore in progress"
+        document.getElementById("ErrorStart").innerHTML=""
+        // Get All Log
+        GlobalCallApiPromise("Backup", "RestoreNow").then((reponse)=>{
             document.getElementById("InfoStart").innerHTML=reponse
         },(erreur)=>{
             document.getElementById("InfoStart").innerHTML=""
