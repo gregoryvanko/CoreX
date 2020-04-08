@@ -1046,7 +1046,7 @@ class corex {
         this.LogAppliInfo("Call API Admin, FctName: BackupNow")
         let DbBackup = require('./DbBackup').DbBackup
         let MyDbBackup = new DbBackup(this._MongoDbName)
-        MyDbBackup.Start().then((reponse)=>{
+        MyDbBackup.Backup().then((reponse)=>{
             res.json({Error: false, ErrorMsg: "DB Backuped", Data: reponse})
         },(erreur)=>{
             res.json({Error: true, ErrorMsg: "Error during Backup: "+ erreur, Data: ""})
