@@ -190,7 +190,7 @@ class CoreXAdminUserApp{
                 break;
             default:
                 // input de type texte
-                input = CoreXBuild.Input(Key,Value,"Input","","name",Key,"")
+                input = CoreXBuild.Input(Key,Value,"Input","","text",Key,"")
                 input.setAttribute("data-Input", "CoreXInput")
                 reponse.appendChild(input)
                 break

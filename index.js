@@ -44,8 +44,9 @@ class corex {
 
         // Job Schedule
         this._JobSchedule = null
-        this._JobScheduleHour = 14 // =4 heure du matin
-        this._JobScheduleMinute = 49 // = 30 minutes
+        this._JobScheduleStarted = false
+        this._JobScheduleHour = 3
+        this._JobScheduleMinute = 30
     }
     
     set Debug(val){this._Debug = val}
@@ -1071,9 +1072,9 @@ class corex {
         })
     }
     /** Get des log de l'application */
-    ApiAdminBackup(Data, res){
+    ApiAdminBackup(ApiData, res){
         this.LogAppliInfo("Call API Admin, FctName: Backup")
-        if (Data == "BackupNow"){
+        if (ApiData.Fct == "BackupNow"){
             let DbBackup = require('./DbBackup').DbBackup
             let MyDbBackup = new DbBackup(this._MongoDbName)
             MyDbBackup.Backup().then((reponse)=>{
@@ -1081,7 +1082,7 @@ class corex {
             },(erreur)=>{
                 res.json({Error: true, ErrorMsg: "Error during Backup: "+ erreur, Data: ""})
             })
-        } else if (Data == "RestoreNow"){
+        } else if (ApiData.Fct == "RestoreNow"){
             let DbBackup = require('./DbBackup').DbBackup
             let MyDbBackup = new DbBackup(this._MongoDbName)
             MyDbBackup.Restore().then((reponse)=>{
@@ -1089,8 +1090,19 @@ class corex {
             },(erreur)=>{
                 res.json({Error: true, ErrorMsg: "Error during Restore: "+ erreur, Data: ""})
             })
+        } else if (ApiData.Fct == "GetSchedulerData"){
+            let SchedulerData = new Object()
+            SchedulerData.JobScheduleStarted = this._JobScheduleStarted
+            SchedulerData.JobScheduleHour = this._JobScheduleHour
+            SchedulerData.JobScheduleMinute = this._JobScheduleMinute
+            if (this._JobSchedule == null) {
+                SchedulerData.JobScheduleNext = "Scheduler not started"
+            } else {
+                SchedulerData.JobScheduleNext = this._JobSchedule.nextInvocation()
+            }
+            res.json({Error: false, ErrorMsg: "Scheduler Data", Data: SchedulerData})
         } else {
-            res.json({Error: true, ErrorMsg: "Error during Backup: CmdData not found: "+ Data, Data: ""})
+            res.json({Error: true, ErrorMsg: "Error during Backup: ApiData.Fct not found= "+ ApiData.Fct, Data: ""})
         }
 
     }
