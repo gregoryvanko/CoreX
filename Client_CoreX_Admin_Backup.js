@@ -77,24 +77,26 @@ class CoreXAdminBackupApp{
         let txtSchedulerStarted = CoreXBuild.DivTexte("Scheduler status :", "", "Text", "margin:1%;")
         txtSchedulerStarted.classList.add("WidthInfoText")
         DivSchedulerStartedSection.appendChild(txtSchedulerStarted)
-        DivSchedulerStartedSection.appendChild(CoreXBuild.ToggleSwitch("SchedulerStarted",Data.JobScheduleStarted,30))
+        let ToogleScheduler = CoreXBuild.ToggleSwitch("SchedulerStarted",Data.JobScheduleStarted,30)
+        DivSchedulerStartedSection.appendChild(ToogleScheduler)
+        let me = this
+        ToogleScheduler.addEventListener('change', (event) => {
+            if (event.target.checked) {
+                me.SchedulerSetStatus(true)
+            } else {
+                me.SchedulerSetStatus(false)
+            }
+        })
         DivContent.appendChild(DivSchedulerStartedSection)
-        // Scheduler Hour
-        let DivSchedulerHourSection = CoreXBuild.DivFlexRowStart()
-        DivSchedulerHourSection.style.margin = "2vh 0px 2vh 0px"
-        let txtSchedulerhour = CoreXBuild.DivTexte("Scheduler Hour :", "", "Text", "margin:1%;")
-        txtSchedulerhour.classList.add("WidthInfoText")
-        DivSchedulerHourSection.appendChild(txtSchedulerhour)
-        DivSchedulerHourSection.appendChild(CoreXBuild.Input("Schedulerhour",Data.JobScheduleHour,"Input","","number","Schedulerhour",""))
-        DivContent.appendChild(DivSchedulerHourSection)
-        // Scheduler Minute
-        let DivSchedulerMinuteSection = CoreXBuild.DivFlexRowStart()
-        DivSchedulerMinuteSection.style.margin = "2vh 0px 2vh 0px"
-        let txtSchedulerMinute = CoreXBuild.DivTexte("Scheduler Minute :", "", "Text", "margin:1%;")
-        txtSchedulerMinute.classList.add("WidthInfoText")
-        DivSchedulerMinuteSection.appendChild(txtSchedulerMinute)
-        DivSchedulerMinuteSection.appendChild(CoreXBuild.Input("Schedulerhour",Data.JobScheduleMinute,"Input","","number","Schedulerhour",""))
-        DivContent.appendChild(DivSchedulerMinuteSection)
+        // Scheduler configuration
+        let DivSchedulerConfigSection = CoreXBuild.DivFlexRowStart()
+        DivSchedulerConfigSection.style.margin = "2vh 0px 2vh 0px"
+        let txtSchedulerConfig = CoreXBuild.DivTexte("Scheduler Config :", "", "Text", "margin:1%;")
+        txtSchedulerConfig.classList.add("WidthInfoText")
+        DivSchedulerConfigSection.appendChild(txtSchedulerConfig)
+        //DivSchedulerHourSection.appendChild(CoreXBuild.Input("Schedulerhour",Data.JobScheduleHour,"Input","","number","Schedulerhour",""))
+        DivSchedulerConfigSection.appendChild(CoreXBuild.DivTexte(Data.JobScheduleHour +"H" + Data.JobScheduleMinute,"","Text","margin:1%;"))
+        DivContent.appendChild(DivSchedulerConfigSection)
         // Scheduler next 
         let DivSchedulerNextSection = CoreXBuild.DivFlexRowStart()
         DivSchedulerNextSection.style.margin = "2vh 0px 2vh 0px"
@@ -103,6 +105,14 @@ class CoreXAdminBackupApp{
         DivSchedulerNextSection.appendChild(txtSchedulerNext)
         DivSchedulerNextSection.appendChild(CoreXBuild.DivTexte(Data.JobScheduleNext,"","Text","margin:1%;"))
         DivContent.appendChild(DivSchedulerNextSection)
+        // Scheduler change config
+        let DivSchedulerChangeConfSection = CoreXBuild.DivFlexRowStart()
+        DivSchedulerChangeConfSection.style.margin = "2vh 0px 2vh 0px"
+        let txtSchedulerChangeConf = CoreXBuild.DivTexte("Change Scheduler time:", "", "Text", "margin:1%;")
+        txtSchedulerChangeConf.classList.add("WidthInfoText")
+        DivSchedulerChangeConfSection.appendChild(txtSchedulerChangeConf)
+        DivSchedulerChangeConfSection.appendChild(CoreXBuild.Button("Change",this.SchedulerChangeConfig.bind(this),"Button"))
+        DivContent.appendChild(DivSchedulerChangeConfSection)
     }
 
     /** Backup Now */
@@ -137,6 +147,23 @@ class CoreXAdminBackupApp{
             document.getElementById("InfoStart").innerHTML=""
             document.getElementById("ErrorStart").innerHTML=erreur
         })
+    }
+
+    /**
+     * Start and stop scheduler
+     * @param {boolean} Value true to start scheduler
+     */
+    SchedulerSetStatus(Value){
+        // ToDo
+        console.log(Value)
+    }
+
+    /**
+     * Change confiuguration of scheduler
+     */
+    SchedulerChangeConfig(){
+        // ToDo
+        console.log("ToDo")
     }
 
     /** Css de l'application */

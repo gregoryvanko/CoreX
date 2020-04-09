@@ -377,7 +377,6 @@ class corex {
 		this._http.listen(this._Port, function(){
 			console.log('listening on *:' + me._Port)
         })
-
     }
     /** Get Icon file */
     GetIconFile(val){
