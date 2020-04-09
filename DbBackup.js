@@ -1,10 +1,13 @@
 class DbBackup{
     constructor(BdName){
         this._BdName = BdName
+        this._PathTemp = __dirname + "/Temp"
         this._GoogleBackupFolderId = "1JCZoiwqL7Il_0jcGIPUwKPI_YjY6iOO4"
     }
 
-    /** Backup */
+    /**
+     * Backup d'une BD mongodb sur google drive
+     */
     Backup(){
         var me = this
         return new Promise((resolve, reject)=>{
@@ -12,28 +15,34 @@ class DbBackup{
             const exec = require('child_process').exec
             const execSync = require('child_process').execSync
             // Creation d'un repertoire Temp si il n'exites pas, ou le vider si il existe
-            const Path = process.cwd() + "/Temp"
-            if (fs.existsSync(Path)) {
+            if (fs.existsSync(this._PathTemp)) {
                 //console.log("Delete du repertoire Temp")
-                execSync('rm -r ' + Path)
-                fs.mkdirSync(Path)
+                execSync('rm -r ' + this._PathTemp)
+                fs.mkdirSync(this._PathTemp)
             } else {
                 //console.log("Creation du repertoire Temp")
-                fs.mkdirSync(Path)
+                fs.mkdirSync(this._PathTemp)
             }
             // Backup de la db
-            const cmd = 'mongodump --db ' + this._BdName + ' --gzip --archive=' + Path + "/" + this._BdName +".gz"
+            const cmd = 'mongodump --db ' + this._BdName + ' --gzip --archive=' + this._PathTemp + "/" + this._BdName +".gz"
             exec(cmd, function (error, stdout, stderr) {
                 if (error) {
                     console.log(error)
                     reject("Erreur lors de la creation du dump de la DB")
                 } else {
-                    me.GoogleBackup(Path, me._BdName +".gz", resolve, reject)
+                    me.GoogleBackup(me._PathTemp, me._BdName +".gz", resolve, reject)
                 }
             })
         })
     }
 
+    /**
+     * Realise un backup d'un fichier sur google drive
+     * @param {string} BackupDbPath Chemin vers le fichier a backuper
+     * @param {string} BackupDbName Nom du fichier a backuper
+     * @param {resolve} resolve resolve
+     * @param {reject} reject reject
+     */
     GoogleBackup(BackupDbPath, BackupDbName, resolve, reject){
         var me = this
         const {google} = require('googleapis');
@@ -74,6 +83,15 @@ class DbBackup{
         })
     }
 
+    /**
+     * Création d'un fichier sur google drive
+     * @param {drive} drive Objet drive de de googleapi
+     * @param {string} GoogleBackupFolderId Id google du folder de backup sur google drive
+     * @param {string} BackupDbPath Chemin vers le fichier a backuper
+     * @param {string} BackupDbName Nom du fichier a backuper
+     * @param {resolve} resolve Fonction resolve
+     * @param {reject} reject Fonction reject
+     */
     GoogleCreateFile(drive, GoogleBackupFolderId, BackupDbPath, BackupDbName, resolve, reject){
         const fs = require("fs")
         drive.files.create({
@@ -86,12 +104,26 @@ class DbBackup{
                 reject("Erreur lors de la creation du fichier backup sur google drive")
             } else {
                 //console.log('File Id: ', result.data.id)
+                if (fs.existsSync(BackupDbPath)) {
+                    //console.log("Delete du repertoire Temp")
+                    const execSync = require('child_process').execSync
+                    execSync('rm -r ' + BackupDbPath)
+                }
                 resolve("DB Backuped")
             }
         })
         
     }
 
+    /**
+     * Update un ficher existant sur google drive
+     * @param {drive} drive Object drive de googleapi
+     * @param {string} GoogleBackupFileId google Id du fichier a remplacer
+     * @param {string} BackupDbPath Chemin vers le repertoire contenant le fichier a backuper
+     * @param {string} BackupDbName Nom du fichier a backuper
+     * @param {resove} resolve resolve de la fonction promise de backup
+     * @param {reject} reject reject de la fonction promise de backup
+     */
     GoogleUpdateFile(drive, GoogleBackupFileId, BackupDbPath, BackupDbName, resolve, reject){
         const fs = require("fs")
         drive.files.update({
@@ -104,17 +136,47 @@ class DbBackup{
               reject("Erreur lors de l'update du fichier backup sur google drive")
             } else {
                 //console.log('File Id: ', file.data.id)
+                if (fs.existsSync(BackupDbPath)) {
+                    //console.log("Delete du repertoire Temp")
+                    const execSync = require('child_process').execSync
+                    execSync('rm -r ' + BackupDbPath)
+                }
                 resolve("DB Backuped")
             }
         })
     }
 
-    /** Restore */
+    /**
+     * Restore d'une DB mongodb a partir de google drive
+     */
     Restore(){
-        var me = this
         return new Promise((resolve, reject)=>{
-            resolve("DB Restored")
+            const fs = require("fs")
+            const execSync = require('child_process').execSync
+            // Creation d'un repertoire Temp si il n'exites pas, ou le vider si il existe
+            if (fs.existsSync(this._PathTemp)) {
+                //console.log("Delete du repertoire Temp")
+                execSync('rm -r ' + this._PathTemp)
+                fs.mkdirSync(this._PathTemp)
+            } else {
+                //console.log("Creation du repertoire Temp")
+                fs.mkdirSync(this._PathTemp)
+            }
+            // Recuperer le Backup sur google drive
+            this.GoogleGetFile(this._PathTemp, this._BdName +".gz", resolve, reject)
         })
+    }
+
+    /**
+     * Download du fichier backup se trouvant sur google drive
+     * @param {string} BackupDbPath Chemin ver le repertoire temp pour le fichier backup
+     * @param {string} BackupDbName nom du fichier a backuper
+     * @param {resove} resolve reslve de la fonction primise Restore
+     * @param {reject} reject reject de la fonctin promise Restore
+     */
+    GoogleGetFile(BackupDbPath, BackupDbName, resolve, reject){
+        // ToDo
+        resolve("DB Restored")
     }
 
 }
