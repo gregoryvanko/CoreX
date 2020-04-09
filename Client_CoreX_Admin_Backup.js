@@ -69,7 +69,8 @@ class CoreXAdminBackupApp{
         document.getElementById("ErrorStart").innerHTML=""
         // Get All Log
         GlobalCallApiPromise("Backup", "RestoreNow").then((reponse)=>{
-            document.getElementById("InfoStart").innerHTML=reponse
+            document.getElementById("InfoStart").innerHTML=reponse + " Page reload in 3sec"
+            setTimeout(function(){ location.reload() }, 3000)
         },(erreur)=>{
             document.getElementById("InfoStart").innerHTML=""
             document.getElementById("ErrorStart").innerHTML=erreur
