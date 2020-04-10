@@ -66,7 +66,7 @@ class CoreXAdminLogApp{
 
                 flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "Text", "width:20%; margin-right:1%;"))
                 flex.appendChild(CoreXBuild.DivTexte(element.Type,"", "Text", "width:10%;"))
-                flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "Text", "width:65%;"))
+                flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "Text", "width:65%; overflow-wrap:break-word"))
             })
             let DivButton = CoreXBuild.Div("", "FlexRowCenterspacearound", "width:90%; border-top: 1px solid black; margin-top:1%;")
             document.getElementById("ListOfLog").appendChild(DivButton)
@@ -107,7 +107,7 @@ class CoreXAdminLogApp{
 
                     flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "Text", "width:20%; margin-right:1%;"))
                     flex.appendChild(CoreXBuild.DivTexte(element.Type,"", "Text", "width:10%;"))
-                    flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "Text", "width:65%;"))
+                    flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "Text", "width:65%; overflow-wrap:break-word"))
                 }
             })
         }
@@ -153,7 +153,7 @@ class CoreXAdminLogApp{
                 align-items: center;
             }
             .Button{
-                margin: 4vh 0vh 1vh 0vh;
+                margin: 4vh 0vh 8vh 0vh;
                 padding: 1vh 2vh 1vh 2vh;
                 cursor: pointer;
                 border: 1px solid var(--CoreX-color);

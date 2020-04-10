@@ -44,7 +44,6 @@ class corex {
 
         // Job Schedule
         this._JobSchedule = null
-        this._JobScheduleStarted = false
         this._JobScheduleHour = 3
         this._JobScheduleMinute = 30
     }
@@ -1091,14 +1090,22 @@ class corex {
             })
         } else if (ApiData.Fct == "GetSchedulerData"){
             let SchedulerData = new Object()
-            SchedulerData.JobScheduleStarted = this._JobScheduleStarted
             SchedulerData.JobScheduleHour = this._JobScheduleHour
             SchedulerData.JobScheduleMinute = this._JobScheduleMinute
             if (this._JobSchedule == null) {
+                SchedulerData.JobScheduleStarted = false
                 SchedulerData.JobScheduleNext = "Scheduler not started"
             } else {
+                SchedulerData.JobScheduleStarted = true
                 SchedulerData.JobScheduleNext = this._JobSchedule.nextInvocation()
             }
+            res.json({Error: false, ErrorMsg: "Scheduler Data", Data: SchedulerData})
+        } else if (ApiData.Fct == "SaveConfig"){
+            this._JobScheduleHour = ApiData.Hour
+            this._JobScheduleMinute = ApiData.Minute
+            let SchedulerData = new Object()
+            SchedulerData.JobScheduleHour = this._JobScheduleHour
+            SchedulerData.JobScheduleMinute = this._JobScheduleMinute
             res.json({Error: false, ErrorMsg: "Scheduler Data", Data: SchedulerData})
         } else {
             res.json({Error: true, ErrorMsg: "Error during Backup: ApiData.Fct not found= "+ ApiData.Fct, Data: ""})

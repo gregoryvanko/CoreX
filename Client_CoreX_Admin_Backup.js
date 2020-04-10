@@ -2,6 +2,8 @@ class CoreXAdminBackupApp{
     constructor(HtmlId){
         this._HtmlId = HtmlId
         this._DivApp = null
+        this._JobScheduleHour = null
+        this._JobScheduleMinute = null
     }
     /** Start de l'application */
     Start(){
@@ -39,6 +41,7 @@ class CoreXAdminBackupApp{
             document.getElementById("ErrorStart").innerHTML=erreur
         })
     }
+
     GetTitre(){
         return "Backup"
     }
@@ -52,6 +55,8 @@ class CoreXAdminBackupApp{
      * @param {array} Data All data of schduler
      */
     SetBackupView(DivContent, Data){
+        this._JobScheduleHour = Data.JobScheduleHour
+        this._JobScheduleMinute = Data.JobScheduleMinute
         // vider les textes
         document.getElementById("InfoStart").innerHTML=""
         document.getElementById("ErrorStart").innerHTML=""
@@ -71,6 +76,8 @@ class CoreXAdminBackupApp{
         DivRstoreNowSection.appendChild(txtRestoreNow)
         DivRstoreNowSection.appendChild(CoreXBuild.Button("Restore",this.RestoreNow.bind(this),"Button"))
         DivContent.appendChild(DivRstoreNowSection)
+        // on ajoute un espace vide
+        DivContent.appendChild(CoreXBuild.Div("","","height:2vh;"))
         // Scheduler status
         let DivSchedulerStartedSection = CoreXBuild.DivFlexRowStart()
         DivSchedulerStartedSection.style.margin = "2vh 0px 2vh 0px"
@@ -88,15 +95,6 @@ class CoreXAdminBackupApp{
             }
         })
         DivContent.appendChild(DivSchedulerStartedSection)
-        // Scheduler configuration
-        let DivSchedulerConfigSection = CoreXBuild.DivFlexRowStart()
-        DivSchedulerConfigSection.style.margin = "2vh 0px 2vh 0px"
-        let txtSchedulerConfig = CoreXBuild.DivTexte("Scheduler Config :", "", "Text", "margin:1%;")
-        txtSchedulerConfig.classList.add("WidthInfoText")
-        DivSchedulerConfigSection.appendChild(txtSchedulerConfig)
-        //DivSchedulerHourSection.appendChild(CoreXBuild.Input("Schedulerhour",Data.JobScheduleHour,"Input","","number","Schedulerhour",""))
-        DivSchedulerConfigSection.appendChild(CoreXBuild.DivTexte(Data.JobScheduleHour +"H" + Data.JobScheduleMinute,"","Text","margin:1%;"))
-        DivContent.appendChild(DivSchedulerConfigSection)
         // Scheduler next 
         let DivSchedulerNextSection = CoreXBuild.DivFlexRowStart()
         DivSchedulerNextSection.style.margin = "2vh 0px 2vh 0px"
@@ -105,6 +103,14 @@ class CoreXAdminBackupApp{
         DivSchedulerNextSection.appendChild(txtSchedulerNext)
         DivSchedulerNextSection.appendChild(CoreXBuild.DivTexte(Data.JobScheduleNext,"","Text","margin:1%;"))
         DivContent.appendChild(DivSchedulerNextSection)
+        // Scheduler configuration
+        let DivSchedulerConfigSection = CoreXBuild.DivFlexRowStart()
+        DivSchedulerConfigSection.style.margin = "2vh 0px 2vh 0px"
+        let txtSchedulerConfig = CoreXBuild.DivTexte("Scheduler time :", "", "Text", "margin:1%;")
+        txtSchedulerConfig.classList.add("WidthInfoText")
+        DivSchedulerConfigSection.appendChild(txtSchedulerConfig)
+        DivSchedulerConfigSection.appendChild(CoreXBuild.DivTexte(this._JobScheduleHour +"H" + this._JobScheduleMinute,"SchedulerConfigTxt","Text","margin:1%;"))
+        DivContent.appendChild(DivSchedulerConfigSection)
         // Scheduler change config
         let DivSchedulerChangeConfSection = CoreXBuild.DivFlexRowStart()
         DivSchedulerChangeConfSection.style.margin = "2vh 0px 2vh 0px"
@@ -162,8 +168,71 @@ class CoreXAdminBackupApp{
      * Change confiuguration of scheduler
      */
     SchedulerChangeConfig(){
-        // ToDo
-        console.log("ToDo")
+        let ContentConfig = CoreXBuild.Div("ContentControle","","")
+        // Titre
+        ContentConfig.appendChild(CoreXBuild.DivTexte("Scheduler timer configuration:", "", "Text", "margin:1%; color: var(--CoreX-color);"))
+        // on ajoute un espace vide
+        ContentConfig.appendChild(CoreXBuild.Div("","","height:2vh;"))
+        // Hour
+        let DivHourSection = CoreXBuild.DivFlexRowStart()
+        let txtHour = CoreXBuild.DivTexte("Scheduler Hour:", "", "Text", "margin:1%; width:50%;")
+        DivHourSection.appendChild(txtHour)
+        let InputHour = CoreXBuild.Input("Schedulerhour",this._JobScheduleHour,"Input","","number","Schedulerhour","")
+        InputHour.setAttribute("min", 0)
+        InputHour.setAttribute("max", 23)
+        DivHourSection.appendChild(InputHour)
+        ContentConfig.appendChild(DivHourSection)
+        // Minute
+        let DivMinuteSection = CoreXBuild.DivFlexRowStart()
+        let txtMinute = CoreXBuild.DivTexte("Scheduler Minute:", "", "Text", "margin:1%; width:50%;")
+        DivMinuteSection.appendChild(txtMinute)
+        let inputMinute = CoreXBuild.Input("SchedulerMinute",this._JobScheduleMinute,"Input","","number","SchedulerMinute","")
+        inputMinute.setAttribute("min", 0)
+        inputMinute.setAttribute("max", 59)
+        DivMinuteSection.appendChild(inputMinute)
+        ContentConfig.appendChild(DivMinuteSection)
+        // Error text
+        ContentConfig.appendChild(CoreXBuild.DivTexte("","ErrorConfig","Text","color:red; text-align: center;"))
+        // Save button
+        let DivButton = CoreXBuild.Div("", "FlexRowCenterspacearound", "margin-top:1%;")
+        ContentConfig.appendChild(DivButton)
+        DivButton.appendChild(CoreXBuild.Button("Save",this.SchedulerSaveConfig.bind(this),"Button", "ButtonSave"))
+        // Create window
+        CoreXWindow.BuildWindow(ContentConfig)
+    }
+
+    /**
+     * Save Scheduler config
+     */
+    SchedulerSaveConfig(){
+        document.getElementById("ErrorConfig").innerHTML=""
+        let Hour = document.getElementById("Schedulerhour").value
+        let Minute = document.getElementById("SchedulerMinute").value
+        let valide = true
+        if ((Hour < 0)||(Hour >= 24)){
+            valide = false
+            document.getElementById("ErrorConfig").innerHTML= "Error: Hour must be between 0 and 23"
+        }
+        if ((Minute < 0)||(Minute >= 60)){
+            valide = false
+            document.getElementById("ErrorConfig").innerHTML= "Error: Minute must be between 0 and 59"
+        }
+        if (valide){
+            document.getElementById("ButtonSave").innerHTML="waiting..."
+            // Save Data
+            let ApiData = new Object()
+            ApiData.Fct = "SaveConfig"
+            ApiData.Hour = Hour
+            ApiData.Minute = Minute
+            GlobalCallApiPromise("Backup", ApiData).then((reponse)=>{
+                this._JobScheduleHour = reponse.JobScheduleHour
+                this._JobScheduleMinute = reponse.JobScheduleMinute
+                document.getElementById("SchedulerConfigTxt").innerHTML= this._JobScheduleHour +"H" + this._JobScheduleMinute
+                CoreXWindow.DeleteWindow()
+            },(erreur)=>{
+                document.getElementById("ErrorConfig").innerHTML=erreur
+            })
+        }
     }
 
     /** Css de l'application */
@@ -220,6 +289,14 @@ class CoreXAdminBackupApp{
                 border-color: var(--CoreX-color);
             }
             .WidthInfoText{width:25%;}
+            .FlexRowCenterspacearound{
+                display: flex;
+                flex-direction: row;
+                justify-content:space-around;
+                align-content:center;
+                align-items: center;
+                flex-wrap: wrap;
+            }
 
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),

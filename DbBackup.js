@@ -12,27 +12,32 @@ class DbBackup{
         var me = this
         return new Promise((resolve, reject)=>{
             const fs = require("fs")
-            const exec = require('child_process').exec
-            const execSync = require('child_process').execSync
-            // Creation d'un repertoire Temp si il n'exites pas, ou le vider si il existe
-            if (fs.existsSync(this._PathTemp)) {
-                //console.log("Delete du repertoire Temp")
-                execSync('rm -r ' + this._PathTemp)
-                fs.mkdirSync(this._PathTemp)
-            } else {
-                //console.log("Creation du repertoire Temp")
-                fs.mkdirSync(this._PathTemp)
-            }
-            // Backup de la db
-            const cmd = 'mongodump --db ' + this._BdName + ' --gzip --archive=' + this._PathTemp + "/" + this._BdName +".gz"
-            exec(cmd, function (error, stdout, stderr) {
-                if (error) {
-                    console.log(error)
-                    reject("Erreur lors de la creation du dump de la DB")
+            if(fs.existsSync(__dirname + "/privatekey.json")){
+                const exec = require('child_process').exec
+                const execSync = require('child_process').execSync
+                // Creation d'un repertoire Temp si il n'exites pas, ou le vider si il existe
+                if (fs.existsSync(this._PathTemp)) {
+                    //console.log("Delete du repertoire Temp")
+                    execSync('rm -r ' + this._PathTemp)
+                    fs.mkdirSync(this._PathTemp)
                 } else {
-                    me.GoogleBackup(me._PathTemp, me._BdName +".gz", resolve, reject)
+                    //console.log("Creation du repertoire Temp")
+                    fs.mkdirSync(this._PathTemp)
                 }
-            })
+                // Backup de la db
+                const cmd = 'mongodump --db ' + this._BdName + ' --gzip --archive=' + this._PathTemp + "/" + this._BdName +".gz"
+                exec(cmd, function (error, stdout, stderr) {
+                    if (error) {
+                        console.log(error)
+                        reject("Erreur lors de la creation du dump de la DB")
+                    } else {
+                        me.GoogleBackup(me._PathTemp, me._BdName +".gz", resolve, reject)
+                    }
+                })
+            } else {
+                reject("Erreur no privatekey file")
+            }
+            
         })
     }
 
@@ -152,18 +157,22 @@ class DbBackup{
     Restore(){
         return new Promise((resolve, reject)=>{
             const fs = require("fs")
-            const execSync = require('child_process').execSync
-            // Creation d'un repertoire Temp si il n'exites pas, ou le vider si il existe
-            if (fs.existsSync(this._PathTemp)) {
-                //console.log("Delete du repertoire Temp")
-                execSync('rm -r ' + this._PathTemp)
-                fs.mkdirSync(this._PathTemp)
+            if(fs.existsSync(__dirname + "/privatekey.json")){
+                const execSync = require('child_process').execSync
+                // Creation d'un repertoire Temp si il n'exites pas, ou le vider si il existe
+                if (fs.existsSync(this._PathTemp)) {
+                    //console.log("Delete du repertoire Temp")
+                    execSync('rm -r ' + this._PathTemp)
+                    fs.mkdirSync(this._PathTemp)
+                } else {
+                    //console.log("Creation du repertoire Temp")
+                    fs.mkdirSync(this._PathTemp)
+                }
+                // Recuperer le Backup sur google drive
+                this.GoogleRestore(this._PathTemp, this._BdName +".gz", resolve, reject)
             } else {
-                //console.log("Creation du repertoire Temp")
-                fs.mkdirSync(this._PathTemp)
+                reject("Erreur no privatekey file")
             }
-            // Recuperer le Backup sur google drive
-            this.GoogleRestore(this._PathTemp, this._BdName +".gz", resolve, reject)
         })
     }
 
