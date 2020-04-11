@@ -1089,28 +1089,82 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during Restore: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "GetSchedulerData"){
-            let SchedulerData = new Object()
-            SchedulerData.JobScheduleHour = this._JobScheduleHour
-            SchedulerData.JobScheduleMinute = this._JobScheduleMinute
-            if (this._JobSchedule == null) {
-                SchedulerData.JobScheduleStarted = false
-                SchedulerData.JobScheduleNext = "Scheduler not started"
-            } else {
-                SchedulerData.JobScheduleStarted = true
-                SchedulerData.JobScheduleNext = this._JobSchedule.nextInvocation()
-            }
-            res.json({Error: false, ErrorMsg: "Scheduler Data", Data: SchedulerData})
+            res.json({Error: false, ErrorMsg: "Scheduler Data", Data: this.GetSchedulerData()})
         } else if (ApiData.Fct == "SaveConfig"){
             this._JobScheduleHour = ApiData.Hour
             this._JobScheduleMinute = ApiData.Minute
-            let SchedulerData = new Object()
-            SchedulerData.JobScheduleHour = this._JobScheduleHour
-            SchedulerData.JobScheduleMinute = this._JobScheduleMinute
-            res.json({Error: false, ErrorMsg: "Scheduler Data", Data: SchedulerData})
+            if (this._JobSchedule != null){
+                let options = {minute: this._JobScheduleMinute, hour: this._JobScheduleHour}
+                this._JobSchedule.reschedule(options)
+            }
+            res.json({Error: false, ErrorMsg: "Scheduler Data", Data: this.GetSchedulerData()})
+        } else if (ApiData.Fct == "SchedulerSetStatus"){
+            if (ApiData.Started){
+                if (this._JobSchedule == null){
+                    var schedule = require('node-schedule')
+                    let options = {minute: this._JobScheduleMinute, hour: this._JobScheduleHour}
+                    var me = this
+                    this._JobSchedule = schedule.scheduleJob(options, function(){
+                        //console.log("coucou")
+                        let DbBackup = require('./DbBackup').DbBackup
+                        let MyDbBackup = new DbBackup(me._MongoDbName)
+                        MyDbBackup.Backup().then((reponse)=>{
+                            var now = new Date()
+                            console.log(reponse + " " + now)
+                        },(erreur)=>{
+                            console.log("Error during Backup: "+ erreur + " " + now)
+                        })
+                    })
+                    res.json({Error: false, ErrorMsg: "Scheduler Data", Data: this.GetSchedulerData()})
+                } else {
+                    res.json({Error: true, ErrorMsg: "Error JobScheduler already exist", Data: ""})
+                }
+            } else {
+                if (this._JobSchedule == null){
+                    res.json({Error: true, ErrorMsg: "Error no JobScheduler defined", Data: ""})
+                } else {
+                    this._JobSchedule.cancel()
+                    this._JobSchedule = null
+                    res.json({Error: false, ErrorMsg: "Scheduler Data", Data: this.GetSchedulerData()})
+                }
+            }
         } else {
             res.json({Error: true, ErrorMsg: "Error during Backup: ApiData.Fct not found= "+ ApiData.Fct, Data: ""})
         }
 
+    }
+    GetSchedulerData(){
+        let SchedulerData = new Object()
+        SchedulerData.JobScheduleHour = this._JobScheduleHour
+        SchedulerData.JobScheduleMinute = this._JobScheduleMinute
+        if (this._JobSchedule == null) {
+            SchedulerData.JobScheduleStarted = false
+            SchedulerData.JobScheduleNext = "Scheduler not started"
+        } else {
+            SchedulerData.JobScheduleStarted = true
+            SchedulerData.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
+        }
+        return SchedulerData
+    }
+
+    /**
+     * retourne un string avec la date formatee
+     * @param {string} DateString string de format date
+     */
+    GetDateTimeString(DateString){
+        var Now = new Date(DateString)
+        var dd = Now.getDate()
+        var mm = Now.getMonth()+1
+        var yyyy = Now.getFullYear()
+        var heure = Now.getHours()
+        var minute = Now.getMinutes()
+        var seconde = Now.getSeconds()
+        if(dd<10) {dd='0'+dd} 
+        if(mm<10) {mm='0'+mm}
+        if(heure<10) {heure='0'+heure}
+        if(minute<10) {minute='0'+minute}
+        if(seconde<10) {seconde='0'+seconde}
+        return yyyy + "-" + mm + "-" + dd + " " + heure + ":" + minute + ":" + seconde
     }
     /** Get My Data of a connected user (meme fonction pour Api et ApiAdmin) */
     ApiGetMyData(App, Id, res){

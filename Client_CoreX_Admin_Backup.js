@@ -101,7 +101,7 @@ class CoreXAdminBackupApp{
         let txtSchedulerNext = CoreXBuild.DivTexte("Scheduler next time :", "", "Text", "margin:1%;")
         txtSchedulerNext.classList.add("WidthInfoText")
         DivSchedulerNextSection.appendChild(txtSchedulerNext)
-        DivSchedulerNextSection.appendChild(CoreXBuild.DivTexte(Data.JobScheduleNext,"","Text","margin:1%;"))
+        DivSchedulerNextSection.appendChild(CoreXBuild.DivTexte(Data.JobScheduleNext,"SchedulerConfigNext","Text","margin:1%;"))
         DivContent.appendChild(DivSchedulerNextSection)
         // Scheduler configuration
         let DivSchedulerConfigSection = CoreXBuild.DivFlexRowStart()
@@ -160,8 +160,23 @@ class CoreXAdminBackupApp{
      * @param {boolean} Value true to start scheduler
      */
     SchedulerSetStatus(Value){
-        // ToDo
-        console.log(Value, "coucou")
+        document.getElementById("ErrorStart").innerHTML=""
+        let ApiData = new Object()
+        ApiData.Fct = "SchedulerSetStatus"
+        ApiData.Started = Value
+        GlobalCallApiPromise("Backup", ApiData).then((reponse)=>{
+            this._JobScheduleHour = reponse.JobScheduleHour
+            this._JobScheduleMinute = reponse.JobScheduleMinute
+            document.getElementById("SchedulerConfigNext").innerHTML= reponse.JobScheduleNext
+            document.getElementById("SchedulerConfigTxt").innerHTML= this._JobScheduleHour +"H" + this._JobScheduleMinute
+        },(erreur)=>{
+            document.getElementById("ErrorStart").innerHTML=erreur
+            if (Value){ 
+                document.getElementById("SchedulerStarted").checked = false
+            } else {
+                document.getElementById("SchedulerStarted").checked = true
+            }
+        })
     }
 
     /**
@@ -227,6 +242,7 @@ class CoreXAdminBackupApp{
             GlobalCallApiPromise("Backup", ApiData).then((reponse)=>{
                 this._JobScheduleHour = reponse.JobScheduleHour
                 this._JobScheduleMinute = reponse.JobScheduleMinute
+                document.getElementById("SchedulerConfigNext").innerHTML= reponse.JobScheduleNext
                 document.getElementById("SchedulerConfigTxt").innerHTML= this._JobScheduleHour +"H" + this._JobScheduleMinute
                 CoreXWindow.DeleteWindow()
             },(erreur)=>{
