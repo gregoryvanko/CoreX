@@ -161,7 +161,7 @@ class CoreXAdminBackupApp{
      */
     SchedulerSetStatus(Value){
         // ToDo
-        console.log(Value)
+        console.log(Value, "coucou")
     }
 
     /**
