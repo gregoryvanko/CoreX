@@ -923,29 +923,6 @@ class corex {
         MyApp.JS += "MyApp.Start()"
         return MyApp
     }
-     /** Start du schedule du job de backup */
-    StartJobScheduleBackup(){
-        console.log("start StartJobScheduleBackup")
-        var schedule = require('node-schedule')
-        var me = this
-        //let options = {hour: this._JobScheduleHour, minute: this._JobScheduleMinute}
-        // this._JobSchedule = schedule.scheduleJob(options, function(){
-        //     let DbBackup = require('./DbBackup').DbBackup
-        //     let MyDbBackup = new DbBackup(me._MongoDbName)
-        //     MyDbBackup.Backup().then((reponse)=>{
-        //         var now = new Date()
-        //         console.log(reponse + " " + now)
-        //     },(erreur)=>{
-        //         console.log("Error during Backup: "+ erreur + " " + now)
-        //     })
-        // })
-        let options = {second: 30}
-        this._JobSchedule = schedule.scheduleJob(options, function(){
-            console.log("coucou")
-            me._JobSchedule.cancel()
-            me._JobSchedule.reschedule(options)
-        })
-    }
 
     /* Get list of all user via l'ApiAdmin */
     ApiAdminGetAllUsers(type, res){
@@ -1133,6 +1110,10 @@ class corex {
         }
 
     }
+
+    /**
+     * Return Object with scheduler data
+     */
     GetSchedulerData(){
         let SchedulerData = new Object()
         SchedulerData.JobScheduleHour = this._JobScheduleHour
