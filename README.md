@@ -141,7 +141,7 @@ const Projection = { projection:{ _id: 1, [this._MongoLoginPassItem]: 1}}
 Mongo.FindPromise(Querry, Projection, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur)
 })
 
 // Find Sort
@@ -149,7 +149,7 @@ const Sort = {[this._MongoLoginUserItem]: 1}
 Mongo.FindSortPromise(Querry, Projection, Sort, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur)
 })
 
 // Find Sort Skip
@@ -157,14 +157,14 @@ Let Limit = 10
 Mongo.FindSortLimitSkipPromise(Querry, Projection, Sort, Limit, Skip, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur)
 })
 
 // Delete By Id (Id = string)
 Mongo.DeleteByIdPromise(Id, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur)
 })
 
 // Delete By Query
@@ -172,14 +172,21 @@ let Query = { address: "test" }
 Mongo.DeleteByQueryPromise(Query, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur)
 })
 
 // Update by Id (Id = string)
 Mongo.UpdateByIdPromise(Id, Data, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur)
+})
+
+// Update
+Mongo.UpdatePromise(Query, Data, Collection).then((reponse)=>{
+    // ToDo
+},(erreur)=>{
+    this.LogAppliError("DB error : " + erreur)
 })
 
 // Count
@@ -188,7 +195,7 @@ const Query = {'_id': new MongoObjectId(Id)}
 Mongo.CountPromise(Querry, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur)
 })
 
 // Insert One
@@ -196,7 +203,7 @@ let Data = { [this._MongoLoginUserItem]: "test", [this._MongoLoginFirstNameItem]
 Mongo.InsertOnePromise(Data, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur)
 })
 
 // Insert Multiple document
@@ -207,7 +214,7 @@ let DataToDb = [
 Mongo.InsertMultiplePromise(Data, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur)
 })
 ```
 
