@@ -198,6 +198,17 @@ Mongo.InsertOnePromise(Data, Collection).then((reponse)=>{
 },(erreur)=>{
     this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
 })
+
+// Insert Multiple document
+let DataToDb = [
+    {[this._MongoConfigKey]: "A", [this._MongoConfigValue]: "1"},
+    {[this._MongoConfigKey]: "B", [this._MongoConfigValue]: "2"}
+]
+Mongo.InsertMultiplePromise(Data, Collection).then((reponse)=>{
+    // ToDo
+},(erreur)=>{
+    this.LogAppliError("ApiGetAllBlog DB error : " + erreur)
+})
 ```
 
 

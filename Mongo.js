@@ -121,6 +121,23 @@ class Mongo {
             })
         })
     }
+    /* Update d'un element par querry dans la collecrtion:Collection */
+    UpdatePromise(Querry, Data, Collection, Url, DbName){
+        return new Promise((resolve, reject)=>{
+            let Newvalues = { $set: Data }
+            this._MongoClient.connect(this._Url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+                if(err) reject(err)
+                else {
+                    const MyCollection = client.db(this._MongoDbName).collection(Collection)
+                    MyCollection.updateOne(Querry, Newvalues, function(err, result) {
+                        if(err) reject(err)
+                        else {resolve(result)}
+                        client.close()
+                    })
+                }
+            })
+        })
+    }
     /* Compter un element dans la collecrtion:Collection suivant la querry:Querry */
     CountPromise(Querry, Collection){
         return new Promise((resolve, reject)=>{
@@ -145,6 +162,22 @@ class Mongo {
                 else {
                     const MyCollection = client.db(this._MongoDbName).collection(Collection)
                     MyCollection.insertOne(Data, function(err, result) {
+                        if(err) reject(err)
+                        else {resolve(result)}
+                        client.close()
+                    })
+                }
+            })
+        })
+    }
+    /* Ajout d'un element par ID dans la collecrtion:Collection */
+    InsertMultiplePromise(Data, Collection){
+        return new Promise((resolve, reject)=>{
+            this._MongoClient.connect(this._Url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+                if(err) reject(err)
+                else {
+                    const MyCollection = client.db(this._MongoDbName).collection(Collection)
+                    MyCollection.insertMany(Data, function(err, result) {
                         if(err) reject(err)
                         else {resolve(result)}
                         client.close()

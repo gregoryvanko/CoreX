@@ -21,6 +21,7 @@ class corex {
         // Varaible interne MongoDB
         let MongoR = require('./Mongo.js').Mongo
         this._Mongo = new MongoR(this._MongoUrl,this._MongoDbName)
+
         this._MongoLoginClientCollection = "LoginClient"
         this._MongoLoginAdminCollection = "LoginAdmin"
         this._MongoLoginUserItem = "User"
@@ -28,10 +29,16 @@ class corex {
         this._MongoLoginConfirmPassItem = "Confirm-Password"
         this._MongoLoginFirstNameItem = "First-name"
         this._MongoLoginLastNameItem = "Last-name"
+
         this._MongoLogAppliCollection = "LogAppli"
         this._MongoLogAppliNow = "Now"
         this._MongoLogAppliType = "Type"
         this._MongoLogAppliValeur = "Valeur"
+
+        this._MongoConfigCollection = "Config"
+        this._MongoConfigKey = "Key"
+        this._MongoConfigValue = "Value"
+        this._MongoConfigType = "Type"
 
         // Variable Interne SocketIO
         this._RoomName = "Secured";
@@ -44,8 +51,6 @@ class corex {
 
         // Job Schedule
         this._JobSchedule = null
-        this._JobScheduleHour = 3
-        this._JobScheduleMinute = 30
     }
     
     set Debug(val){this._Debug = val}
@@ -431,7 +436,7 @@ class corex {
         let ErrorCallback = (err)=>{
             throw new Error('Erreur lors du check de la collection Login de la db: ' + err)
         }
-        let DoneCallback = (Data) => {
+        let DoneCallbackAdminCollection = (Data) => {
             if(Data){
                 this.LogDebug("La collection suivante existe : " + this._MongoLoginAdminCollection)
             } else {
@@ -444,7 +449,26 @@ class corex {
                 })
             }
         }
-        this._Mongo.CollectionExist(this._MongoLoginAdminCollection, DoneCallback, ErrorCallback)
+        let DoneCallbackConfigCollection = (Data) => {
+            if(Data){
+                this.LogDebug("La collection suivante existe : " + this._MongoConfigCollection)
+            } else {
+                const DataToDb = [
+                    {[this._MongoConfigKey]: "JobScheduleHour", [this._MongoConfigValue]: "3", [this._MongoConfigType]: "JobSchedule"},
+                    {[this._MongoConfigKey]: "JobScheduleMinute", [this._MongoConfigValue]: "30", [this._MongoConfigType]: "JobSchedule"},
+                    {[this._MongoConfigKey]: "GoogleKey", [this._MongoConfigValue]: "", [this._MongoConfigType]: "Google"}
+                ]
+
+                this._Mongo.InsertMultiplePromise(DataToDb, this._MongoConfigCollection).then((reponse)=>{
+                    this.LogDebug("Creation de la collection : " + this._MongoConfigCollection)
+                },(erreur)=>{
+                    this.LogDebug("Error Insert JobSchedule config in collection Config")
+                    throw new Error('Erreur lors de la creation de la config JobSchedule dans la collection Config de la db: ' + erreur)
+                })
+            }
+        }
+        this._Mongo.CollectionExist(this._MongoLoginAdminCollection, DoneCallbackAdminCollection, ErrorCallback)
+        this._Mongo.CollectionExist(this._MongoConfigCollection, DoneCallbackConfigCollection, ErrorCallback)
     }
     /** Ajout d'un fonction a gerer via l'API user */
     AddApiFct(FctName, Fct){
@@ -923,6 +947,23 @@ class corex {
         MyApp.JS += "MyApp.Start()"
         return MyApp
     }
+    GetDbConfig(Key, ConfigType){
+        return new Promise((resolve, reject)=>{
+            const Query = { [this._MongoConfigKey]: Key, [this._MongoConfigType]: ConfigType} 
+            const Projection = { projection:{[this._MongoConfigValue]: 1}}
+            this._Mongo.FindPromise(Query,Projection, this._MongoConfigCollection).then((reponse)=>{
+                if(reponse.length == 0){
+                    reject("Error GetDbConfig: no entry for this Key and ConfigType")
+                } else if (reponse.length == 1){
+                    resolve(reponse[0].Value)
+                } else {
+                    reject("Error GetDbConfig: too much entry for this Key and ConfigType")
+                }
+            },(erreur)=>{
+                reject(erreur)
+            })
+        })
+    }
 
     /* Get list of all user via l'ApiAdmin */
     ApiAdminGetAllUsers(type, res){
@@ -1066,33 +1107,65 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during Restore: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "GetSchedulerData"){
-            res.json({Error: false, ErrorMsg: "Scheduler Data", Data: this.GetSchedulerData()})
+            this.GetSchedulerData().then((reponse)=>{
+                res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
+            },(erreur)=>{
+                res.json({Error: true, ErrorMsg: "Error during GetSchedulerData: "+ erreur, Data: ""})
+            })
         } else if (ApiData.Fct == "SaveConfig"){
-            this._JobScheduleHour = ApiData.Hour
-            this._JobScheduleMinute = ApiData.Minute
-            if (this._JobSchedule != null){
-                let options = {minute: this._JobScheduleMinute, hour: this._JobScheduleHour}
-                this._JobSchedule.reschedule(options)
-            }
-            res.json({Error: false, ErrorMsg: "Scheduler Data", Data: this.GetSchedulerData()})
+            // Save nouvelle heure
+            let DataH = new Object()
+            DataH.Value = ApiData.Hour
+            const QueryHour = { [this._MongoConfigKey]: "JobScheduleHour", [this._MongoConfigType]: "JobSchedule"}
+            this._Mongo.UpdatePromise(QueryHour, DataH, this._MongoConfigCollection).then((reponse)=>{
+                if (reponse.matchedCount==1) {
+                    // Save nouvelle minute
+                    let DataM = new Object()
+                    DataM.Value = ApiData.Minute
+                    const QueryM = { [this._MongoConfigKey]: "JobScheduleMinute", [this._MongoConfigType]: "JobSchedule"}
+                    this._Mongo.UpdatePromise(QueryM, DataM, this._MongoConfigCollection).then((reponse)=>{
+                        if (this._JobSchedule != null){
+                            let options = {minute: ApiData.Minute, hour: ApiData.Hour}
+                            this._JobSchedule.reschedule(options)
+                        }
+                        this.GetSchedulerData().then((reponse)=>{
+                            res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
+                        },(erreur)=>{
+                            res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
+                        })
+                    },(erreur)=>{
+                        res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
+                    })
+                } else {
+                    res.json({Error: true, ErrorMsg: "Upadte error : Key Value not found in config", Data: ""})
+                }
+            },(erreur)=>{
+                res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
+            })
         } else if (ApiData.Fct == "SchedulerSetStatus"){
             if (ApiData.Started){
                 if (this._JobSchedule == null){
-                    var schedule = require('node-schedule')
-                    let options = {minute: this._JobScheduleMinute, hour: this._JobScheduleHour}
-                    var me = this
-                    this._JobSchedule = schedule.scheduleJob(options, function(){
-                        //console.log("coucou")
-                        let DbBackup = require('./DbBackup').DbBackup
-                        let MyDbBackup = new DbBackup(me._MongoDbName)
-                        MyDbBackup.Backup().then((reponse)=>{
-                            var now = new Date()
-                            console.log(reponse + " " + now)
-                        },(erreur)=>{
-                            console.log("Error during Backup: "+ erreur + " " + now)
+                    this.GetSchedulerData().then((reponse)=>{
+                        var schedule = require('node-schedule')
+                        let options = {minute: reponse.JobScheduleMinute, hour: reponse.JobScheduleHour}
+                        var me = this
+                        this._JobSchedule = schedule.scheduleJob(options, function(){
+                            //console.log("coucou")
+                            let DbBackup = require('./DbBackup').DbBackup
+                            let MyDbBackup = new DbBackup(me._MongoDbName)
+                            MyDbBackup.Backup().then((reponse)=>{
+                                var now = new Date()
+                                console.log(reponse + " " + now)
+                            },(erreur)=>{
+                                console.log("Error during Backup: "+ erreur + " " + now)
+                            })
                         })
+                        reponse.JobScheduleStarted = true
+                        reponse.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
+                        res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
+                    },(erreur)=>{
+                        res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
                     })
-                    res.json({Error: false, ErrorMsg: "Scheduler Data", Data: this.GetSchedulerData()})
                 } else {
                     res.json({Error: true, ErrorMsg: "Error JobScheduler already exist", Data: ""})
                 }
@@ -1102,7 +1175,11 @@ class corex {
                 } else {
                     this._JobSchedule.cancel()
                     this._JobSchedule = null
-                    res.json({Error: false, ErrorMsg: "Scheduler Data", Data: this.GetSchedulerData()})
+                    this.GetSchedulerData().then((reponse)=>{
+                        res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
+                    },(erreur)=>{
+                        res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
+                    })
                 }
             }
         } else {
@@ -1112,20 +1189,30 @@ class corex {
     }
 
     /**
-     * Return Object with scheduler data
+     * Promise Get scheduler data
      */
     GetSchedulerData(){
-        let SchedulerData = new Object()
-        SchedulerData.JobScheduleHour = this._JobScheduleHour
-        SchedulerData.JobScheduleMinute = this._JobScheduleMinute
-        if (this._JobSchedule == null) {
-            SchedulerData.JobScheduleStarted = false
-            SchedulerData.JobScheduleNext = "Scheduler not started"
-        } else {
-            SchedulerData.JobScheduleStarted = true
-            SchedulerData.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
-        }
-        return SchedulerData
+        return new Promise((resolve, reject)=>{
+            let SchedulerData = new Object()
+            this.GetDbConfig("JobScheduleHour", "JobSchedule").then((reponse)=>{
+                SchedulerData.JobScheduleHour = reponse
+                this.GetDbConfig("JobScheduleMinute", "JobSchedule").then((reponse)=>{
+                    SchedulerData.JobScheduleMinute = reponse
+                    if (this._JobSchedule == null) {
+                        SchedulerData.JobScheduleStarted = false
+                        SchedulerData.JobScheduleNext = "Scheduler not started"
+                    } else {
+                        SchedulerData.JobScheduleStarted = true
+                        SchedulerData.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
+                    }
+                    resolve(SchedulerData)
+                },(erreur)=>{
+                    reject(erreur)
+                })
+            },(erreur)=>{
+                reject(erreur)
+            })
+        })
     }
 
     /**
