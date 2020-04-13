@@ -913,7 +913,6 @@ class corex {
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_User.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Start.js", 'utf8') + os.EOL
-        // ToDo
         if(this._AdminAppFolder != null){
             let folder = this._AdminAppFolder
             if(fs.existsSync(folder)){
@@ -947,6 +946,11 @@ class corex {
         MyApp.JS += "MyApp.Start()"
         return MyApp
     }
+    /**
+     * Promise qui recupère un element de config dans la DB
+     * @param {string} Key clef d'un element de la Config
+     * @param {string} ConfigType type configuration
+     */
     GetDbConfig(Key, ConfigType){
         return new Promise((resolve, reject)=>{
             const Query = { [this._MongoConfigKey]: Key, [this._MongoConfigType]: ConfigType} 
@@ -1107,10 +1111,24 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during Restore: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "GetSchedulerData"){
-            this.GetSchedulerData().then((reponse)=>{
-                res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
+            let ApiReponse = new Object()
+            ApiReponse.GoogleKeyExist = false
+            ApiReponse.SchedulerData = null
+            this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
+                if(reponse == ""){
+                    res.json({Error: false, ErrorMsg: "Scheduler Data", Data: ApiReponse})
+                } else {
+                    // Get scheduler data
+                    this.GetSchedulerData().then((reponsedata)=>{
+                        ApiReponse.GoogleKeyExist = true
+                        ApiReponse.SchedulerData =reponsedata
+                        res.json({Error: false, ErrorMsg: "Scheduler Data", Data: ApiReponse})
+                    },(erreur)=>{
+                        res.json({Error: true, ErrorMsg: "Error during GetSchedulerData: "+ erreur, Data: ""})
+                    })
+                }
             },(erreur)=>{
-                res.json({Error: true, ErrorMsg: "Error during GetSchedulerData: "+ erreur, Data: ""})
+                res.json({Error: true, ErrorMsg: "Error during GetSchedulerData, get google key: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "SaveConfig"){
             // Save nouvelle heure
@@ -1182,12 +1200,25 @@ class corex {
                     })
                 }
             }
+        } else if (ApiData.Fct == "SaveGoogleKey"){
+            // Save nouvelle heure
+            let Data = new Object()
+            Data.Value = ApiData.key
+            const Query = { [this._MongoConfigKey]: "GoogleKey", [this._MongoConfigType]: "Google"}
+            this._Mongo.UpdatePromise(Query, Data, this._MongoConfigCollection).then((reponse)=>{
+                if (reponse.matchedCount==1) {
+                    res.json({Error: false, ErrorMsg: "SaveGoogleKey Data", Data: null})
+                } else {
+                    res.json({Error: true, ErrorMsg: "Upadte error : Key Value not found in config", Data: ""})
+                }
+            },(erreur)=>{
+                res.json({Error: true, ErrorMsg: "Error during SaveGoogleKey: "+ erreur, Data: ""})
+            })
         } else {
             res.json({Error: true, ErrorMsg: "Error during Backup: ApiData.Fct not found= "+ ApiData.Fct, Data: ""})
         }
 
     }
-
     /**
      * Promise Get scheduler data
      */

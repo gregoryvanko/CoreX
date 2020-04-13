@@ -174,4 +174,14 @@ class CoreXBuild{
         if (Placeholder){element.setAttribute("placeholder", Placeholder)}
         return element
     }
+
+    static Textarea(Id,Placeholder, Class, Style){
+        let element = document.createElement("textarea")
+        element.setAttribute("wrap", "off")
+        if (Id){element.setAttribute("id", Id)}
+        if (Placeholder){element.setAttribute("placeholder", Placeholder)}
+        if (Class){element.setAttribute("Class", Class)}
+        if (Style){element.setAttribute("Style", Style)}
+        return element
+    }
 }

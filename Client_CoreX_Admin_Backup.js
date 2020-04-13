@@ -30,12 +30,18 @@ class CoreXAdminBackupApp{
         this._DivApp.appendChild(CoreXBuild.DivTexte("Waiting for scheduler data...","InfoStart","Text","text-align: center; color: grey;"))
         // on construit le texte du message d'erreur
         this._DivApp.appendChild(CoreXBuild.DivTexte("","ErrorStart","Text","color:red; text-align: center;"))
+        // on ajoute un espace vide en fin de page
+        this._DivApp.appendChild(CoreXBuild.Div("","","height:2vh;"))
         // Get scheduler data
         let ApiData = new Object()
         ApiData.Fct = "GetSchedulerData"
         ApiData.Data = null
         GlobalCallApiPromise("Backup", ApiData).then((reponse)=>{
-            this.SetBackupView(ContentControle, reponse)
+            if (reponse.GoogleKeyExist){
+                this.SetBackupView(ContentControle, reponse.SchedulerData)
+            } else {
+                this.SetGoogleKeyView(ContentControle)
+            }
         },(erreur)=>{
             document.getElementById("InfoStart").innerHTML=""
             document.getElementById("ErrorStart").innerHTML=erreur
@@ -51,13 +57,14 @@ class CoreXAdminBackupApp{
 
     /**
      * Affiche la vue de commande des backup
-     * @param {div} Div element div qui contiendra les commandes
+     * @param {div} Div element div qui contiendra la vue
      * @param {array} Data All data of schduler
      */
     SetBackupView(DivContent, Data){
         this._JobScheduleHour = Data.JobScheduleHour
         this._JobScheduleMinute = Data.JobScheduleMinute
         // vider les textes
+        DivContent.innerHTML = ""
         document.getElementById("InfoStart").innerHTML=""
         document.getElementById("ErrorStart").innerHTML=""
         // Backup now
@@ -119,6 +126,33 @@ class CoreXAdminBackupApp{
         DivSchedulerChangeConfSection.appendChild(txtSchedulerChangeConf)
         DivSchedulerChangeConfSection.appendChild(CoreXBuild.Button("Change",this.SchedulerChangeConfig.bind(this),"Button"))
         DivContent.appendChild(DivSchedulerChangeConfSection)
+        // on ajoute un espace vide
+        DivContent.appendChild(CoreXBuild.Div("","","height:2vh;"))
+        // Update Google Key
+        let DivGoogleKeySection = CoreXBuild.DivFlexRowStart()
+        DivGoogleKeySection.style.margin = "2vh 0px 2vh 0px"
+        let txtGoogleKeyNow = CoreXBuild.DivTexte("Update Google Key :", "", "Text", "margin:1%;")
+        txtGoogleKeyNow.classList.add("WidthInfoText")
+        DivGoogleKeySection.appendChild(txtGoogleKeyNow)
+        DivGoogleKeySection.appendChild(CoreXBuild.Button("Update Key",this.SetGoogleKeyView.bind(this, document.getElementById("ContentControle")),"Button"))
+        DivContent.appendChild(DivGoogleKeySection)
+    }
+    /**
+     * Affiche la vue qui permet d'enregistrer la clef google
+     * @param {div} DivContent element div qui contiendra la vue
+     */
+    SetGoogleKeyView(DivContent){
+        // vider les textes
+        DivContent.innerHTML = ""
+        document.getElementById("InfoStart").innerHTML=""
+        document.getElementById("ErrorStart").innerHTML=""
+        let DivFlexContent = CoreXBuild.DivFlexColumn("DivFlexContent")
+        DivContent.appendChild(DivFlexContent)
+        DivFlexContent.appendChild(CoreXBuild.Textarea("GoogleKey", "Insert google key", "TextArea"))
+        let DivButton = CoreXBuild.Div("", "FlexRowCenterspacearound", "width:90%; margin-top:1%;")
+        DivFlexContent.appendChild(DivButton)
+        DivButton.appendChild(CoreXBuild.Button("Save google key",this.SaveGoogleKey.bind(this),"Button"))
+        DivButton.appendChild(CoreXBuild.Button("Cancel",this.Start.bind(this),"Button"))
     }
 
     /** Backup Now */
@@ -178,7 +212,6 @@ class CoreXAdminBackupApp{
             }
         })
     }
-
     /**
      * Change confiuguration of scheduler
      */
@@ -215,7 +248,6 @@ class CoreXAdminBackupApp{
         // Create window
         CoreXWindow.BuildWindow(ContentConfig)
     }
-
     /**
      * Save Scheduler config
      */
@@ -247,6 +279,31 @@ class CoreXAdminBackupApp{
                 CoreXWindow.DeleteWindow()
             },(erreur)=>{
                 document.getElementById("ErrorConfig").innerHTML=erreur
+            })
+        }
+    }
+
+    /**
+     * Save Google key
+     */
+    SaveGoogleKey(){
+        let data = document.getElementById("GoogleKey").value
+        if(data == ""){
+            document.getElementById("ErrorStart").innerHTML="Empty value"
+        } else {
+            // On vide le content
+            document.getElementById("ContentControle").innerHTML=""
+            document.getElementById("InfoStart").innerHTML="Waiting for saving key in BD..."
+            document.getElementById("ErrorStart").innerHTML=""
+            // Save Data
+            let ApiData = new Object()
+            ApiData.Fct = "SaveGoogleKey"
+            ApiData.key = data
+            GlobalCallApiPromise("Backup", ApiData).then((reponse)=>{
+                this.Start()
+            },(erreur)=>{
+                document.getElementById("InfoStart").innerHTML=""
+                document.getElementById("ErrorStart").innerHTML=erreur
             })
         }
     }
@@ -313,6 +370,15 @@ class CoreXAdminBackupApp{
                 align-items: center;
                 flex-wrap: wrap;
             }
+            .TextArea{
+                outline: none;
+                resize: none;
+                overflow: auto;
+                padding: 1%;
+                font-size: var(--CoreX-font-size);
+                width:70%;
+                height: 40vh;
+            }
 
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
@@ -326,6 +392,10 @@ class CoreXAdminBackupApp{
                     border-bottom: solid 1px #dcdcdc;
                 }
                 .WidthInfoText{width:50%;}
+                .TextArea{
+                    font-size: var(--CoreX-Iphone-font-size);
+                    width:90%;
+                }
             }
             @media screen and (min-width: 1200px)
             {
@@ -334,6 +404,7 @@ class CoreXAdminBackupApp{
                 .Text{font-size: var(--CoreX-Max-font-size);}
                 .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
                 .Input {font-size: var(--CoreX-Max-font-size);}
+                .TextArea{font-size: var(--CoreX-Max-font-size);}
             }
         </style>`
     }
