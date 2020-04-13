@@ -1,8 +1,8 @@
 class DbBackup{
-    constructor(BdName){
+    constructor(BdName, Privatekey){
         this._BdName = BdName
-        this._PathTemp = __dirname + "/Temp"
         this._GoogleBackupFolderId = "1JCZoiwqL7Il_0jcGIPUwKPI_YjY6iOO4"
+        this._GooglePrivatekey = Privatekey
     }
 
     /**
@@ -11,33 +11,21 @@ class DbBackup{
     Backup(){
         var me = this
         return new Promise((resolve, reject)=>{
-            const fs = require("fs")
-            if(fs.existsSync(__dirname + "/privatekey.json")){
+            if(this._GooglePrivatekey){
                 const exec = require('child_process').exec
-                const execSync = require('child_process').execSync
-                // Creation d'un repertoire Temp si il n'exites pas, ou le vider si il existe
-                if (fs.existsSync(this._PathTemp)) {
-                    //console.log("Delete du repertoire Temp")
-                    execSync('rm -r ' + this._PathTemp)
-                    fs.mkdirSync(this._PathTemp)
-                } else {
-                    //console.log("Creation du repertoire Temp")
-                    fs.mkdirSync(this._PathTemp)
-                }
                 // Backup de la db
-                const cmd = 'mongodump --db ' + this._BdName + ' --gzip --archive=' + this._PathTemp + "/" + this._BdName +".gz"
+                const cmd = 'mongodump --db ' + this._BdName + ' --gzip --archive=' + __dirname + "/" + this._BdName +".gz"
                 exec(cmd, function (error, stdout, stderr) {
                     if (error) {
                         console.log(error)
                         reject("Erreur lors de la creation du dump de la DB")
                     } else {
-                        me.GoogleBackup(me._PathTemp, me._BdName +".gz", resolve, reject)
+                        me.GoogleBackup(__dirname, me._BdName +".gz", resolve, reject)
                     }
                 })
             } else {
-                reject("Erreur no privatekey file")
+                reject("Erreur no privatekey defined")
             }
-            
         })
     }
 
@@ -51,11 +39,10 @@ class DbBackup{
     GoogleBackup(BackupDbPath, BackupDbName, resolve, reject){
         var me = this
         const {google} = require('googleapis');
-        let credentials = require("./privatekey.json")
+        let credentials = this._GooglePrivatekey
         const scopes = ['https://www.googleapis.com/auth/drive']
         const auth = new google.auth.JWT(credentials.client_email, null,credentials.private_key, scopes)
         const drive = google.drive({ version: "v3", auth })
-
         // Lister les fichier sur le Google Drive dans le repertoire googleBackupFolderId
         drive.files.list({q:"'"+ this._GoogleBackupFolderId +"' in parents", fields: 'files(id,name)'}, (err, res) => {
             if (err){
@@ -109,15 +96,16 @@ class DbBackup{
                 reject("Erreur lors de la creation du fichier backup sur google drive")
             } else {
                 //console.log('File Id: ', result.data.id)
-                if (fs.existsSync(BackupDbPath)) {
-                    //console.log("Delete du repertoire Temp")
-                    const execSync = require('child_process').execSync
-                    execSync('rm -r ' + BackupDbPath)
-                }
-                resolve("DB Backuped")
+                fs.unlink(BackupDbPath + "/" + BackupDbName, (err) => {
+                    if (err){
+                        console.log(err)
+                        reject("Erreur lors du delete du ficher temp.gz lors la creation du fichier backup sur google drive")
+                    } else {
+                        resolve("DB Backuped")
+                    }
+                })
             }
         })
-        
     }
 
     /**
@@ -141,12 +129,14 @@ class DbBackup{
               reject("Erreur lors de l'update du fichier backup sur google drive")
             } else {
                 //console.log('File Id: ', file.data.id)
-                if (fs.existsSync(BackupDbPath)) {
-                    //console.log("Delete du repertoire Temp")
-                    const execSync = require('child_process').execSync
-                    execSync('rm -r ' + BackupDbPath)
-                }
-                resolve("DB Backuped")
+                fs.unlink(BackupDbPath + "/" + BackupDbName, (err) => {
+                    if (err){
+                        console.log(err)
+                        reject("Erreur lors du delete du ficher temp.gz lors de l'update du fichier backup sur google drive")
+                    } else {
+                        resolve("DB Backuped")
+                    }
+                })
             }
         })
     }
@@ -156,22 +146,11 @@ class DbBackup{
      */
     Restore(){
         return new Promise((resolve, reject)=>{
-            const fs = require("fs")
-            if(fs.existsSync(__dirname + "/privatekey.json")){
-                const execSync = require('child_process').execSync
-                // Creation d'un repertoire Temp si il n'exites pas, ou le vider si il existe
-                if (fs.existsSync(this._PathTemp)) {
-                    //console.log("Delete du repertoire Temp")
-                    execSync('rm -r ' + this._PathTemp)
-                    fs.mkdirSync(this._PathTemp)
-                } else {
-                    //console.log("Creation du repertoire Temp")
-                    fs.mkdirSync(this._PathTemp)
-                }
+            if(this._GooglePrivatekey){
                 // Recuperer le Backup sur google drive
-                this.GoogleRestore(this._PathTemp, this._BdName +".gz", resolve, reject)
+                this.GoogleRestore(__dirname, this._BdName +".gz", resolve, reject)
             } else {
-                reject("Erreur no privatekey file")
+                reject("Erreur no privatekey defined")
             }
         })
     }
@@ -186,7 +165,7 @@ class DbBackup{
     GoogleRestore(BackupDbPath, BackupDbName, resolve, reject){
         var me = this
         const {google} = require('googleapis');
-        let credentials = require("./privatekey.json")
+        let credentials = this._GooglePrivatekey
         const scopes = ['https://www.googleapis.com/auth/drive']
         const auth = new google.auth.JWT(credentials.client_email, null,credentials.private_key, scopes)
         const drive = google.drive({ version: "v3", auth })
@@ -235,7 +214,6 @@ class DbBackup{
         var me = this
         const fs = require("fs")
         var dest = fs.createWriteStream(BackupDbPath + "/" + BackupDbName)
-
         drive.files.get({fileId: GoogleBackupFileId, alt: 'media'}, {responseType: 'stream'},function(err, res){
             res.data
             .on('end', () => {
@@ -260,7 +238,6 @@ class DbBackup{
     RestoreDb(BackupDbPath, BackupDbName, resolve, reject){
         const fs = require("fs")
         const exec = require('child_process').exec
-        const execSync = require('child_process').execSync
         let DbName = BackupDbName.replace(".gz", "")
         const cmd = 'mongorestore --drop --gzip --db=' + DbName + ' --archive=' + BackupDbPath + "/" + BackupDbName
         exec(cmd, function (error, stdout, stderr) {
@@ -268,19 +245,17 @@ class DbBackup{
                 console.log(error)
                 reject("Erreur lors du restore du dump de la DB")
             } else {
-                // Delete du repertoire Temp
-                if (fs.existsSync(BackupDbPath)) {
-                    //console.log("Delete du repertoire Temp")
-                    execSync('rm -r ' + BackupDbPath)
-                    resolve("DB Restored")
-                } else {
-                    resolve("DB Restored")
-                }
+                fs.unlink(BackupDbPath + "/" + BackupDbName, (err) => {
+                    if (err){
+                        console.log(err)
+                        reject("Erreur lors du delete du ficher temp.gz lors du restore du fichier backup sur google drive")
+                    } else {
+                        resolve("DB Restored")
+                    }
+                })
             }
         })
     }
-
 }
-
 
 module.exports.DbBackup = DbBackup

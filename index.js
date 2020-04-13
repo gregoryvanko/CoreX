@@ -1095,20 +1095,32 @@ class corex {
     ApiAdminBackup(ApiData, res){
         this.LogAppliInfo("Call API Admin, FctName: Backup")
         if (ApiData.Fct == "BackupNow"){
-            let DbBackup = require('./DbBackup').DbBackup
-            let MyDbBackup = new DbBackup(this._MongoDbName)
-            MyDbBackup.Backup().then((reponse)=>{
-                res.json({Error: false, ErrorMsg: "DB Backuped", Data: reponse})
+            // Get GoogleKey
+            this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
+                let credentials = JSON.parse(reponse)
+                let DbBackup = require('./DbBackup').DbBackup
+                let MyDbBackup = new DbBackup(this._MongoDbName,credentials)
+                MyDbBackup.Backup().then((reponse)=>{
+                    res.json({Error: false, ErrorMsg: "DB Backuped", Data: reponse})
+                },(erreur)=>{
+                    res.json({Error: true, ErrorMsg: "Error during Backup: "+ erreur, Data: ""})
+                })
             },(erreur)=>{
-                res.json({Error: true, ErrorMsg: "Error during Backup: "+ erreur, Data: ""})
+                res.json({Error: true, ErrorMsg: "Error during BackupNow Get GoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "RestoreNow"){
-            let DbBackup = require('./DbBackup').DbBackup
-            let MyDbBackup = new DbBackup(this._MongoDbName)
-            MyDbBackup.Restore().then((reponse)=>{
-                res.json({Error: false, ErrorMsg: "DB Restored", Data: reponse})
+            // Get GoogleKey
+            this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
+                let credentials = JSON.parse(reponse)
+                let DbBackup = require('./DbBackup').DbBackup
+                let MyDbBackup = new DbBackup(this._MongoDbName, credentials)
+                MyDbBackup.Restore().then((reponse)=>{
+                    res.json({Error: false, ErrorMsg: "DB Restored", Data: reponse})
+                },(erreur)=>{
+                    res.json({Error: true, ErrorMsg: "Error during RestoreNow: "+ erreur, Data: ""})
+                })
             },(erreur)=>{
-                res.json({Error: true, ErrorMsg: "Error during Restore: "+ erreur, Data: ""})
+                res.json({Error: true, ErrorMsg: "Error during RestoreNow Get GoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "GetSchedulerData"){
             let ApiReponse = new Object()
@@ -1169,13 +1181,19 @@ class corex {
                         var me = this
                         this._JobSchedule = schedule.scheduleJob(options, function(){
                             //console.log("coucou")
-                            let DbBackup = require('./DbBackup').DbBackup
-                            let MyDbBackup = new DbBackup(me._MongoDbName)
-                            MyDbBackup.Backup().then((reponse)=>{
-                                var now = new Date()
-                                console.log(reponse + " " + now)
+                            // Get GoogleKey
+                            me.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
+                                let credentials = JSON.parse(reponse)
+                                let DbBackup = require('./DbBackup').DbBackup
+                                let MyDbBackup = new DbBackup(me._MongoDbName,credentials)
+                                MyDbBackup.Backup().then((reponse)=>{
+                                    var now = new Date()
+                                    console.log(reponse + " " + now)
+                                },(erreur)=>{
+                                    console.log("Error during SchedulerSetStatus: "+ erreur + " " + now)
+                                })
                             },(erreur)=>{
-                                console.log("Error during Backup: "+ erreur + " " + now)
+                                res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus Get GoogleKey: "+ erreur, Data: ""})
                             })
                         })
                         reponse.JobScheduleStarted = true
