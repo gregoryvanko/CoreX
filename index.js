@@ -103,7 +103,7 @@ class corex {
                     me.VerifyLogin(res, me._MongoLoginAdminCollection, req.body.Login,req.body.Pass)
                     break
                 default:
-                    me.LogAppliError(" => No login for site: " + req.body.Site)
+                    me.LogAppliError("No login for site: " + req.body.Site)
                     res.json({Error: true, ErrorMsg:"No login for site: " + req.body.Site, Token: ""})
                     break
             }
@@ -117,7 +117,7 @@ class corex {
                 // vérification que le UserId du Token existe en DB et envoie de l'app
                 me.CheckTokenUserIdAndSendApp(req.body.Site, DecryptTokenReponse.TokenData.data.UserData._id, DecryptTokenReponse.TokenData.data.LoginCollection, res)
             } else {
-                me.LogAppliError(" => Token non valide")
+                me.LogAppliError("Token non valide")
                 res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         })
@@ -135,12 +135,12 @@ class corex {
                         Continue = true
                     } else {
                         Continue = false
-                        me.LogAppliError(" => Token non valide, LoginCollection incorrect")
+                        me.LogAppliError("Token non valide, LoginCollection incorrect")
                         res.json({Error: true, ErrorMsg:"Token non valide, LoginCollection incorrect"})
                     }
                 } else {
                     Continue = false
-                    me.LogAppliError(" => Token non valide")
+                    me.LogAppliError("Token non valide")
                     res.json({Error: true, ErrorMsg:"Token non valide"})
                 }
             } else {
@@ -154,7 +154,7 @@ class corex {
                         if (DecryptTokenReponse != null) {
                             me.ApiGetMyData("App",DecryptTokenReponse.TokenData.data.UserData._id, res)
                         } else {
-                            me.LogAppliError(" => No personal data for application not secured")
+                            me.LogAppliError("No personal data for application not secured")
                             res.json({Error: true, ErrorMsg:"No personal data for application not secured"})
                         }
                         break
@@ -166,7 +166,7 @@ class corex {
                             DataCall.Data = req.body.FctData
                             me.ApiAUpdateUser(DataCall, res)
                         } else {
-                            me.LogAppliError(" => No personal data for application not secured")
+                            me.LogAppliError("No personal data for application not secured")
                             res.json({Error: true, ErrorMsg:"No personal data for application not secured"})
                         }
                         break
@@ -183,7 +183,7 @@ class corex {
                             }
                         })
                         if (FctNotFound){
-                            me.LogAppliError(" => No API for FctName: " + req.body.FctName)
+                            me.LogAppliError("No API for FctName: " + req.body.FctName)
                             res.json({Error: true, ErrorMsg:"No API for FctName: " + req.body.FctName})
                         }
                         break
@@ -243,17 +243,17 @@ class corex {
                                 }
                             })
                             if (FctNotFound){
-                                me.LogAppliError(" => No API Admin for FctName: " + req.body.FctName)
+                                me.LogAppliError("No API Admin for FctName: " + req.body.FctName)
                                 res.json({Error: true, ErrorMsg:"No API Admin for FctName: " + req.body.FctName})
                             }
                             break
                     }
                 } else {
-                    me.LogAppliError(" => Token non valide, LoginCollection incorrect")
+                    me.LogAppliError("Token non valide, LoginCollection incorrect")
                     res.json({Error: true, ErrorMsg:"Token non valide, LoginCollection incorrect"})
                 }
             } else {
-                me.LogAppliError(" => Token non valide")
+                me.LogAppliError("Token non valide")
                 res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         })
@@ -410,7 +410,7 @@ class corex {
         var now = new Date()
         const DataToDb = { [this._MongoLogAppliNow]: now, [this._MongoLogAppliType]: "Error", [this._MongoLogAppliValeur]: Valeur}
         this._Mongo.InsertOnePromise(DataToDb, this._MongoLogAppliCollection).then((reponse)=>{
-            this.LogDebug(this.GetDateString(now) + " " + "Error" + " " + Valeur)
+            this.LogDebug(this.GetDateString(now) + " " + "Error " + Valeur)
         },(erreur)=>{
             this.LogDebug("LogAppliError DB error : " + erreur)
         })
@@ -438,37 +438,86 @@ class corex {
         }
         let DoneCallbackAdminCollection = (Data) => {
             if(Data){
-                this.LogDebug("La collection suivante existe : " + this._MongoLoginAdminCollection)
+                this.LogAppliInfo("La collection suivante existe : " + this._MongoLoginAdminCollection)
             } else {
                 const DataToDb = { [this._MongoLoginUserItem]: "Admin", [this._MongoLoginFirstNameItem]: "Admin First Name", [this._MongoLoginLastNameItem]: "Admin Last Name", [this._MongoLoginPassItem]: "Admin", [this._MongoLoginConfirmPassItem]: "Admin"}
                 this._Mongo.InsertOnePromise(DataToDb, this._MongoLoginAdminCollection).then((reponse)=>{
-                    this.LogDebug("Creation de la collection : " + this._MongoLoginAdminCollection)
+                    this.LogAppliInfo("Creation de la collection : " + this._MongoLoginAdminCollection)
                 },(erreur)=>{
-                    this.LogDebug("Error Insert temp user admin in collection Login Admin")
+                    this.LogAppliError("Insert temp user admin in collection Login Admin")
                     throw new Error('Erreur lors de la creation du User Admin de la collection Admin de la db: ' + erreur)
                 })
             }
         }
         let DoneCallbackConfigCollection = (Data) => {
             if(Data){
-                this.LogDebug("La collection suivante existe : " + this._MongoConfigCollection)
+                this.LogAppliInfo("La collection suivante existe : " + this._MongoConfigCollection)
+                // Start du Backup
+                this.StartJobScheduleBackup()
             } else {
                 const DataToDb = [
                     {[this._MongoConfigKey]: "JobScheduleHour", [this._MongoConfigValue]: "3", [this._MongoConfigType]: "JobSchedule"},
                     {[this._MongoConfigKey]: "JobScheduleMinute", [this._MongoConfigValue]: "30", [this._MongoConfigType]: "JobSchedule"},
+                    {[this._MongoConfigKey]: "JobScheduleStatus", [this._MongoConfigValue]: false, [this._MongoConfigType]: "JobSchedule"},
                     {[this._MongoConfigKey]: "GoogleKey", [this._MongoConfigValue]: "", [this._MongoConfigType]: "Google"}
                 ]
 
                 this._Mongo.InsertMultiplePromise(DataToDb, this._MongoConfigCollection).then((reponse)=>{
-                    this.LogDebug("Creation de la collection : " + this._MongoConfigCollection)
+                    this.LogAppliInfo("Creation de la collection : " + this._MongoConfigCollection)
                 },(erreur)=>{
-                    this.LogDebug("Error Insert JobSchedule config in collection Config")
+                    this.LogAppliError("Error Insert JobSchedule config in collection Config")
                     throw new Error('Erreur lors de la creation de la config JobSchedule dans la collection Config de la db: ' + erreur)
                 })
             }
         }
         this._Mongo.CollectionExist(this._MongoLoginAdminCollection, DoneCallbackAdminCollection, ErrorCallback)
         this._Mongo.CollectionExist(this._MongoConfigCollection, DoneCallbackConfigCollection, ErrorCallback)
+    }
+    /**
+     * Start du schedule du backup
+     */
+    StartJobScheduleBackup(){
+        this.GetDbConfig("JobScheduleStatus", "JobSchedule").then((reponse)=>{
+            if(reponse == true){
+                if (this._JobSchedule == null){
+                    // Get GoogleKey
+                    this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
+                        if(reponse != ""){
+                            let credentials = JSON.parse(reponse)
+                            this.LogAppliInfo("Start JobScheduleBackup ")
+                            this.GetSchedulerData().then((reponse)=>{
+                                var schedule = require('node-schedule')
+                                let options = {minute: reponse.JobScheduleMinute, hour: reponse.JobScheduleHour}
+                                var me = this
+                                this._JobSchedule = schedule.scheduleJob(options, function(){
+                                    let DbBackup = require('./DbBackup').DbBackup
+                                    let MyDbBackup = new DbBackup(me._MongoDbName,credentials)
+                                    MyDbBackup.Backup().then((reponse)=>{
+                                        var now = new Date()
+                                        me.LogAppliInfo(reponse + " " + now)
+                                    },(erreur)=>{
+                                        me.LogAppliError("StartJobScheduleBackup error : " + erreur)
+                                        console.log("Error during StartJobScheduleBackup: "+ erreur + " " + now)
+                                    })
+                                })
+                            },(erreur)=>{
+                                this.LogAppliError("StartJobScheduleBackup error : " + erreur)
+                            })
+                        } else {
+                            this.LogAppliError("StartJobScheduleBackup Google key empty")
+                        }
+                    },(erreur)=>{
+                        this.LogAppliError("StartJobScheduleBackup, get Google key error : " + erreur)
+                    })
+                } else {
+                    this.LogAppliError("JobScheduler already exist")
+                }
+            } else {
+                this.LogAppliInfo("JobScheduleBackup not started")
+            }
+        },(erreur)=>{
+            this.LogAppliError("StartJobScheduleBackup: " + erreur)
+        })
     }
     /** Ajout d'un fonction a gerer via l'API user */
     AddApiFct(FctName, Fct){
@@ -770,12 +819,12 @@ class corex {
                     let MyApp = null
                     switch (Site) {
                         case "app":
-                            this.LogAppliInfo("Start loading App")
+                            this.LogDebug("Start loading App")
                             MyApp = this.GetAppCode()
                             res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
                             break
                         case "admin":
-                            this.LogAppliInfo("Start loading App Admin")
+                            this.LogDebug("Start loading App Admin")
                             MyApp = this.GetAdminAppCode()
                             res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
                             break
@@ -941,7 +990,7 @@ class corex {
                 console.log("Client folder not found: " + folder)
             }
         } else {
-            this.LogAppliInfo("Admin folder not defined (=null) ")
+            this.LogDebug("Admin folder not defined (=null) ")
         }
         MyApp.JS += "MyApp.Start()"
         return MyApp
@@ -1094,8 +1143,8 @@ class corex {
     }
     /** Get des log de l'application */
     ApiAdminBackup(ApiData, res){
-        this.LogAppliInfo("Call API Admin, FctName: Backup")
         if (ApiData.Fct == "BackupNow"){
+            this.LogAppliInfo("Call API Admin, FctName: BackupNow")
             // Get GoogleKey
             this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
                 this.LogAppliInfo("Backup Now start")
@@ -1109,10 +1158,11 @@ class corex {
                     this.LogAppliError("Backup Now error: " + erreur)
                 })
             },(erreur)=>{
-                this.LogAppliError("Error during BackupNow Get GoogleKey: "+ erreur)
+                this.LogAppliError("BackupNow Get GoogleKey: "+ erreur)
                 res.json({Error: true, ErrorMsg: "Error during BackupNow Get GoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "RestoreNow"){
+            this.LogAppliInfo("Call API Admin, FctName: RestoreNow")
             // Get GoogleKey
             this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
                 this.LogAppliInfo("Restore Now start")
@@ -1126,10 +1176,11 @@ class corex {
                     this.LogAppliError("Restore Now error: " + erreur)
                 })
             },(erreur)=>{
-                this.LogAppliError("Error during RestoreNow Get GoogleKey: "+ erreur)
+                this.LogAppliError("RestoreNow Get GoogleKey: "+ erreur)
                 res.json({Error: true, ErrorMsg: "Error during RestoreNow Get GoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "GetSchedulerData"){
+            this.LogAppliInfo("Call API Admin, FctName: GetSchedulerData")
             let ApiReponse = new Object()
             ApiReponse.GoogleKeyExist = false
             ApiReponse.SchedulerData = null
@@ -1152,6 +1203,7 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during GetSchedulerData, get google key: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "SaveConfig"){
+            this.LogAppliInfo("Call API Admin, FctName: SaveConfig")
             // Save nouvelle heure
             let DataH = new Object()
             DataH.Value = ApiData.Hour
@@ -1185,39 +1237,56 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "SchedulerSetStatus"){
+            this.LogAppliInfo("Call API Admin, FctName: SchedulerSetStatus")
             if (ApiData.Started){
                 if (this._JobSchedule == null){
                     this.GetSchedulerData().then((reponse)=>{
                         var schedule = require('node-schedule')
                         let options = {minute: reponse.JobScheduleMinute, hour: reponse.JobScheduleHour}
-                        var me = this
-                        this._JobSchedule = schedule.scheduleJob(options, function(){
-                            //console.log("coucou")
-                            // Get GoogleKey
-                            me.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
-                                let credentials = JSON.parse(reponse)
+                        // Get GoogleKey
+                        this.GetDbConfig("GoogleKey", "Google").then((reponseGoogleKey)=>{
+                            let credentials = JSON.parse(reponseGoogleKey)
+                            var me = this
+                            this._JobSchedule = schedule.scheduleJob(options, function(){
+                                //console.log("coucou")
                                 let DbBackup = require('./DbBackup').DbBackup
                                 let MyDbBackup = new DbBackup(me._MongoDbName,credentials)
                                 MyDbBackup.Backup().then((reponse)=>{
                                     var now = new Date()
+                                    me.LogAppliInfo(reponse + " " + now)
                                     console.log(reponse + " " + now)
                                 },(erreur)=>{
-                                    this.LogAppliError("SchedulerSetStatus error : " + erreur)
+                                    me.LogAppliError("SchedulerSetStatus error : " + erreur)
                                     console.log("Error during SchedulerSetStatus: "+ erreur + " " + now)
                                 })
-                            },(erreur)=>{
-                                this.LogAppliError("SchedulerSetStatus, get Google key error : " + erreur)
-                                res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus Get GoogleKey: "+ erreur, Data: ""})
                             })
+                            // Save nouveau status
+                            let DataS = new Object()
+                            DataS.Value = ApiData.Started
+                            const Query = { [this._MongoConfigKey]: "JobScheduleStatus", [this._MongoConfigType]: "JobSchedule"}
+                            this._Mongo.UpdatePromise(Query, DataS, this._MongoConfigCollection).then((reponseUpdateSatus)=>{
+                                if (reponseUpdateSatus.matchedCount==1) {
+                                    reponse.JobScheduleStarted = true
+                                    reponse.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
+                                    res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
+                                } else {
+                                    this.LogAppliError("SaveConfig Status error : more than 1 entry in DB")
+                                    res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: more than 1 entry in DB", Data: ""})
+                                }
+                            },(erreur)=>{
+                                this.LogAppliError("SaveConfig Status error : " + erreur)
+                                res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: "+ erreur, Data: ""})
+                            })
+                        },(erreur)=>{
+                            this.LogAppliError("SchedulerSetStatus, get Google key error : " + erreur)
+                            res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus Get GoogleKey: "+ erreur, Data: ""})
                         })
-                        reponse.JobScheduleStarted = true
-                        reponse.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
-                        res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
                     },(erreur)=>{
                         this.LogAppliError("SchedulerSetStatus error : " + erreur)
                         res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
                     })
                 } else {
+                    this.LogAppliError("JobScheduler already exist")
                     res.json({Error: true, ErrorMsg: "Error JobScheduler already exist", Data: ""})
                 }
             } else {
@@ -1226,15 +1295,30 @@ class corex {
                 } else {
                     this._JobSchedule.cancel()
                     this._JobSchedule = null
-                    this.GetSchedulerData().then((reponse)=>{
-                        res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
+                    // Save nouveau status
+                    let DataS = new Object()
+                    DataS.Value = ApiData.Started
+                    const Query = { [this._MongoConfigKey]: "JobScheduleStatus", [this._MongoConfigType]: "JobSchedule"}
+                    this._Mongo.UpdatePromise(Query, DataS, this._MongoConfigCollection).then((reponse)=>{
+                        if (reponse.matchedCount==1) {
+                            this.GetSchedulerData().then((reponse)=>{
+                                res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
+                            },(erreur)=>{
+                                this.LogAppliError("SchedulerSetStatus error : " + erreur)
+                                res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
+                            })
+                        } else {
+                            this.LogAppliError("SaveConfig Status error : more than 1 entry in DB")
+                            res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: more than 1 entry in DB", Data: ""})
+                        }
                     },(erreur)=>{
-                        this.LogAppliError("SchedulerSetStatus error : " + erreur)
-                        res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
+                        this.LogAppliError("SaveConfig Status error : " + erreur)
+                        res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: "+ erreur, Data: ""})
                     })
                 }
             }
         } else if (ApiData.Fct == "SaveGoogleKey"){
+            this.LogAppliInfo("Call API Admin, FctName: SaveGoogleKey")
             // Save Google Key
             let Data = new Object()
             Data.Value = ApiData.key
@@ -1251,6 +1335,7 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during SaveGoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "CleanLog") {
+            this.LogAppliInfo("Call API Admin, FctName: CleanLog")
             const Query = {}
             this._Mongo.DeleteByQueryPromise(Query, this._MongoLogAppliCollection).then((reponse)=>{
                 res.json({Error: false, ErrorMsg: "CleanLog Data", Data: null})
@@ -1259,7 +1344,7 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during CleanLog: "+ erreur, Data: ""})
             })
         } else {
-            this.LogAppliError("Error during Backup: ApiData.Fct not found= "+ ApiData.Fct)
+            this.LogAppliError("Backup: ApiData.Fct not found= "+ ApiData.Fct)
             res.json({Error: true, ErrorMsg: "Error during Backup: ApiData.Fct not found= "+ ApiData.Fct, Data: ""})
         }
     }
