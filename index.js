@@ -524,7 +524,7 @@ class corex {
                 letter-spacing: normal;
                 text-rendering: optimizelegibility;
                 width: 100%;
-                height: 100VH;
+                height: 100%;
             }
         </style>`
         let apiurl = "api"
@@ -617,7 +617,7 @@ class corex {
                 letter-spacing: normal;
                 text-rendering: optimizelegibility;
                 width: 100%;
-                height: 100VH;
+                height: 100%;
             }
         </style>` 
 
@@ -964,6 +964,7 @@ class corex {
                     reject("Error GetDbConfig: too much entry for this Key and ConfigType")
                 }
             },(erreur)=>{
+                this.LogAppliError("GetDbConfig error : " + erreur)
                 reject(erreur)
             })
         })
@@ -1097,29 +1098,35 @@ class corex {
         if (ApiData.Fct == "BackupNow"){
             // Get GoogleKey
             this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
+                this.LogAppliInfo("Backup Now start")
+                res.json({Error: false, ErrorMsg: "", Data: "DB Backup Started, see log for end validation"})
                 let credentials = JSON.parse(reponse)
                 let DbBackup = require('./DbBackup').DbBackup
                 let MyDbBackup = new DbBackup(this._MongoDbName,credentials)
                 MyDbBackup.Backup().then((reponse)=>{
-                    res.json({Error: false, ErrorMsg: "DB Backuped", Data: reponse})
+                    this.LogAppliInfo("Backup Now sucessfully ended")
                 },(erreur)=>{
-                    res.json({Error: true, ErrorMsg: "Error during Backup: "+ erreur, Data: ""})
+                    this.LogAppliError("Backup Now error: " + erreur)
                 })
             },(erreur)=>{
+                this.LogAppliError("Error during BackupNow Get GoogleKey: "+ erreur)
                 res.json({Error: true, ErrorMsg: "Error during BackupNow Get GoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "RestoreNow"){
             // Get GoogleKey
             this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
+                this.LogAppliInfo("Restore Now start")
+                res.json({Error: false, ErrorMsg: "", Data: "DB Restore Started, see log for end validation and reload browser"})
                 let credentials = JSON.parse(reponse)
                 let DbBackup = require('./DbBackup').DbBackup
                 let MyDbBackup = new DbBackup(this._MongoDbName, credentials)
                 MyDbBackup.Restore().then((reponse)=>{
-                    res.json({Error: false, ErrorMsg: "DB Restored", Data: reponse})
+                    this.LogAppliInfo("Restore Now sucessfully ended")
                 },(erreur)=>{
-                    res.json({Error: true, ErrorMsg: "Error during RestoreNow: "+ erreur, Data: ""})
+                    this.LogAppliError("Restore Now error: " + erreur)
                 })
             },(erreur)=>{
+                this.LogAppliError("Error during RestoreNow Get GoogleKey: "+ erreur)
                 res.json({Error: true, ErrorMsg: "Error during RestoreNow Get GoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "GetSchedulerData"){
@@ -1136,10 +1143,12 @@ class corex {
                         ApiReponse.SchedulerData =reponsedata
                         res.json({Error: false, ErrorMsg: "Scheduler Data", Data: ApiReponse})
                     },(erreur)=>{
+                        this.LogAppliError("GetSchedulerData error : " + erreur)
                         res.json({Error: true, ErrorMsg: "Error during GetSchedulerData: "+ erreur, Data: ""})
                     })
                 }
             },(erreur)=>{
+                this.LogAppliError("GetSchedulerData error in get google key : " + erreur)
                 res.json({Error: true, ErrorMsg: "Error during GetSchedulerData, get google key: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "SaveConfig"){
@@ -1161,15 +1170,18 @@ class corex {
                         this.GetSchedulerData().then((reponse)=>{
                             res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
                         },(erreur)=>{
+                            this.LogAppliError("SaveConfig error : " + erreur)
                             res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
                         })
                     },(erreur)=>{
+                        this.LogAppliError("SaveConfig error : " + erreur)
                         res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
                     })
                 } else {
                     res.json({Error: true, ErrorMsg: "Upadte error : Key Value not found in config", Data: ""})
                 }
             },(erreur)=>{
+                this.LogAppliError("SaveConfig error : " + erreur)
                 res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "SchedulerSetStatus"){
@@ -1190,9 +1202,11 @@ class corex {
                                     var now = new Date()
                                     console.log(reponse + " " + now)
                                 },(erreur)=>{
+                                    this.LogAppliError("SchedulerSetStatus error : " + erreur)
                                     console.log("Error during SchedulerSetStatus: "+ erreur + " " + now)
                                 })
                             },(erreur)=>{
+                                this.LogAppliError("SchedulerSetStatus, get Google key error : " + erreur)
                                 res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus Get GoogleKey: "+ erreur, Data: ""})
                             })
                         })
@@ -1200,6 +1214,7 @@ class corex {
                         reponse.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
                         res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
                     },(erreur)=>{
+                        this.LogAppliError("SchedulerSetStatus error : " + erreur)
                         res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
                     })
                 } else {
@@ -1214,12 +1229,13 @@ class corex {
                     this.GetSchedulerData().then((reponse)=>{
                         res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
                     },(erreur)=>{
+                        this.LogAppliError("SchedulerSetStatus error : " + erreur)
                         res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
                     })
                 }
             }
         } else if (ApiData.Fct == "SaveGoogleKey"){
-            // Save nouvelle heure
+            // Save Google Key
             let Data = new Object()
             Data.Value = ApiData.key
             const Query = { [this._MongoConfigKey]: "GoogleKey", [this._MongoConfigType]: "Google"}
@@ -1227,15 +1243,25 @@ class corex {
                 if (reponse.matchedCount==1) {
                     res.json({Error: false, ErrorMsg: "SaveGoogleKey Data", Data: null})
                 } else {
+                    this.LogAppliError("Upadte error : Key Value not found in config")
                     res.json({Error: true, ErrorMsg: "Upadte error : Key Value not found in config", Data: ""})
                 }
             },(erreur)=>{
+                this.LogAppliError("SaveGoogleKey error : " + erreur)
                 res.json({Error: true, ErrorMsg: "Error during SaveGoogleKey: "+ erreur, Data: ""})
             })
+        } else if (ApiData.Fct == "CleanLog") {
+            const Query = {}
+            this._Mongo.DeleteByQueryPromise(Query, this._MongoLogAppliCollection).then((reponse)=>{
+                res.json({Error: false, ErrorMsg: "CleanLog Data", Data: null})
+            },(erreur)=>{
+                this.LogAppliError("CleanLog error : " + erreur)
+                res.json({Error: true, ErrorMsg: "Error during CleanLog: "+ erreur, Data: ""})
+            })
         } else {
+            this.LogAppliError("Error during Backup: ApiData.Fct not found= "+ ApiData.Fct)
             res.json({Error: true, ErrorMsg: "Error during Backup: ApiData.Fct not found= "+ ApiData.Fct, Data: ""})
         }
-
     }
     /**
      * Promise Get scheduler data
@@ -1256,9 +1282,11 @@ class corex {
                     }
                     resolve(SchedulerData)
                 },(erreur)=>{
+                    this.LogAppliError("GetSchedulerData error : " + erreur)
                     reject(erreur)
                 })
             },(erreur)=>{
+                this.LogAppliError("GetSchedulerData error : " + erreur)
                 reject(erreur)
             })
         })

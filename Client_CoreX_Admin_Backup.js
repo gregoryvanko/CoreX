@@ -136,6 +136,14 @@ class CoreXAdminBackupApp{
         DivGoogleKeySection.appendChild(txtGoogleKeyNow)
         DivGoogleKeySection.appendChild(CoreXBuild.Button("Update Key",this.SetGoogleKeyView.bind(this, document.getElementById("ContentControle")),"Button"))
         DivContent.appendChild(DivGoogleKeySection)
+        // Clean log
+        let DivCleanLogSection = CoreXBuild.DivFlexRowStart()
+        DivCleanLogSection.style.margin = "2vh 0px 2vh 0px"
+        let txtCleanLogNow = CoreXBuild.DivTexte("Clean Log :", "", "Text", "margin:1%;")
+        txtCleanLogNow.classList.add("WidthInfoText")
+        DivCleanLogSection.appendChild(txtCleanLogNow)
+        DivCleanLogSection.appendChild(CoreXBuild.Button("Clean Log",this.CleanLog.bind(this),"Button"))
+        DivContent.appendChild(DivCleanLogSection)
     }
     /**
      * Affiche la vue qui permet d'enregistrer la clef google
@@ -181,8 +189,7 @@ class CoreXAdminBackupApp{
         ApiData.Fct = "RestoreNow"
         ApiData.Data = null
         GlobalCallApiPromise("Backup", ApiData).then((reponse)=>{
-            document.getElementById("InfoStart").innerHTML=reponse + " => Page reload in 3sec..."
-            setTimeout(function(){ location.reload() }, 3000)
+            document.getElementById("InfoStart").innerHTML=reponse
         },(erreur)=>{
             document.getElementById("InfoStart").innerHTML=""
             document.getElementById("ErrorStart").innerHTML=erreur
@@ -306,6 +313,24 @@ class CoreXAdminBackupApp{
                 document.getElementById("ErrorStart").innerHTML=erreur
             })
         }
+    }
+
+    /**
+     * Delete all element log in DB
+     */
+    CleanLog(){
+        // On vide le content
+        document.getElementById("InfoStart").innerHTML="Clean log in progress..."
+        document.getElementById("ErrorStart").innerHTML=""
+        // Save Data
+        let ApiData = new Object()
+        ApiData.Fct = "CleanLog"
+        GlobalCallApiPromise("Backup", ApiData).then((reponse)=>{
+            document.getElementById("InfoStart").innerHTML="Log cleaned"
+        },(erreur)=>{
+            document.getElementById("InfoStart").innerHTML=""
+            document.getElementById("ErrorStart").innerHTML=erreur
+        })
     }
 
     /** Css de l'application */
