@@ -19,7 +19,7 @@ class CoreXActionButton{
         Button.addEventListener("click", this.OnClickCoreXActionButton.bind(this))
         div.appendChild(Button)
         document.body.appendChild(div)
-        document.body.addEventListener("touchstart", this.DoubleTouchEventFct.bind(this))
+        document.addEventListener("touchstart", this.DoubleTouchEventFct.bind(this))
     }
     /** Détection d'un double tap sur l'écran */
     DoubleTouchEventFct(){

@@ -78,17 +78,17 @@ class corex {
         // Creation d'une route de base pour l'application
 		this._Express.get('/', function(req, res, next){
             if (me._AppIsSecured) {
-                me.LogAppliInfo("Send Initial Secured HTML for application app")
+                me.LogDebug("Send Initial Secured HTML for application app")
                 res.send(me.GetInitialSecuredHTML("app"))
             } else {
                 // Envoyer l'App
-                me.LogAppliInfo("Send Initial HTML for application app")
+                me.LogDebug("Send Initial HTML for application app")
                 res.send(me.GetInitialHTML())
             }
         })
         // Creation d'une route vers l'application admin
 		this._Express.get('/admin', function(req, res, next){
-            me.LogAppliInfo("Send Initial Secured HTML for application Admin")
+            me.LogDebug("Send Initial Secured HTML for application Admin")
             res.send(me.GetInitialSecuredHTML("admin"))
         })
         // Creation d'un route pour le login via Post
@@ -1021,7 +1021,7 @@ class corex {
 
     /* Get list of all user via l'ApiAdmin */
     ApiAdminGetAllUsers(type, res){
-        this.LogAppliInfo("Call API Admin, FctName: GetAllUsers, Data: " + type)
+        this.LogAppliInfo("Call ApiAdmin GetAllUsers, Data: " + type)
         let mongocollection =""
         if (type == "Admin") {mongocollection = this._MongoLoginAdminCollection}
         else {mongocollection = this._MongoLoginClientCollection}
@@ -1042,7 +1042,7 @@ class corex {
     }
     /* Get list of user data via l'ApiAdmin */
     ApiAdminGetUserData(Data, res){
-        this.LogAppliInfo("Call API Admin, FctName: GetUserData, Data: " + JSON.stringify(Data))
+        this.LogAppliInfo("Call ApiAdmin GetUserData, Data: " + JSON.stringify(Data))
         let MongoObjectId = require('./Mongo.js').MongoObjectId
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
@@ -1071,7 +1071,7 @@ class corex {
     }
     /* Delete d'un user via l'ApiAdmin */
     ApiAdminDeleteUser(Data, res){
-        this.LogAppliInfo("Call API Admin, FctName: DeleteUser, Data: " + JSON.stringify(Data))
+        this.LogAppliInfo("Call ApiAdmin DeleteUser, Data: " + JSON.stringify(Data))
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
         if (Data.UserType == "Admin") {mongocollection = this._MongoLoginAdminCollection}
@@ -1091,7 +1091,7 @@ class corex {
     }
     /** Get de la structure d'un user */
     ApiAdminGetUserDataStructure(Data, res){
-        this.LogAppliInfo("Call API Admin, FctName: GetUserDataStructure, Data: " + Data)
+        this.LogAppliInfo("Call ApiAdmin GetUserDataStructure, Data: " + Data)
         let reponse=[]
         // Data strucutre d'un user
         reponse.push(this._MongoLoginUserItem)
@@ -1108,7 +1108,7 @@ class corex {
     }
     /** Creation d'un nouvel user */
     ApiAdminNewUser(Data, res){
-        this.LogAppliInfo("Call API Admin, FctName: NewUser, Data: " + JSON.stringify(Data))
+        this.LogAppliInfo("Call ApiAdmin NewUser, Data: " + JSON.stringify(Data))
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
         if (Data.UserType == "Admin") {mongocollection = this._MongoLoginAdminCollection}
@@ -1124,7 +1124,7 @@ class corex {
     }
     /** Get des log de l'application */
     ApiAdminGetLog(Data, res){
-        this.LogAppliInfo("Call API Admin, FctName: GetLog, Skip data value: " + Data)
+        this.LogAppliInfo("Call ApiAdmin GetLog, Skip data value: " + Data)
         let mongocollection = this._MongoLogAppliCollection
         const Query = {}
         const Projection = {}
@@ -1144,7 +1144,7 @@ class corex {
     /** Get des log de l'application */
     ApiAdminBackup(ApiData, res){
         if (ApiData.Fct == "BackupNow"){
-            this.LogAppliInfo("Call API Admin, FctName: BackupNow")
+            this.LogAppliInfo("Call ApiAdmin BackupNow")
             // Get GoogleKey
             this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
                 this.LogAppliInfo("Backup Now start")
@@ -1162,7 +1162,7 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during BackupNow Get GoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "RestoreNow"){
-            this.LogAppliInfo("Call API Admin, FctName: RestoreNow")
+            this.LogAppliInfo("Call ApiAdmin RestoreNow")
             // Get GoogleKey
             this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
                 this.LogAppliInfo("Restore Now start")
@@ -1180,7 +1180,7 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during RestoreNow Get GoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "GetSchedulerData"){
-            this.LogAppliInfo("Call API Admin, FctName: GetSchedulerData")
+            this.LogAppliInfo("Call ApiAdmin GetSchedulerData")
             let ApiReponse = new Object()
             ApiReponse.GoogleKeyExist = false
             ApiReponse.SchedulerData = null
@@ -1203,7 +1203,7 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during GetSchedulerData, get google key: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "SaveConfig"){
-            this.LogAppliInfo("Call API Admin, FctName: SaveConfig")
+            this.LogAppliInfo("Call ApiAdmin SaveConfig")
             // Save nouvelle heure
             let DataH = new Object()
             DataH.Value = ApiData.Hour
@@ -1237,7 +1237,7 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "SchedulerSetStatus"){
-            this.LogAppliInfo("Call API Admin, FctName: SchedulerSetStatus")
+            this.LogAppliInfo("Call ApiAdmin SchedulerSetStatus")
             if (ApiData.Started){
                 if (this._JobSchedule == null){
                     this.GetSchedulerData().then((reponse)=>{
@@ -1318,7 +1318,7 @@ class corex {
                 }
             }
         } else if (ApiData.Fct == "SaveGoogleKey"){
-            this.LogAppliInfo("Call API Admin, FctName: SaveGoogleKey")
+            this.LogAppliInfo("Call ApiAdmin SaveGoogleKey")
             // Save Google Key
             let Data = new Object()
             Data.Value = ApiData.key
@@ -1335,7 +1335,7 @@ class corex {
                 res.json({Error: true, ErrorMsg: "Error during SaveGoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "CleanLog") {
-            this.LogAppliInfo("Call API Admin, FctName: CleanLog")
+            this.LogAppliInfo("Call ApiAdmin CleanLog")
             const Query = {}
             this._Mongo.DeleteByQueryPromise(Query, this._MongoLogAppliCollection).then((reponse)=>{
                 res.json({Error: false, ErrorMsg: "CleanLog Data", Data: null})
@@ -1398,7 +1398,7 @@ class corex {
     }
     /** Get My Data of a connected user (meme fonction pour Api et ApiAdmin) */
     ApiGetMyData(App, Id, res){
-        this.LogAppliInfo("Call API Admin, FctName: ApiGetMyData, Data: App=" + App + " Id="+Id)
+        this.LogAppliInfo("Call ApiAdmin ApiGetMyData, Data: App=" + App + " Id="+Id)
         let MongoObjectId = require('./Mongo.js').MongoObjectId
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
@@ -1427,7 +1427,7 @@ class corex {
     }
     /* Update d'un user (meme fonction pour Api et ApiAdmin) */
     ApiAUpdateUser(Data, res){
-        this.LogAppliInfo("Call API "+ Data.UserType + ", FctName: UpdateUser, Data: " + JSON.stringify(Data))
+        this.LogAppliInfo("Call Api"+ Data.UserType + " UpdateUser, Data: " + JSON.stringify(Data))
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
         if (Data.UserType == "Admin") {mongocollection = this._MongoLoginAdminCollection}
