@@ -68,7 +68,7 @@ class corex {
         var me = this
         // Message de demarrage
         console.log("Application started")
-        this.LogDebug("Application started")
+        this.LogAppliInfo("Application started")
         // Initiation de la DB
         this.InitMongoDb()
         // utilistaion de body-parser
