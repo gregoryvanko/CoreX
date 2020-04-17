@@ -4,7 +4,7 @@ class TestCoreXApp{
     }
     /** Start de l'application */
     Start(){
-        document.getElementById(this._HtmlId).innerHTML = `<div id="TestCSS">coucou les amis</div>`
+        document.getElementById(this._HtmlId).innerHTML = `<div id="TestCSS">Hi all</div>`
         GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
     }
     ClickTestButton(){

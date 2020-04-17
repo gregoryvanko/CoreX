@@ -77,29 +77,17 @@ class corex {
         this._Express.use(bodyParser.json({limit: '200mb'}))
         // Creation d'une route de base pour l'application
 		this._Express.get('/', function(req, res, next){
-            if (me._AppIsSecured) {
-                me.LogDebug("Send Initial Secured HTML for application app")
-                res.send(me.GetInitialSecuredHTML("app"))
-            } else {
-                // Envoyer l'App
-                me.LogDebug("Send Initial HTML for application app")
-                res.send(me.GetInitialHTML())
-            }
-        })
-        // Creation d'une route vers l'application admin
-		this._Express.get('/admin', function(req, res, next){
-            me.LogDebug("Send Initial Secured HTML for application Admin")
-            res.send(me.GetInitialSecuredHTML("admin"))
+            res.send(me.GetInitialHTML(me._AppIsSecured))
         })
         // Creation d'un route pour le login via Post
 		this._Express.post('/login', function (req, res){
             me.LogAppliInfo("Receive Post Login: " + JSON.stringify(req.body))
             // analyse du login en fonction du site
             switch (req.body.Site) {
-                case "app":
+                case "App":
                     me.VerifyLogin(res, me._MongoLoginClientCollection, req.body.Login,req.body.Pass)
                     break
-                case "admin":
+                case "Admin":
                     me.VerifyLogin(res, me._MongoLoginAdminCollection, req.body.Login,req.body.Pass)
                     break
                 default:
@@ -111,15 +99,21 @@ class corex {
         // Creation d'une route pour loader l'application
 		this._Express.post('/loadApp', function(req, res, next){
             me.LogDebug("Receive Post loadApp")
-            // validation du Token
-            let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
-            if (DecryptTokenReponse.TokenValide) {
-                // vérification que le UserId du Token existe en DB et envoie de l'app
-                me.CheckTokenUserIdAndSendApp(req.body.Site, DecryptTokenReponse.TokenData.data.UserData._id, DecryptTokenReponse.TokenData.data.LoginCollection, res)
+            if (me._AppIsSecured){
+                // validation du Token
+                let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
+                if (DecryptTokenReponse.TokenValide) {
+                    // vérification que le UserId du Token existe en DB et envoie de l'app
+                    me.CheckTokenUserIdAndSendApp(req.body.Site, DecryptTokenReponse.TokenData.data.UserData._id, DecryptTokenReponse.TokenData.data.LoginCollection, res)
+                } else {
+                    me.LogAppliError("Token non valide")
+                    res.json({Error: true, ErrorMsg:"Token non valide"})
+                }
             } else {
-                me.LogAppliError("Token non valide")
-                res.json({Error: true, ErrorMsg:"Token non valide"})
+                let MyApp = me.GetAppCode(req.body.Site)
+                res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
             }
+            
         })
         // Creation d'une route pour API l'application
 		this._Express.post('/api', function(req, res, next){
@@ -533,101 +527,10 @@ class corex {
         apiobject.Fct = Fct
         this._ApiAdminFctList.push(apiobject)
     }
-    /* Generation du fichier HTML de base de l'application cliente securisée */
-    GetInitialHTML(){
-        let MyApp = this.GetAppCode()
-        let HTMLStart =`
-<!doctype html>
-<html>
-    <head>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <meta name="apple-mobile-web-app-title" content="` + this._AppName + `">
-        <link rel="apple-touch-icon" href="apple-icon.png">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>` + this._AppName + `</title>
-        <style>
-            :root {
-                --CoreX-color: `+ this._CSS.Color.Normale +`;
-                --CoreX-font-size : `+ this._CSS.FontSize.TexteNomrale +`;
-                --CoreX-Iphone-font-size : `+ this._CSS.FontSize.TexteIphone +`;
-                --CoreX-Max-font-size : `+ this._CSS.FontSize.TexteMax +`;
-                --CoreX-Titrefont-size : `+ this._CSS.FontSize.TitreNormale +`;
-                --CoreX-TitreIphone-font-size : `+ this._CSS.FontSize.TitreIphone +`;
-                --CoreX-TitreMax-font-size : `+ this._CSS.FontSize.TitreMax +`;
-            }
-            body{
-                margin: 0;
-                padding: 0;
-                -webkit-tap-highlight-color: transparent;
-                -webkit-touch-callout: none; 
-                -webkit-user-select: none;   
-                -khtml-user-select: none;    
-                -moz-user-select: none;      
-                -ms-user-select: none;      
-                user-select: none;  
-                cursor: default;
-                font-family: 'Myriad Set Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                font-synthesis: none;
-                letter-spacing: normal;
-                text-rendering: optimizelegibility;
-                width: 100%;
-                height: 100%;
-            }
-        </style>`
-        let apiurl = "api"
-        let GlobalCallApiPromise = `
-        function GlobalCallApiPromise(FctName, FctData, UploadProgress, DownloadProgress){
-            return new Promise((resolve, reject)=>{
-                var xhttp = new XMLHttpRequest()
-                xhttp.onreadystatechange = function() {
-                    if (this.readyState == 4 && this.status == 200) {
-                        let reponse = JSON.parse(this.responseText)
-                        if (reponse.Error) {
-                            console.log('GlobalCallApiPromise Error : ' + reponse.ErrorMsg)
-                            reject(reponse.ErrorMsg)
-                        } else {
-                            resolve(reponse.Data) 
-                        }
-                    } else if (this.readyState == 4 && this.status != 200){
-                        reject(this.response)
-                    }
-                }
-                xhttp.onprogress = function (event) {
-                    if(DownloadProgress){DownloadProgress(event)}
-                    //console.log("Download => Loaded: " + event.loaded + " Total: " +event.total)
-                }
-                xhttp.upload.onprogress= function (event){
-                    if(UploadProgress){UploadProgress(event)}
-                    //console.log("Upload => Loaded: " + event.loaded + " Total: " + event.total)
-                }
-                xhttp.open("POST", "`+ apiurl +`", true)
-                xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-                xhttp.send(JSON.stringify({Token:null, FctName:FctName, FctData:FctData}))
-            })
-        }`
-        let CSS = `
-        <style id="CodeCSS">
-        ` + MyApp.CSS + `
-        </style>`
-        let JS = `
-        <script id="CodeJS" type="text/javascript"> 
-        ` + GlobalCallApiPromise +`
-        ` + MyApp.JS + `
-        </script>`
-        let HTMLEnd = ` 
-    </head>
-    <body> 
-    </body>
-    `+ JS +`
-</html>`
-        return HTMLStart + CSS + HTMLEnd
-    }
-    /* Generation du fichier HTML de base de l'application cliente securisée */
-	GetInitialSecuredHTML(Site){
+    /* Generation du fichier HTML de base */
+	GetInitialHTML(AppIsSecured){
         let fs = require('fs')
-        let os = require('os');
+        let os = require('os')
 
         let HTMLStart =`
 <!doctype html>
@@ -677,8 +580,13 @@ class corex {
         let CoreXLoaderJsScript = fs.readFileSync(__dirname + "/Client_CoreX_Loader.js", 'utf8')
         let CoreXLoginJsScript = fs.readFileSync(__dirname + "/Client_CoreX_Login.js", 'utf8')
         
-        let apiurl = (Site == "admin") ? "apiadmin" : "api"
         let GlobalCallApiPromise = `
+            let TokenApp = localStorage.getItem("CoreXApp")
+            if(TokenApp == null){
+                TokenApp ="App"
+                localStorage.setItem("CoreXApp", "App")
+            }
+            let apiurl = (TokenApp == "Admin") ? "apiadmin" : "api"
             function GlobalCallApiPromise(FctName, FctData, UploadProgress, DownloadProgress){
                 return new Promise((resolve, reject)=>{
                     var xhttp = new XMLHttpRequest()
@@ -703,21 +611,21 @@ class corex {
                         if(UploadProgress){UploadProgress(event)}
                         //console.log("Upload => Loaded: " + event.loaded + " Total: " + event.total)
                     }
-                    xhttp.open("POST", "`+ apiurl +`", true)
+                    xhttp.open("POST", apiurl , true)
                     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
                     xhttp.send(JSON.stringify({Token:MyCoreXLoader.GetTokenLogin(), FctName:FctName, FctData:FctData}))
                 })
             }`
-
+            
         let HTML2 = `</script>`
 
         let LoadScript = ` 
         <script>
-            let OptionCoreXLoader = {Usesocketio: ` + this._Usesocketio + `, Color: "` + this._CSS.Color.Normale + `"}
+            let OptionCoreXLoader = {Usesocketio: ` + this._Usesocketio + `, Color: "`+ this._CSS.Color.Normale +`", AppIsSecured: "`+ AppIsSecured +`"}
             var MyCoreXLoader = new CoreXLoader(OptionCoreXLoader)
             function GlobalLogout(){MyCoreXLoader.LogOut()}
             onload = function() {
-                MyCoreXLoader.Site = "` + Site + `"
+                MyCoreXLoader.Site = TokenApp
                 MyCoreXLoader.Start()
             }
         </script>`
@@ -816,23 +724,8 @@ class corex {
                 let Projection = { projection:{[this._MongoLoginUserItem]: 1}}
                 this._Mongo.FindPromise(Query, Projection, Collection).then((reponse)=>{
                     this.LogAppliInfo("TokenUserId validé. User = " + reponse[0].User)
-                    let MyApp = null
-                    switch (Site) {
-                        case "app":
-                            this.LogDebug("Start loading App")
-                            MyApp = this.GetAppCode()
-                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
-                            break
-                        case "admin":
-                            this.LogDebug("Start loading App Admin")
-                            MyApp = this.GetAdminAppCode()
-                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
-                            break
-                        default:
-                            this.LogAppliError("No app for site: " + Site)
-                            res.json({Error: true, ErrorMsg:"No app for site: " + Site})
-                            break
-                    }
+                    let MyApp = this.GetAppCode(Site)
+                    res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
                 },(erreur)=>{
                     this.LogAppliError("CheckTokenUserIdAndSendApp DB error : " + erreur)
                 })
@@ -846,14 +739,13 @@ class corex {
         })
     }
     /* Recuperer le code de l'App */
-    GetAppCode(){
+    GetAppCode(Site){
         let MyApp = new Object()
         MyApp.JS = ""
         MyApp.CSS = ""
 
         let fs = require('fs')
-        let path = require('path')
-        let os = require('os');
+        let os = require('os')
 
         // Ajout des modules de CoreX
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8') + os.EOL
@@ -862,74 +754,6 @@ class corex {
         MyApp.JS += `
             // Creation de l'application
             let MyApp = new CoreXApp(`+this._AppIsSecured+`)
-            // Fonction globale GlobalClearActionList
-            function GlobalClearActionList() {
-                MyApp.ClearActionList()
-            }
-            // Fonction gloable AddActionInList
-            function GlobalAddActionInList(Titre, Action) {
-                MyApp.AddActionInList(Titre, Action)
-            }
-            // Fonction globale GetContentAppId
-            function GlobalCoreXGetAppContentId() {
-                return MyApp.ContentAppId
-            }
-            // Fonction globale Add App in CoreXApp
-            function GlobalCoreXAddApp(AppTitre, AppSrc, AppStart) {
-                MyApp.AddApp(AppTitre, AppSrc, AppStart)
-            }
-            `
-
-        if(this._ClientAppFolder != null){
-            let folder = this._ClientAppFolder
-            if(fs.existsSync(folder)){
-                var files = fs.readdirSync(folder)
-                for (var i in files){
-                    if(fs.existsSync(folder + "/" + files[i])){
-                        switch (path.extname(files[i])) {
-                            case ".js":
-                                MyApp.JS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
-                                break;
-                            case ".css":
-                                MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
-                                break;
-                            default:
-                                this.LogAppliError("file extension not know: " + path.extname(files[i]))
-                                console.log("file extension not know: " + path.extname(files[i]))
-                                break;
-                        }
-                    } else {
-                        this.LogAppliError("file not found: " + folder + "/" + files[i])
-                        console.log("file not found: " + folder + "/" + files[i])
-                    }
-                }
-            } else {
-                this.LogAppliError("Client folder not found: " + folder)
-                console.log("Client folder not found: " + folder)
-            }
-        } else {
-            this.LogAppliError("Client folder not defined (=null) ")
-            console.log("Client folder not defined (=null) ")
-        }
-        MyApp.JS += "MyApp.Start()"
-
-        return MyApp
-    }
-    /* Recuperer le code de l'Admin App */
-    GetAdminAppCode(){
-        let MyApp = new Object()
-        MyApp.JS = ""
-        MyApp.CSS = ""
-
-        let fs = require('fs')
-        let path = require('path')
-        let os = require('os')
-        MyApp.JS = fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8')+ os.EOL
-        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXBuild.js", 'utf8') + os.EOL
-        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXApp.js", 'utf8') + os.EOL
-        MyApp.JS += `
-            // Creation de l'application
-            let MyApp = new CoreXApp(true)
             // Fonction globale GlobalClearActionList
             function GlobalClearActionList() {
                 MyApp.ClearActionList()
@@ -957,7 +781,69 @@ class corex {
                 })
             }
             `
-        // Ajout de la classe de l'application admin
+        switch (Site) {
+            case "Admin":
+                this.LogAppliInfo("Start loading App Admin")
+                MyApp = this.LoadAppFilesFromAdminFolder(MyApp)
+                break
+            default:
+                this.LogAppliInfo("Start loading App")
+                MyApp = this.LoadAppFilesFromClientFolder(MyApp)
+                break
+        }
+        MyApp.JS += " MyApp.Start()"
+
+        return MyApp
+    }
+    /**
+     * On va chercher le contenu des fichier du repertoire client
+     * @param {object} MyApp Objet contenant le code js et css
+     */
+    LoadAppFilesFromClientFolder(MyApp){
+        let fs = require('fs')
+        let path = require('path')
+        let os = require('os')
+        if(this._ClientAppFolder != null){
+            let folder = this._ClientAppFolder
+            if(fs.existsSync(folder)){
+                var files = fs.readdirSync(folder)
+                for (var i in files){
+                    if(fs.existsSync(folder + "/" + files[i])){
+                        switch (path.extname(files[i])) {
+                            case ".js":
+                                MyApp.JS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
+                                break;
+                            case ".css":
+                                MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
+                                break;
+                            default:
+                                MyApp.JS += 'console.log("file extension not know: ' + path.extname(files[i]) + '")' + os.EOL 
+                                this.LogAppliError("file extension not know: " + path.extname(files[i]))
+                                break;
+                        }
+                    } else {
+                        MyApp.JS += 'alert("file not found: ' + folder + "/" + files[i] + '")' + os.EOL 
+                        this.LogAppliError("file not found: " + folder + "/" + files[i])
+                    }
+                }
+            } else {
+                MyApp.JS += 'alert("Client folder not found: ' + folder + '")' + os.EOL 
+                this.LogAppliError("Client folder not found: " + folder)
+            }
+        } else {
+            MyApp.JS += 'alert("Client folder not defined (=null)")' + os.EOL 
+            this.LogAppliError("Client folder not defined (=null)")
+        }
+        return MyApp
+    }
+    /**
+     * On va chercher le contenu des fichier du repertoire Admin
+     * @param {object} MyApp Objet contenant le code js et css
+     */
+    LoadAppFilesFromAdminFolder(MyApp){
+        let fs = require('fs')
+        let path = require('path')
+        let os = require('os')
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Backup.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_User.js", 'utf8') + os.EOL
@@ -976,23 +862,23 @@ class corex {
                                 MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
                                 break;
                             default:
+                                MyApp.JS += 'console.log("file extension not know: ' + path.extname(files[i]) + '")' + os.EOL 
                                 this.LogAppliError("file extension not know: " + path.extname(files[i]))
-                                console.log("file extension not know: " + path.extname(files[i]))
                                 break;
                         }
                     } else {
+                        MyApp.JS += 'alert("file not found: ' + folder + "/" + files[i] + '")' + os.EOL 
                         this.LogAppliError("file not found: " + folder + "/" + files[i])
-                        console.log("file not found: " + folder + "/" + files[i])
-                    }
+                    } 
                 }
             } else {
-                this.LogAppliError("Client folder not found: " + folder)
-                console.log("Client folder not found: " + folder)
+                MyApp.JS += 'alert("Admin folder not found: ' + folder + '")' + os.EOL 
+                this.LogAppliError("Admin folder not found: " + folder)
             }
         } else {
-            this.LogDebug("Admin folder not defined (=null) ")
+            MyApp.JS += 'alert("Admin folder not defined (=null)")' + os.EOL
+            this.LogAppliError("Admin folder not defined (=null) ")
         }
-        MyApp.JS += "MyApp.Start()"
         return MyApp
     }
     /**

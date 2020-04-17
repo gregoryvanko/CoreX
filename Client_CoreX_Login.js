@@ -18,6 +18,7 @@ class CoreXLogin {
         document.getElementById("LoginLoginValue").addEventListener("keyup", ()=>{self.InputKeyUp(event)})
         document.getElementById("LoginPswValue").addEventListener("keyup", ()=>{self.InputKeyUp(event)})
         document.getElementById("LoginButtonLogin").addEventListener("click", ()=>{self.Login()})
+        document.getElementById("GoToAdminApp").addEventListener("click", ()=>{self.GoToAdminApp()})
     }
 
     /* Execution du login */
@@ -74,14 +75,29 @@ class CoreXLogin {
     /* Le render du screen login */
     Render(){
         let UI = this.TemplateCSS()
-        UI += this.TemplateHTML(document.title)
+        let titre = document.title
+        let LocalStorageApp = localStorage.getItem("CoreXApp")
+        if(LocalStorageApp == "Admin") {titre += " Admin"}
+        UI += this.TemplateHTML(titre)
         document.body.innerHTML = UI
         this.AddEventListener()
     }
 
+    /* Go To Admin App */
+    GoToAdminApp(){
+        let LocalStorageApp = localStorage.getItem("CoreXApp")
+        if(LocalStorageApp == "App"){
+            localStorage.setItem("CoreXApp", "Admin")
+            location.reload()
+        } else {
+            localStorage.setItem("CoreXApp", "App")
+            GlobalLogout()
+        }
+    }
+
     /* Le template du screen login */
     TemplateHTML(Titre){
-        return /*html*/`
+        let reponse = `
         <div style="display: flex; flex-direction: column; justify-content:space-between; align-content:center; align-items: center;">
             <div id="LoginTitre">` + Titre + /*html*/`</div>
             <div id="LoginBox">
@@ -91,8 +107,20 @@ class CoreXLogin {
 			    <div id="LoginErrorMsg" class="LoginError"></div>
                 <button id="LoginButtonLogin" class="LoginButton" tabindex="3">Send</button>
             </div>
-        </div>
-        `
+            `
+        let LocalStorageApp = localStorage.getItem("CoreXApp")
+        if(LocalStorageApp == "App"){
+            reponse += `
+            <div style="height:6vh;"></div>
+            <a href="/" id="GoToAdminApp" class="Text">Go to Admin application</a>
+            </div>`
+        } else {
+            reponse += `
+            <div style="height:6vh;"></div>
+            <a href="/" id="GoToAdminApp" class="Text">Go to application</a>
+            </div>`
+        }
+        return reponse
     }
 
     /* Le css du screen login */
@@ -105,6 +133,7 @@ class CoreXLogin {
                 font-size: var(--CoreX-Titrefont-size);
                 color: var(--CoreX-color);
             }
+            .Text{font-size: var(--CoreX-font-size);}
 
             /*Box du login*/
             #LoginBox{
@@ -163,6 +192,7 @@ class CoreXLogin {
             screen and (max-width: 700px)
             {
                 #LoginTitre{font-size: var(--CoreX-TitreIphone-font-size);}
+                .Text{font-size: var(--CoreX-Iphone-font-size);}
                 #LoginBox{width: 90%;}
                 .LoginInput {font-size: var(--CoreX-Iphone-font-size);}
                 .LoginError{font-size: var(--CoreX-Iphone-font-size);}
@@ -172,6 +202,7 @@ class CoreXLogin {
             @media screen and (min-width: 1200px)
             {
                 #LoginTitre{font-size: var(--CoreX-TitreMax-font-size);}
+                .Text{font-size: var(--CoreX-Max-font-size);}
                 #LoginBox{max-width: 500px;}
                 .LoginInput {font-size: var(--CoreX-Max-font-size);}
                 .LoginError{font-size: var(--CoreX-Max-font-size);}

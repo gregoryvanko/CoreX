@@ -1,9 +1,10 @@
 class CoreXLoader {
-    constructor({Usesocketio=false, Color = "rgb(20, 163, 255)"} = {}){
+    constructor({Usesocketio=false, Color = "rgb(20, 163, 255)", AppIsSecured=true} = {}){
         // Variable externe indispensable de la class
         this._Usesocketio = Usesocketio
         this._LoginToken = null
         this._Color = Color
+        this._AppIsSecured = AppIsSecured
 
         // Variable externe secondaire
         this._Site = null
@@ -20,9 +21,7 @@ class CoreXLoader {
             //this._SocketIo.open() 
         }
     }
-    set Site(val){
-        this._Site = val
-    }
+    set Site(val){this._Site = val}
 
     /* Init des messages socket io */
     InitSocketIoMessage(){
@@ -88,9 +87,12 @@ class CoreXLoader {
     Start(){
         // Set du nom de la key DB qui contiendra le token du site
         this._DbKeyLogin = "CoreXLoginToken" + this._Site
+        // si non securisee on enregistre un token anonyme
+        if(!this._AppIsSecured){localStorage.setItem(this._DbKeyLogin, "Anonyme")}
+        // Get Token
         this._LoginToken = this.GetTokenLogin() 
         if(this._LoginToken != null){
-            console.log("Token exist")
+            //console.log("Token exist")
             this.LoadApp()
         } else {
             const OptionCoreXLogin = {Site:this._Site, CallBackLogedIn:this.LoginDone.bind(this), Color: this._Color}
@@ -168,7 +170,7 @@ class CoreXLoader {
             </div>`
         document.body.innerHTML = LoadingText
         // appeler le serveur
-        console.log("Start loading App")
+        //console.log("Start loading App")
         let me = this
         var xhttp = new XMLHttpRequest()
         xhttp.onreadystatechange = function() {
@@ -180,7 +182,7 @@ class CoreXLoader {
                     me._LoginToken = null
                     localStorage.removeItem(me._DbKeyLogin)
                 } else {
-                    console.log('App Loaded')
+                    //console.log('App Loaded')
                     // Load de l'application CSS
                     var CSS = document.createElement('style')
                     CSS.type = 'text/css'
