@@ -38,7 +38,7 @@ class corex {
         this._MongoConfigCollection = "Config"
         this._MongoConfigKey = "Key"
         this._MongoConfigValue = "Value"
-        this._MongoConfigType = "Type"
+        this._MongoConfigType = "Type" // Delete
 
         // Variable Interne SocketIO
         this._RoomName = "Secured";
@@ -449,11 +449,18 @@ class corex {
                 // Start du Backup
                 this.StartJobScheduleBackup()
             } else {
+                let BackupScheduler = new Object()
+                BackupScheduler.JobScheduleHour = 3
+                BackupScheduler.JobScheduleMinute = 30
+                BackupScheduler.JobScheduleStarted = false
+
+                let BackupGoogle = new Object()
+                BackupGoogle.GoogleKey = ""
+                BackupGoogle.Folder = ""
+
                 const DataToDb = [
-                    {[this._MongoConfigKey]: "JobScheduleHour", [this._MongoConfigValue]: "3", [this._MongoConfigType]: "JobSchedule"},
-                    {[this._MongoConfigKey]: "JobScheduleMinute", [this._MongoConfigValue]: "30", [this._MongoConfigType]: "JobSchedule"},
-                    {[this._MongoConfigKey]: "JobScheduleStatus", [this._MongoConfigValue]: false, [this._MongoConfigType]: "JobSchedule"},
-                    {[this._MongoConfigKey]: "GoogleKey", [this._MongoConfigValue]: "", [this._MongoConfigType]: "Google"}
+                    {[this._MongoConfigKey]: "BackupScheduler", [this._MongoConfigValue]: BackupScheduler},
+                    {[this._MongoConfigKey]: "BackupGoogle", [this._MongoConfigValue]: BackupGoogle}
                 ]
 
                 this._Mongo.InsertMultiplePromise(DataToDb, this._MongoConfigCollection).then((reponse)=>{
@@ -471,34 +478,32 @@ class corex {
      * Start du schedule du backup
      */
     StartJobScheduleBackup(){
-        this.GetDbConfig("JobScheduleStatus", "JobSchedule").then((reponse)=>{
-            if(reponse == true){
+        this.GetDbConfig("BackupScheduler").then((reponse)=>{
+            let BackupScheduler = reponse
+            if(BackupScheduler.JobScheduleStarted == true){
                 if (this._JobSchedule == null){
                     // Get GoogleKey
-                    this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
-                        if(reponse != ""){
-                            let credentials = JSON.parse(reponse)
+                    this.GetDbConfig("BackupGoogle").then((reponse)=>{
+                        if((reponse.GoogleKey != "") && (reponse.Folder != "")){
+                            let credentials = JSON.parse(reponse.GoogleKey)
+                            let folder = reponse.Folder
                             this.LogAppliInfo("Start JobScheduleBackup ")
-                            this.GetSchedulerData().then((reponse)=>{
-                                var schedule = require('node-schedule')
-                                let options = {minute: reponse.JobScheduleMinute, hour: reponse.JobScheduleHour}
-                                var me = this
-                                this._JobSchedule = schedule.scheduleJob(options, function(){
-                                    let DbBackup = require('./DbBackup').DbBackup
-                                    let MyDbBackup = new DbBackup(me._MongoDbName,credentials)
-                                    MyDbBackup.Backup().then((reponse)=>{
-                                        var now = new Date()
-                                        me.LogAppliInfo(reponse + " " + now)
-                                    },(erreur)=>{
-                                        me.LogAppliError("StartJobScheduleBackup error : " + erreur)
-                                        console.log("Error during StartJobScheduleBackup: "+ erreur + " " + now)
-                                    })
+                            var schedule = require('node-schedule')
+                            let options = {minute: BackupScheduler.JobScheduleMinute, hour: BackupScheduler.JobScheduleHour}
+                            var me = this
+                            this._JobSchedule = schedule.scheduleJob(options, function(){
+                                let DbBackup = require('./DbBackup').DbBackup
+                                let MyDbBackup = new DbBackup(me._MongoDbName,credentials,folder)
+                                MyDbBackup.Backup().then((reponse)=>{
+                                    var now = new Date()
+                                    me.LogAppliInfo(reponse + " " + now)
+                                },(erreur)=>{
+                                    me.LogAppliError("StartJobScheduleBackup error : " + erreur)
+                                    console.log("Error during StartJobScheduleBackup: "+ erreur + " " + now)
                                 })
-                            },(erreur)=>{
-                                this.LogAppliError("StartJobScheduleBackup error : " + erreur)
                             })
                         } else {
-                            this.LogAppliError("StartJobScheduleBackup Google key empty")
+                            this.LogAppliError("StartJobScheduleBackup Google key or Google folder is empty")
                         }
                     },(erreur)=>{
                         this.LogAppliError("StartJobScheduleBackup, get Google key error : " + erreur)
@@ -884,11 +889,10 @@ class corex {
     /**
      * Promise qui recupère un element de config dans la DB
      * @param {string} Key clef d'un element de la Config
-     * @param {string} ConfigType type configuration
      */
-    GetDbConfig(Key, ConfigType){
+    GetDbConfig(Key){
         return new Promise((resolve, reject)=>{
-            const Query = { [this._MongoConfigKey]: Key, [this._MongoConfigType]: ConfigType} 
+            const Query = { [this._MongoConfigKey]: Key} 
             const Projection = { projection:{[this._MongoConfigValue]: 1}}
             this._Mongo.FindPromise(Query,Projection, this._MongoConfigCollection).then((reponse)=>{
                 if(reponse.length == 0){
@@ -1032,12 +1036,13 @@ class corex {
         if (ApiData.Fct == "BackupNow"){
             this.LogAppliInfo("Call ApiAdmin BackupNow")
             // Get GoogleKey
-            this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
+            this.GetDbConfig("BackupGoogle").then((reponse)=>{
                 this.LogAppliInfo("Backup Now start")
                 res.json({Error: false, ErrorMsg: "", Data: "DB Backup Started, see log for end validation"})
-                let credentials = JSON.parse(reponse)
+                let credentials = JSON.parse(reponse.GoogleKey)
+                let folder = reponse.Folder
                 let DbBackup = require('./DbBackup').DbBackup
-                let MyDbBackup = new DbBackup(this._MongoDbName,credentials)
+                let MyDbBackup = new DbBackup(this._MongoDbName,credentials,folder)
                 MyDbBackup.Backup().then((reponse)=>{
                     this.LogAppliInfo("Backup Now sucessfully ended")
                 },(erreur)=>{
@@ -1050,12 +1055,13 @@ class corex {
         } else if (ApiData.Fct == "RestoreNow"){
             this.LogAppliInfo("Call ApiAdmin RestoreNow")
             // Get GoogleKey
-            this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
+            this.GetDbConfig("BackupGoogle").then((reponse)=>{
                 this.LogAppliInfo("Restore Now start")
                 res.json({Error: false, ErrorMsg: "", Data: "DB Restore Started, see log for end validation and reload browser"})
-                let credentials = JSON.parse(reponse)
+                let credentials = JSON.parse(reponse.GoogleKey)
+                let folder = reponse.Folder
                 let DbBackup = require('./DbBackup').DbBackup
-                let MyDbBackup = new DbBackup(this._MongoDbName, credentials)
+                let MyDbBackup = new DbBackup(this._MongoDbName, credentials,folder)
                 MyDbBackup.Restore().then((reponse)=>{
                     this.LogAppliInfo("Restore Now sucessfully ended")
                 },(erreur)=>{
@@ -1070,8 +1076,8 @@ class corex {
             let ApiReponse = new Object()
             ApiReponse.GoogleKeyExist = false
             ApiReponse.SchedulerData = null
-            this.GetDbConfig("GoogleKey", "Google").then((reponse)=>{
-                if(reponse == ""){
+            this.GetDbConfig("BackupGoogle").then((reponse)=>{
+                if((reponse.GoogleKey == "") || (reponse.Folder == "")){
                     res.json({Error: false, ErrorMsg: "Scheduler Data", Data: ApiReponse})
                 } else {
                     // Get scheduler data
@@ -1091,26 +1097,25 @@ class corex {
         } else if (ApiData.Fct == "SaveConfig"){
             this.LogAppliInfo("Call ApiAdmin SaveConfig")
             // Save nouvelle heure
-            let DataH = new Object()
-            DataH.Value = ApiData.Hour
-            const QueryHour = { [this._MongoConfigKey]: "JobScheduleHour", [this._MongoConfigType]: "JobSchedule"}
-            this._Mongo.UpdatePromise(QueryHour, DataH, this._MongoConfigCollection).then((reponse)=>{
+            let BackupScheduler = new Object()
+            BackupScheduler.JobScheduleHour = ApiData.Hour
+            BackupScheduler.JobScheduleMinute = ApiData.Minute
+            if (this._JobSchedule == null){
+                BackupScheduler.JobScheduleStarted = false
+            } else {
+                BackupScheduler.JobScheduleStarted = true
+            }
+            let Data = new Object()
+            Data.Value = BackupScheduler
+            const Query = { [this._MongoConfigKey]: "BackupScheduler"}
+            this._Mongo.UpdatePromise(Query, Data, this._MongoConfigCollection).then((reponse)=>{
                 if (reponse.matchedCount==1) {
-                    // Save nouvelle minute
-                    let DataM = new Object()
-                    DataM.Value = ApiData.Minute
-                    const QueryM = { [this._MongoConfigKey]: "JobScheduleMinute", [this._MongoConfigType]: "JobSchedule"}
-                    this._Mongo.UpdatePromise(QueryM, DataM, this._MongoConfigCollection).then((reponse)=>{
-                        if (this._JobSchedule != null){
-                            let options = {minute: ApiData.Minute, hour: ApiData.Hour}
-                            this._JobSchedule.reschedule(options)
-                        }
-                        this.GetSchedulerData().then((reponse)=>{
-                            res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
-                        },(erreur)=>{
-                            this.LogAppliError("SaveConfig error : " + erreur)
-                            res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
-                        })
+                    if (this._JobSchedule != null){
+                        let options = {minute: ApiData.Minute, hour: ApiData.Hour}
+                        this._JobSchedule.reschedule(options)
+                    }
+                    this.GetSchedulerData().then((reponse)=>{
+                        res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
                     },(erreur)=>{
                         this.LogAppliError("SaveConfig error : " + erreur)
                         res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
@@ -1127,16 +1132,18 @@ class corex {
             if (ApiData.Started){
                 if (this._JobSchedule == null){
                     this.GetSchedulerData().then((reponse)=>{
+                        let SchedulerData = reponse
                         var schedule = require('node-schedule')
-                        let options = {minute: reponse.JobScheduleMinute, hour: reponse.JobScheduleHour}
+                        let options = {minute: SchedulerData.JobScheduleMinute, hour: SchedulerData.JobScheduleHour}
                         // Get GoogleKey
-                        this.GetDbConfig("GoogleKey", "Google").then((reponseGoogleKey)=>{
-                            let credentials = JSON.parse(reponseGoogleKey)
+                        this.GetDbConfig("BackupGoogle").then((reponseGoogle)=>{
+                            let credentials = JSON.parse(reponseGoogle.GoogleKey)
+                            let folder = reponseGoogle.Folder
                             var me = this
                             this._JobSchedule = schedule.scheduleJob(options, function(){
                                 //console.log("coucou")
                                 let DbBackup = require('./DbBackup').DbBackup
-                                let MyDbBackup = new DbBackup(me._MongoDbName,credentials)
+                                let MyDbBackup = new DbBackup(me._MongoDbName,credentials,folder)
                                 MyDbBackup.Backup().then((reponse)=>{
                                     var now = new Date()
                                     me.LogAppliInfo(reponse + " " + now)
@@ -1147,14 +1154,17 @@ class corex {
                                 })
                             })
                             // Save nouveau status
+                            let BackupScheduler = new Object()
+                            BackupScheduler.JobScheduleHour = SchedulerData.JobScheduleHour
+                            BackupScheduler.JobScheduleMinute = SchedulerData.JobScheduleMinute
+                            BackupScheduler.JobScheduleStarted = ApiData.Started
                             let DataS = new Object()
-                            DataS.Value = ApiData.Started
-                            const Query = { [this._MongoConfigKey]: "JobScheduleStatus", [this._MongoConfigType]: "JobSchedule"}
+                            DataS.Value = BackupScheduler
+                            const Query = { [this._MongoConfigKey]: "BackupScheduler",}
                             this._Mongo.UpdatePromise(Query, DataS, this._MongoConfigCollection).then((reponseUpdateSatus)=>{
                                 if (reponseUpdateSatus.matchedCount==1) {
-                                    reponse.JobScheduleStarted = true
-                                    reponse.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
-                                    res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
+                                    BackupScheduler.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
+                                    res.json({Error: false, ErrorMsg: "Scheduler Data", Data: BackupScheduler})
                                 } else {
                                     this.LogAppliError("SaveConfig Status error : more than 1 entry in DB")
                                     res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: more than 1 entry in DB", Data: ""})
@@ -1182,33 +1192,41 @@ class corex {
                     this._JobSchedule.cancel()
                     this._JobSchedule = null
                     // Save nouveau status
-                    let DataS = new Object()
-                    DataS.Value = ApiData.Started
-                    const Query = { [this._MongoConfigKey]: "JobScheduleStatus", [this._MongoConfigType]: "JobSchedule"}
-                    this._Mongo.UpdatePromise(Query, DataS, this._MongoConfigCollection).then((reponse)=>{
-                        if (reponse.matchedCount==1) {
-                            this.GetSchedulerData().then((reponse)=>{
-                                res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
-                            },(erreur)=>{
-                                this.LogAppliError("SchedulerSetStatus error : " + erreur)
-                                res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
-                            })
-                        } else {
-                            this.LogAppliError("SaveConfig Status error : more than 1 entry in DB")
-                            res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: more than 1 entry in DB", Data: ""})
-                        }
+                    this.GetSchedulerData().then((reponse)=>{
+                        let BackupScheduler = new Object()
+                        BackupScheduler.JobScheduleHour = reponse.JobScheduleHour
+                        BackupScheduler.JobScheduleMinute = reponse.JobScheduleMinute
+                        BackupScheduler.JobScheduleStarted = ApiData.Started
+                        let DataS = new Object()
+                        DataS.Value = BackupScheduler
+                        const Query = { [this._MongoConfigKey]: "BackupScheduler"}
+                        this._Mongo.UpdatePromise(Query, DataS, this._MongoConfigCollection).then((reponse)=>{
+                            if (reponse.matchedCount==1) {
+                                BackupScheduler.JobScheduleNext = "Scheduler not started"
+                                res.json({Error: false, ErrorMsg: "Scheduler Data", Data: BackupScheduler})
+                            } else {
+                                this.LogAppliError("SaveConfig Status error : more than 1 entry in DB")
+                                res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: more than 1 entry in DB", Data: ""})
+                            }
+                        },(erreur)=>{
+                            this.LogAppliError("SaveConfig Status error : " + erreur)
+                            res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: "+ erreur, Data: ""})
+                        })
                     },(erreur)=>{
-                        this.LogAppliError("SaveConfig Status error : " + erreur)
-                        res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: "+ erreur, Data: ""})
+                        this.LogAppliError("SchedulerSetStatus error : " + erreur)
+                        res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
                     })
                 }
             }
         } else if (ApiData.Fct == "SaveGoogleKey"){
             this.LogAppliInfo("Call ApiAdmin SaveGoogleKey")
             // Save Google Key
+            let BackupGoogle = new Object()
+            BackupGoogle.GoogleKey = ApiData.key
+            BackupGoogle.Folder = ApiData.folder
             let Data = new Object()
-            Data.Value = ApiData.key
-            const Query = { [this._MongoConfigKey]: "GoogleKey", [this._MongoConfigType]: "Google"}
+            Data.Value = BackupGoogle
+            const Query = { [this._MongoConfigKey]: "BackupGoogle"}
             this._Mongo.UpdatePromise(Query, Data, this._MongoConfigCollection).then((reponse)=>{
                 if (reponse.matchedCount==1) {
                     res.json({Error: false, ErrorMsg: "SaveGoogleKey Data", Data: null})
@@ -1240,22 +1258,16 @@ class corex {
     GetSchedulerData(){
         return new Promise((resolve, reject)=>{
             let SchedulerData = new Object()
-            this.GetDbConfig("JobScheduleHour", "JobSchedule").then((reponse)=>{
-                SchedulerData.JobScheduleHour = reponse
-                this.GetDbConfig("JobScheduleMinute", "JobSchedule").then((reponse)=>{
-                    SchedulerData.JobScheduleMinute = reponse
-                    if (this._JobSchedule == null) {
-                        SchedulerData.JobScheduleStarted = false
-                        SchedulerData.JobScheduleNext = "Scheduler not started"
-                    } else {
-                        SchedulerData.JobScheduleStarted = true
-                        SchedulerData.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
-                    }
-                    resolve(SchedulerData)
-                },(erreur)=>{
-                    this.LogAppliError("GetSchedulerData error : " + erreur)
-                    reject(erreur)
-                })
+            this.GetDbConfig("BackupScheduler").then((reponse)=>{
+                SchedulerData = reponse
+                if (this._JobSchedule == null) {
+                    SchedulerData.JobScheduleStarted = false
+                    SchedulerData.JobScheduleNext = "Scheduler not started"
+                } else {
+                    SchedulerData.JobScheduleStarted = true
+                    SchedulerData.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
+                }
+                resolve(SchedulerData)
             },(erreur)=>{
                 this.LogAppliError("GetSchedulerData error : " + erreur)
                 reject(erreur)

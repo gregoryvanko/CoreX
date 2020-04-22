@@ -156,11 +156,17 @@ class CoreXAdminBackupApp{
         document.getElementById("ErrorStart").innerHTML=""
         let DivFlexContent = CoreXBuild.DivFlexColumn("DivFlexContent")
         DivContent.appendChild(DivFlexContent)
-        DivFlexContent.appendChild(CoreXBuild.Textarea("GoogleKey", "Insert google key", "TextArea"))
+        let Textareafolder = CoreXBuild.Textarea("Googlefolder", "Insert folder key", "TextArea")
+        Textareafolder.setAttribute("rows", "1")
+        DivFlexContent.appendChild(Textareafolder)
+        DivFlexContent.appendChild(CoreXBuild.Div("","","height:2vh;"))
+        DivFlexContent.appendChild(CoreXBuild.Textarea("GoogleKey", "Insert google key", "TextAreaBig"))
         let DivButton = CoreXBuild.Div("", "FlexRowCenterspacearound", "width:90%; margin-top:1%;")
         DivFlexContent.appendChild(DivButton)
         DivButton.appendChild(CoreXBuild.Button("Save google key",this.SaveGoogleKey.bind(this),"Button"))
         DivButton.appendChild(CoreXBuild.Button("Cancel",this.Start.bind(this),"Button"))
+        // on ajoute un espace vide
+        DivFlexContent.appendChild(CoreXBuild.Div("","","height:2vh;"))
     }
 
     /** Backup Now */
@@ -294,9 +300,10 @@ class CoreXAdminBackupApp{
      * Save Google key
      */
     SaveGoogleKey(){
-        let data = document.getElementById("GoogleKey").value
-        if(data == ""){
-            document.getElementById("ErrorStart").innerHTML="Empty value"
+        let key = document.getElementById("GoogleKey").value
+        let folder = document.getElementById("Googlefolder").value
+        if((key == "") || (folder == "")){
+            document.getElementById("ErrorStart").innerHTML="Empty value for key of folder!"
         } else {
             // On vide le content
             document.getElementById("ContentControle").innerHTML=""
@@ -305,7 +312,8 @@ class CoreXAdminBackupApp{
             // Save Data
             let ApiData = new Object()
             ApiData.Fct = "SaveGoogleKey"
-            ApiData.key = data
+            ApiData.key = key
+            ApiData.folder = folder
             GlobalCallApiPromise("Backup", ApiData).then((reponse)=>{
                 this.Start()
             },(erreur)=>{
@@ -402,6 +410,14 @@ class CoreXAdminBackupApp{
                 padding: 1%;
                 font-size: var(--CoreX-font-size);
                 width:70%;
+            }
+            .TextAreaBig{
+                outline: none;
+                resize: none;
+                overflow: auto;
+                padding: 1%;
+                font-size: var(--CoreX-font-size);
+                width:70%;
                 height: 40vh;
             }
 
@@ -421,6 +437,10 @@ class CoreXAdminBackupApp{
                     font-size: var(--CoreX-Iphone-font-size);
                     width:90%;
                 }
+                .TextAreaBig{
+                    font-size: var(--CoreX-Iphone-font-size);
+                    width:90%;
+                }
             }
             @media screen and (min-width: 1200px)
             {
@@ -430,6 +450,7 @@ class CoreXAdminBackupApp{
                 .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
                 .Input {font-size: var(--CoreX-Max-font-size);}
                 .TextArea{font-size: var(--CoreX-Max-font-size);}
+                .TextAreaBig{font-size: var(--CoreX-Max-font-size);}
             }
         </style>`
     }

@@ -1,7 +1,8 @@
 class DbBackup{
-    constructor(BdName, Privatekey){
+    constructor(BdName, Privatekey, FolderId){
         this._BdName = BdName
-        this._GoogleBackupFolderId = "1JCZoiwqL7Il_0jcGIPUwKPI_YjY6iOO4"
+        //this._GoogleBackupFolderId = "1JCZoiwqL7Il_0jcGIPUwKPI_YjY6iOO4"
+        this._GoogleBackupFolderId = FolderId
         this._GooglePrivatekey = Privatekey
     }
 
