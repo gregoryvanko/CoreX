@@ -881,7 +881,7 @@ class corex {
                 this.LogAppliError("Admin folder not found: " + folder)
             }
         } else {
-            MyApp.JS += 'alert("Admin folder not defined (=null)")' + os.EOL
+            //MyApp.JS += 'alert("Admin folder not defined (=null)")' + os.EOL
             this.LogAppliError("Admin folder not defined (=null) ")
         }
         return MyApp
