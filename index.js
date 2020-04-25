@@ -493,10 +493,10 @@ class corex {
                             var me = this
                             this._JobSchedule = schedule.scheduleJob(options, function(){
                                 let DbBackup = require('./DbBackup').DbBackup
-                                let MyDbBackup = new DbBackup(me._MongoDbName,credentials,folder)
+                                let MyDbBackup = new DbBackup(me._MongoDbName,credentials,folder, me.LogAppliInfo.bind(this).bind(me))
                                 MyDbBackup.Backup().then((reponse)=>{
                                     var now = new Date()
-                                    me.LogAppliInfo(reponse + " " + now)
+                                    me.LogAppliInfo(reponse)
                                 },(erreur)=>{
                                     me.LogAppliError("StartJobScheduleBackup error : " + erreur)
                                     console.log("Error during StartJobScheduleBackup: "+ erreur + " " + now)
@@ -1037,12 +1037,11 @@ class corex {
             this.LogAppliInfo("Call ApiAdmin BackupNow")
             // Get GoogleKey
             this.GetDbConfig("BackupGoogle").then((reponse)=>{
-                this.LogAppliInfo("Backup Now start")
                 res.json({Error: false, ErrorMsg: "", Data: "DB Backup Started, see log for end validation"})
                 let credentials = JSON.parse(reponse.GoogleKey)
                 let folder = reponse.Folder
                 let DbBackup = require('./DbBackup').DbBackup
-                let MyDbBackup = new DbBackup(this._MongoDbName,credentials,folder)
+                let MyDbBackup = new DbBackup(this._MongoDbName,credentials,folder, this.LogAppliInfo.bind(this))
                 MyDbBackup.Backup().then((reponse)=>{
                     this.LogAppliInfo("Backup Now sucessfully ended")
                 },(erreur)=>{
@@ -1056,12 +1055,11 @@ class corex {
             this.LogAppliInfo("Call ApiAdmin RestoreNow")
             // Get GoogleKey
             this.GetDbConfig("BackupGoogle").then((reponse)=>{
-                this.LogAppliInfo("Restore Now start")
                 res.json({Error: false, ErrorMsg: "", Data: "DB Restore Started, see log for end validation and reload browser"})
                 let credentials = JSON.parse(reponse.GoogleKey)
                 let folder = reponse.Folder
                 let DbBackup = require('./DbBackup').DbBackup
-                let MyDbBackup = new DbBackup(this._MongoDbName, credentials,folder)
+                let MyDbBackup = new DbBackup(this._MongoDbName, credentials,folder, this.LogAppliInfo.bind(this))
                 MyDbBackup.Restore().then((reponse)=>{
                     this.LogAppliInfo("Restore Now sucessfully ended")
                 },(erreur)=>{
@@ -1141,12 +1139,11 @@ class corex {
                             let folder = reponseGoogle.Folder
                             var me = this
                             this._JobSchedule = schedule.scheduleJob(options, function(){
-                                //console.log("coucou")
                                 let DbBackup = require('./DbBackup').DbBackup
-                                let MyDbBackup = new DbBackup(me._MongoDbName,credentials,folder)
+                                let MyDbBackup = new DbBackup(me._MongoDbName,credentials,folder,me.LogAppliInfo.bind(me))
                                 MyDbBackup.Backup().then((reponse)=>{
                                     var now = new Date()
-                                    me.LogAppliInfo(reponse + " " + now)
+                                    me.LogAppliInfo(reponse)
                                     console.log(reponse + " " + now)
                                 },(erreur)=>{
                                     me.LogAppliError("SchedulerSetStatus error : " + erreur)
