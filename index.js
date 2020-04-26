@@ -22,23 +22,29 @@ class corex {
         let MongoR = require('./Mongo.js').Mongo
         this._Mongo = new MongoR(this._MongoUrl,this._MongoDbName)
 
-        this._MongoLoginClientCollection = "LoginClient"
-        this._MongoLoginAdminCollection = "LoginAdmin"
-        this._MongoLoginUserItem = "User"
-        this._MongoLoginPassItem = "Password"
-        this._MongoLoginConfirmPassItem = "Confirm-Password"
-        this._MongoLoginFirstNameItem = "First-name"
-        this._MongoLoginLastNameItem = "Last-name"
+        this._MongoVar = new Object()
+        this._MongoVar.DbName = this._MongoDbName
 
-        this._MongoLogAppliCollection = "LogAppli"
-        this._MongoLogAppliNow = "Now"
-        this._MongoLogAppliType = "Type"
-        this._MongoLogAppliValeur = "Valeur"
+        this._MongoVar.LoginClientCollection = "LoginClient"
+        this._MongoVar.LoginAdminCollection = "LoginAdmin"
+        this._MongoVar.LoginUserItem = "User"
+        this._MongoVar.LoginPassItem = "Password"
+        this._MongoVar.LoginConfirmPassItem = "Confirm-Password"
+        this._MongoVar.LoginFirstNameItem = "First-name"
+        this._MongoVar.LoginLastNameItem = "Last-name"
 
-        this._MongoConfigCollection = "Config"
-        this._MongoConfigKey = "Key"
-        this._MongoConfigValue = "Value"
-        this._MongoConfigType = "Type" // Delete
+        this._MongoVar.LogAppliCollection = "LogAppli"
+        this._MongoVar.LogAppliNow = "Now"
+        this._MongoVar.LogAppliType = "Type"
+        this._MongoVar.LogAppliValeur = "Valeur"
+
+        this._MongoVar.ConfigCollection = "Config"
+        this._MongoVar.ConfigKey = "Key"
+        this._MongoVar.ConfigValue = "Value"
+
+        // Fonction API Admin
+        let ApiAdminR = require('./Api_Admin.js').ApiAdmin
+        this._ApiAdmin = new ApiAdminR(this.LogAppliInfo.bind(this), this.LogAppliError.bind(this), this._Mongo, this._MongoVar)
 
         // Variable Interne SocketIO
         this._RoomName = "Secured";
@@ -85,10 +91,10 @@ class corex {
             // analyse du login en fonction du site
             switch (req.body.Site) {
                 case "App":
-                    me.VerifyLogin(res, me._MongoLoginClientCollection, req.body.Login,req.body.Pass)
+                    me.VerifyLogin(res, me._MongoVar.LoginClientCollection, req.body.Login,req.body.Pass)
                     break
                 case "Admin":
-                    me.VerifyLogin(res, me._MongoLoginAdminCollection, req.body.Login,req.body.Pass)
+                    me.VerifyLogin(res, me._MongoVar.LoginAdminCollection, req.body.Login,req.body.Pass)
                     break
                 default:
                     me.LogAppliError("No login for site: " + req.body.Site)
@@ -117,7 +123,6 @@ class corex {
         })
         // Creation d'une route pour API l'application
 		this._Express.post('/api', function(req, res, next){
-            //me.LogDebug("API Call, FctName: " + req.body.FctName)
             let Continue = false
             let DecryptTokenReponse = null
             // Si l'application est securisee 
@@ -125,7 +130,7 @@ class corex {
                 // validation du Token
                 DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
                 if (DecryptTokenReponse.TokenValide){
-                    if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoLoginClientCollection){
+                    if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoVar.LoginClientCollection){
                         Continue = true
                     } else {
                         Continue = false
@@ -146,7 +151,7 @@ class corex {
                 switch (req.body.FctName) {
                     case "GetMyData":
                         if (DecryptTokenReponse != null) {
-                            me.ApiGetMyData("App",DecryptTokenReponse.TokenData.data.UserData._id, res)
+                            me._ApiAdmin.GetMyData("App",DecryptTokenReponse.TokenData.data.UserData._id, res)
                         } else {
                             me.LogAppliError("No personal data for application not secured")
                             res.json({Error: true, ErrorMsg:"No personal data for application not secured"})
@@ -158,7 +163,7 @@ class corex {
                             DataCall.UsesrId = DecryptTokenReponse.TokenData.data.UserData._id
                             DataCall.UserType = ""
                             DataCall.Data = req.body.FctData
-                            me.ApiAUpdateUser(DataCall, res)
+                            me._ApiAdmin.UpdateUser(DataCall, res)
                         } else {
                             me.LogAppliError("No personal data for application not secured")
                             res.json({Error: true, ErrorMsg:"No personal data for application not secured"})
@@ -186,46 +191,45 @@ class corex {
         })
         // Creation d'une route pour API Admin l'application
 		this._Express.post('/apiadmin', function(req, res, next){
-            //me.LogDebug("API Admin Call, FctName: " + req.body.FctName)
             // validation du Token
             let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
             if (DecryptTokenReponse.TokenValide) {
-                if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoLoginAdminCollection){
+                if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoVar.LoginAdminCollection){
                     // Analyse de la logincollection en fonction du site
                     switch (req.body.FctName) {
                         case "GetAllUser":
-                            me.ApiAdminGetAllUsers(req.body.FctData, res)
+                            me._ApiAdmin.GetAllUsers(req.body.FctData, res)
                             break
                         case "GetUserData":
-                            me.ApiAdminGetUserData(req.body.FctData, res)
+                            me._ApiAdmin.GetUserData(req.body.FctData, res)
                             break
                         case "UpdateUser":
-                            me.ApiAUpdateUser(req.body.FctData, res)
+                            me._ApiAdmin.UpdateUser(req.body.FctData, res)
                             break
                         case "DeleteUser":
-                            me.ApiAdminDeleteUser(req.body.FctData, res)
+                            me._ApiAdmin.DeleteUser(req.body.FctData, res)
                             break
                         case "GetUserDataStructure":
-                            me.ApiAdminGetUserDataStructure(req.body.FctData, res)
+                            me._ApiAdmin.GetUserDataStructure(req.body.FctData, res)
                             break
                         case "NewUser":
-                            me.ApiAdminNewUser(req.body.FctData, res)
+                            me._ApiAdmin.NewUser(req.body.FctData, res)
                             break
                         case "GetLog":
-                            me.ApiAdminGetLog(req.body.FctData, res)
+                            me._ApiAdmin.GetLog(req.body.FctData, res)
                             break
                         case "Backup":
-                            me.ApiAdminBackup(req.body.FctData, res)
+                            me._ApiAdmin.Backup(req.body.FctData, res, me.GetJobSchedule.bind(me), me.SetJobSchedule.bind(me))
                             break
                         case "GetMyData":
-                            me.ApiGetMyData("Admin",DecryptTokenReponse.TokenData.data.UserData._id, res)
+                            me._ApiAdmin.GetMyData("Admin",DecryptTokenReponse.TokenData.data.UserData._id, res)
                             break
                         case "UpdateMyUser":
                             let DataCall = new Object()
                             DataCall.UsesrId = DecryptTokenReponse.TokenData.data.UserData._id
                             DataCall.UserType = "Admin"
                             DataCall.Data = req.body.FctData
-                            me.ApiAUpdateUser(DataCall, res)
+                            me._ApiAdmin.UpdateUser(DataCall, res)
                             break
                         default:
                             let UserId = DecryptTokenReponse.TokenData.data.UserData._id
@@ -392,8 +396,8 @@ class corex {
     /** Log applicatif de type info dans la DB */
     LogAppliInfo(Valeur){
         var now = new Date()
-        const DataToDb = { [this._MongoLogAppliNow]: now, [this._MongoLogAppliType]: "Info", [this._MongoLogAppliValeur]: Valeur}
-        this._Mongo.InsertOnePromise(DataToDb, this._MongoLogAppliCollection).then((reponse)=>{
+        const DataToDb = { [this._MongoVar.LogAppliNow]: now, [this._MongoVar.LogAppliType]: "Info", [this._MongoVar.LogAppliValeur]: Valeur}
+        this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.LogAppliCollection).then((reponse)=>{
             this.LogDebug(this.GetDateString(now) + " " + "Info" + " " + Valeur)
         },(erreur)=>{
             this.LogDebug("LogAppliInfo DB error : " + erreur)
@@ -402,8 +406,8 @@ class corex {
     /** Log applicatif de type error dans la DB */
     LogAppliError(Valeur){
         var now = new Date()
-        const DataToDb = { [this._MongoLogAppliNow]: now, [this._MongoLogAppliType]: "Error", [this._MongoLogAppliValeur]: Valeur}
-        this._Mongo.InsertOnePromise(DataToDb, this._MongoLogAppliCollection).then((reponse)=>{
+        const DataToDb = { [this._MongoVar.LogAppliNow]: now, [this._MongoVar.LogAppliType]: "Error", [this._MongoVar.LogAppliValeur]: Valeur}
+        this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.LogAppliCollection).then((reponse)=>{
             this.LogDebug(this.GetDateString(now) + " " + "Error " + Valeur)
         },(erreur)=>{
             this.LogDebug("LogAppliError DB error : " + erreur)
@@ -432,11 +436,11 @@ class corex {
         }
         let DoneCallbackAdminCollection = (Data) => {
             if(Data){
-                this.LogAppliInfo("La collection suivante existe : " + this._MongoLoginAdminCollection)
+                this.LogAppliInfo("La collection suivante existe : " + this._MongoVar.LoginAdminCollection)
             } else {
-                const DataToDb = { [this._MongoLoginUserItem]: "Admin", [this._MongoLoginFirstNameItem]: "Admin First Name", [this._MongoLoginLastNameItem]: "Admin Last Name", [this._MongoLoginPassItem]: "Admin", [this._MongoLoginConfirmPassItem]: "Admin"}
-                this._Mongo.InsertOnePromise(DataToDb, this._MongoLoginAdminCollection).then((reponse)=>{
-                    this.LogAppliInfo("Creation de la collection : " + this._MongoLoginAdminCollection)
+                const DataToDb = { [this._MongoVar.LoginUserItem]: "Admin", [this._MongoVar.LoginFirstNameItem]: "Admin First Name", [this._MongoVar.LoginLastNameItem]: "Admin Last Name", [this._MongoVar.LoginPassItem]: "Admin", [this._MongoVar.LoginConfirmPassItem]: "Admin"}
+                this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.LoginAdminCollection).then((reponse)=>{
+                    this.LogAppliInfo("Creation de la collection : " + this._MongoVar.LoginAdminCollection)
                 },(erreur)=>{
                     this.LogAppliError("Insert temp user admin in collection Login Admin")
                     throw new Error('Erreur lors de la creation du User Admin de la collection Admin de la db: ' + erreur)
@@ -445,7 +449,7 @@ class corex {
         }
         let DoneCallbackConfigCollection = (Data) => {
             if(Data){
-                this.LogAppliInfo("La collection suivante existe : " + this._MongoConfigCollection)
+                this.LogAppliInfo("La collection suivante existe : " + this._MongoVar.ConfigCollection)
                 // Start du Backup
                 this.StartJobScheduleBackup()
             } else {
@@ -459,20 +463,20 @@ class corex {
                 BackupGoogle.Folder = ""
 
                 const DataToDb = [
-                    {[this._MongoConfigKey]: "BackupScheduler", [this._MongoConfigValue]: BackupScheduler},
-                    {[this._MongoConfigKey]: "BackupGoogle", [this._MongoConfigValue]: BackupGoogle}
+                    {[this._MongoVar.ConfigKey]: "BackupScheduler", [this._MongoVar.ConfigValue]: BackupScheduler},
+                    {[this._MongoVar.ConfigKey]: "BackupGoogle", [this._MongoVar.ConfigValue]: BackupGoogle}
                 ]
 
-                this._Mongo.InsertMultiplePromise(DataToDb, this._MongoConfigCollection).then((reponse)=>{
-                    this.LogAppliInfo("Creation de la collection : " + this._MongoConfigCollection)
+                this._Mongo.InsertMultiplePromise(DataToDb, this._MongoVar.ConfigCollection).then((reponse)=>{
+                    this.LogAppliInfo("Creation de la collection : " + this._MongoVar.ConfigCollection)
                 },(erreur)=>{
                     this.LogAppliError("Error Insert JobSchedule config in collection Config")
                     throw new Error('Erreur lors de la creation de la config JobSchedule dans la collection Config de la db: ' + erreur)
                 })
             }
         }
-        this._Mongo.CollectionExist(this._MongoLoginAdminCollection, DoneCallbackAdminCollection, ErrorCallback)
-        this._Mongo.CollectionExist(this._MongoConfigCollection, DoneCallbackConfigCollection, ErrorCallback)
+        this._Mongo.CollectionExist(this._MongoVar.LoginAdminCollection, DoneCallbackAdminCollection, ErrorCallback)
+        this._Mongo.CollectionExist(this._MongoVar.ConfigCollection, DoneCallbackConfigCollection, ErrorCallback)
     }
     /**
      * Start du schedule du backup
@@ -493,9 +497,8 @@ class corex {
                             var me = this
                             this._JobSchedule = schedule.scheduleJob(options, function(){
                                 let DbBackup = require('./DbBackup').DbBackup
-                                let MyDbBackup = new DbBackup(me._MongoDbName,credentials,folder, me.LogAppliInfo.bind(this).bind(me))
+                                let MyDbBackup = new DbBackup(me._MongoVar.DbName,credentials,folder, me.LogAppliInfo.bind(me))
                                 MyDbBackup.Backup().then((reponse)=>{
-                                    var now = new Date()
                                     me.LogAppliInfo(reponse)
                                 },(erreur)=>{
                                     me.LogAppliError("StartJobScheduleBackup error : " + erreur)
@@ -644,16 +647,16 @@ class corex {
     }
     /* Verification du login */
     VerifyLogin(res, LoginCollection, Login, Pass){
-        const Query = { [this._MongoLoginUserItem]: Login}
-        const Projection = { projection:{ _id: 1, [this._MongoLoginPassItem]: 1}}
+        const Query = { [this._MongoVar.LoginUserItem]: Login}
+        const Projection = { projection:{ _id: 1, [this._MongoVar.LoginPassItem]: 1}}
         this._Mongo.FindPromise(Query,Projection, LoginCollection).then((reponse)=>{
             if(reponse.length == 0){
                 this.LogAppliError("Login non valide, pas de row en db pour ce user")
                 res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
             } else if (reponse.length == 1){
-                if (reponse[0][this._MongoLoginPassItem] == Pass){
+                if (reponse[0][this._MongoVar.LoginPassItem] == Pass){
                     this.LogAppliInfo("Login valide")
-                    delete reponse[0][this._MongoLoginPassItem]
+                    delete reponse[0][this._MongoVar.LoginPassItem]
                     let MyToken = new Object()
                     MyToken.UserData = reponse[0]
                     MyToken.LoginCollection = LoginCollection
@@ -726,7 +729,7 @@ class corex {
         this._Mongo.CountPromise(Query, Collection).then((reponse)=>{
             if (reponse==1) {
                 // Get Name of user in DB
-                let Projection = { projection:{[this._MongoLoginUserItem]: 1}}
+                let Projection = { projection:{[this._MongoVar.LoginUserItem]: 1}}
                 this._Mongo.FindPromise(Query, Projection, Collection).then((reponse)=>{
                     this.LogAppliInfo("TokenUserId validé. User = " + reponse[0].User)
                     let MyApp = this.GetAppCode(Site)
@@ -892,9 +895,9 @@ class corex {
      */
     GetDbConfig(Key){
         return new Promise((resolve, reject)=>{
-            const Query = { [this._MongoConfigKey]: Key} 
-            const Projection = { projection:{[this._MongoConfigValue]: 1}}
-            this._Mongo.FindPromise(Query,Projection, this._MongoConfigCollection).then((reponse)=>{
+            const Query = { [this._MongoVar.ConfigKey]: Key} 
+            const Projection = { projection:{[this._MongoVar.ConfigValue]: 1}}
+            this._Mongo.FindPromise(Query,Projection, this._MongoVar.ConfigCollection).then((reponse)=>{
                 if(reponse.length == 0){
                     reject("Error GetDbConfig: no entry for this Key and ConfigType")
                 } else if (reponse.length == 1){
@@ -909,441 +912,13 @@ class corex {
         })
     }
 
-    /* Get list of all user via l'ApiAdmin */
-    ApiAdminGetAllUsers(type, res){
-        this.LogAppliInfo("Call ApiAdmin GetAllUsers, Data: " + type)
-        let mongocollection =""
-        if (type == "Admin") {mongocollection = this._MongoLoginAdminCollection}
-        else {mongocollection = this._MongoLoginClientCollection}
-        const Query = {}
-        const Projection = { projection:{ _id: 1, [this._MongoLoginUserItem]: 1}}
-        const Sort = {[this._MongoLoginUserItem]: 1}
-        this._Mongo.FindSortPromise(Query,Projection, Sort, mongocollection).then((reponse)=>{
-            if(reponse.length == 0){
-                this.LogDebug("No user in BD")
-                res.json({Error: false, ErrorMsg: "No user in BD", Data: null})
-            } else {
-                res.json({Error: false, ErrorMsg: "User in DB", Data: reponse})
-            }
-        },(erreur)=>{
-            this.LogAppliError("ApiAdminGetAllUsers DB error : " + erreur)
-            res.json({Error: true, ErrorMsg: "DB Error", Data: ""})
-        })
+    /** Get JobSchedule */
+    GetJobSchedule(){
+        return this._JobSchedule
     }
-    /* Get list of user data via l'ApiAdmin */
-    ApiAdminGetUserData(Data, res){
-        this.LogAppliInfo("Call ApiAdmin GetUserData, Data: " + JSON.stringify(Data))
-        let MongoObjectId = require('./Mongo.js').MongoObjectId
-        // Définition de la collection de Mongo en fonction du type de user
-        let mongocollection =""
-        if (Data.UserType == "Admin") {mongocollection = this._MongoLoginAdminCollection}
-        else {mongocollection = this._MongoLoginClientCollection}
-        // Definition de la Query de Mongo
-        const Query = {'_id': new MongoObjectId(Data.UsesrId)}
-        // Definition de la projection de Mongo en fonction du type de user
-        let Projection = {projection:{}}
-        // Find de type Promise de Mongo
-        this._Mongo.FindPromise(Query,Projection, mongocollection).then((reponse)=>{
-            if(reponse.length == 0){
-                this.LogAppliError("Wrong User Id")
-                res.json({Error: true, ErrorMsg: "Wrong User Id", Data: null})
-            } else {
-                // les password sont effacés de la réponse
-                reponse[0][this._MongoLoginPassItem]=""
-                reponse[0][this._MongoLoginConfirmPassItem]=""
-                // la reponse est envoyée
-                res.json({Error: false, ErrorMsg: "User data in DB", Data: reponse})
-            }
-        },(erreur)=>{
-            this.LogAppliError("ApiAdminGetUserData DB error : " + erreur)
-            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
-        })
-    }
-    /* Delete d'un user via l'ApiAdmin */
-    ApiAdminDeleteUser(Data, res){
-        this.LogAppliInfo("Call ApiAdmin DeleteUser, Data: " + JSON.stringify(Data))
-        // Définition de la collection de Mongo en fonction du type de user
-        let mongocollection =""
-        if (Data.UserType == "Admin") {mongocollection = this._MongoLoginAdminCollection}
-        else {mongocollection = this._MongoLoginClientCollection}
-        // Delete de type Promise de Mongo
-        this._Mongo.DeleteByIdPromise(Data.UsesrId, mongocollection).then((reponse)=>{
-            if (reponse.deletedCount==1) {
-                res.json({Error: false, ErrorMsg: "User deleted in DB", Data: null})
-            } else {
-                this.LogAppliError("User not found in DB")
-                res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
-            }
-        },(erreur)=>{
-            this.LogAppliError("ApiAdminDeleteUser DB error : " + erreur)
-            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
-        })
-    }
-    /** Get de la structure d'un user */
-    ApiAdminGetUserDataStructure(Data, res){
-        this.LogAppliInfo("Call ApiAdmin GetUserDataStructure, Data: " + Data)
-        let reponse=[]
-        // Data strucutre d'un user
-        reponse.push(this._MongoLoginUserItem)
-        reponse.push(this._MongoLoginFirstNameItem)
-        reponse.push(this._MongoLoginLastNameItem)
-        reponse.push(this._MongoLoginPassItem)
-        reponse.push(this._MongoLoginConfirmPassItem)
-        if (Data == "Admin") {
-            // Add data strucutre only for admin
-        } else {
-            // Add data strucutre only for user
-        }
-        res.json({Error: false, ErrorMsg: "User data structure", Data: reponse})
-    }
-    /** Creation d'un nouvel user */
-    ApiAdminNewUser(Data, res){
-        this.LogAppliInfo("Call ApiAdmin NewUser, Data: " + JSON.stringify(Data))
-        // Définition de la collection de Mongo en fonction du type de user
-        let mongocollection =""
-        if (Data.UserType == "Admin") {mongocollection = this._MongoLoginAdminCollection}
-        else {mongocollection = this._MongoLoginClientCollection}
-        let DataToDb = { [this._MongoLoginUserItem]: Data.Data[this._MongoLoginUserItem], [this._MongoLoginFirstNameItem]: Data.Data[this._MongoLoginFirstNameItem], [this._MongoLoginLastNameItem]: Data.Data[this._MongoLoginLastNameItem], [this._MongoLoginPassItem]: Data.Data[this._MongoLoginPassItem], [this._MongoLoginConfirmPassItem]: Data.Data[this._MongoLoginConfirmPassItem]}
-        // Insert de type Promise de Mongo
-        this._Mongo.InsertOnePromise(DataToDb, mongocollection).then((reponse)=>{
-            res.json({Error: false, ErrorMsg: "User added in DB", Data: null})
-        },(erreur)=>{
-            this.LogAppliError("ApiAdminNewUser DB error : " + erreur)
-            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
-        })
-    }
-    /** Get des log de l'application */
-    ApiAdminGetLog(Data, res){
-        this.LogAppliInfo("Call ApiAdmin GetLog, Skip data value: " + Data)
-        let mongocollection = this._MongoLogAppliCollection
-        const Query = {}
-        const Projection = {}
-        const Sort = {[this._MongoLogAppliNow]: -1}
-        this._Mongo.FindSortLimitSkipPromise(Query,Projection, Sort, 10, parseInt(Data), mongocollection).then((reponse)=>{
-            if(reponse.length == 0){
-                this.LogDebug("No Log in BD")
-                res.json({Error: false, ErrorMsg: "No Log in BD", Data: null})
-            } else {
-                res.json({Error: false, ErrorMsg: "Log in DB", Data: reponse})
-            }
-        },(erreur)=>{
-            this.LogAppliError("ApiAdminGetAllUsers DB error : " + erreur)
-            res.json({Error: true, ErrorMsg: "DB Error", Data: ""})
-        })
-    }
-    /** Get des log de l'application */
-    ApiAdminBackup(ApiData, res){
-        if (ApiData.Fct == "BackupNow"){
-            this.LogAppliInfo("Call ApiAdmin BackupNow")
-            // Get GoogleKey
-            this.GetDbConfig("BackupGoogle").then((reponse)=>{
-                res.json({Error: false, ErrorMsg: "", Data: "DB Backup Started, see log for end validation"})
-                let credentials = JSON.parse(reponse.GoogleKey)
-                let folder = reponse.Folder
-                let DbBackup = require('./DbBackup').DbBackup
-                let MyDbBackup = new DbBackup(this._MongoDbName,credentials,folder, this.LogAppliInfo.bind(this))
-                MyDbBackup.Backup().then((reponse)=>{
-                    this.LogAppliInfo("Backup Now sucessfully ended")
-                },(erreur)=>{
-                    this.LogAppliError("Backup Now error: " + erreur)
-                })
-            },(erreur)=>{
-                this.LogAppliError("BackupNow Get GoogleKey: "+ erreur)
-                res.json({Error: true, ErrorMsg: "Error during BackupNow Get GoogleKey: "+ erreur, Data: ""})
-            })
-        } else if (ApiData.Fct == "RestoreNow"){
-            this.LogAppliInfo("Call ApiAdmin RestoreNow")
-            // Get GoogleKey
-            this.GetDbConfig("BackupGoogle").then((reponse)=>{
-                res.json({Error: false, ErrorMsg: "", Data: "DB Restore Started, see log for end validation and reload browser"})
-                let credentials = JSON.parse(reponse.GoogleKey)
-                let folder = reponse.Folder
-                let DbBackup = require('./DbBackup').DbBackup
-                let MyDbBackup = new DbBackup(this._MongoDbName, credentials,folder, this.LogAppliInfo.bind(this))
-                MyDbBackup.Restore().then((reponse)=>{
-                    this.LogAppliInfo("Restore Now sucessfully ended")
-                },(erreur)=>{
-                    this.LogAppliError("Restore Now error: " + erreur)
-                })
-            },(erreur)=>{
-                this.LogAppliError("RestoreNow Get GoogleKey: "+ erreur)
-                res.json({Error: true, ErrorMsg: "Error during RestoreNow Get GoogleKey: "+ erreur, Data: ""})
-            })
-        } else if (ApiData.Fct == "GetSchedulerData"){
-            this.LogAppliInfo("Call ApiAdmin GetSchedulerData")
-            let ApiReponse = new Object()
-            ApiReponse.GoogleKeyExist = false
-            ApiReponse.SchedulerData = null
-            this.GetDbConfig("BackupGoogle").then((reponse)=>{
-                if((reponse.GoogleKey == "") || (reponse.Folder == "")){
-                    res.json({Error: false, ErrorMsg: "Scheduler Data", Data: ApiReponse})
-                } else {
-                    // Get scheduler data
-                    this.GetSchedulerData().then((reponsedata)=>{
-                        ApiReponse.GoogleKeyExist = true
-                        ApiReponse.SchedulerData =reponsedata
-                        res.json({Error: false, ErrorMsg: "Scheduler Data", Data: ApiReponse})
-                    },(erreur)=>{
-                        this.LogAppliError("GetSchedulerData error : " + erreur)
-                        res.json({Error: true, ErrorMsg: "Error during GetSchedulerData: "+ erreur, Data: ""})
-                    })
-                }
-            },(erreur)=>{
-                this.LogAppliError("GetSchedulerData error in get google key : " + erreur)
-                res.json({Error: true, ErrorMsg: "Error during GetSchedulerData, get google key: "+ erreur, Data: ""})
-            })
-        } else if (ApiData.Fct == "SaveConfig"){
-            this.LogAppliInfo("Call ApiAdmin SaveConfig")
-            // Save nouvelle heure
-            let BackupScheduler = new Object()
-            BackupScheduler.JobScheduleHour = ApiData.Hour
-            BackupScheduler.JobScheduleMinute = ApiData.Minute
-            if (this._JobSchedule == null){
-                BackupScheduler.JobScheduleStarted = false
-            } else {
-                BackupScheduler.JobScheduleStarted = true
-            }
-            let Data = new Object()
-            Data.Value = BackupScheduler
-            const Query = { [this._MongoConfigKey]: "BackupScheduler"}
-            this._Mongo.UpdatePromise(Query, Data, this._MongoConfigCollection).then((reponse)=>{
-                if (reponse.matchedCount==1) {
-                    if (this._JobSchedule != null){
-                        let options = {minute: ApiData.Minute, hour: ApiData.Hour}
-                        this._JobSchedule.reschedule(options)
-                    }
-                    this.GetSchedulerData().then((reponse)=>{
-                        res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
-                    },(erreur)=>{
-                        this.LogAppliError("SaveConfig error : " + erreur)
-                        res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
-                    })
-                } else {
-                    res.json({Error: true, ErrorMsg: "Upadte error : Key Value not found in config", Data: ""})
-                }
-            },(erreur)=>{
-                this.LogAppliError("SaveConfig error : " + erreur)
-                res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
-            })
-        } else if (ApiData.Fct == "SchedulerSetStatus"){
-            this.LogAppliInfo("Call ApiAdmin SchedulerSetStatus")
-            if (ApiData.Started){
-                if (this._JobSchedule == null){
-                    this.GetSchedulerData().then((reponse)=>{
-                        let SchedulerData = reponse
-                        var schedule = require('node-schedule')
-                        let options = {minute: SchedulerData.JobScheduleMinute, hour: SchedulerData.JobScheduleHour}
-                        // Get GoogleKey
-                        this.GetDbConfig("BackupGoogle").then((reponseGoogle)=>{
-                            let credentials = JSON.parse(reponseGoogle.GoogleKey)
-                            let folder = reponseGoogle.Folder
-                            var me = this
-                            this._JobSchedule = schedule.scheduleJob(options, function(){
-                                let DbBackup = require('./DbBackup').DbBackup
-                                let MyDbBackup = new DbBackup(me._MongoDbName,credentials,folder,me.LogAppliInfo.bind(me))
-                                MyDbBackup.Backup().then((reponse)=>{
-                                    var now = new Date()
-                                    me.LogAppliInfo(reponse)
-                                    console.log(reponse + " " + now)
-                                },(erreur)=>{
-                                    me.LogAppliError("SchedulerSetStatus error : " + erreur)
-                                    console.log("Error during SchedulerSetStatus: "+ erreur + " " + now)
-                                })
-                            })
-                            // Save nouveau status
-                            let BackupScheduler = new Object()
-                            BackupScheduler.JobScheduleHour = SchedulerData.JobScheduleHour
-                            BackupScheduler.JobScheduleMinute = SchedulerData.JobScheduleMinute
-                            BackupScheduler.JobScheduleStarted = ApiData.Started
-                            let DataS = new Object()
-                            DataS.Value = BackupScheduler
-                            const Query = { [this._MongoConfigKey]: "BackupScheduler",}
-                            this._Mongo.UpdatePromise(Query, DataS, this._MongoConfigCollection).then((reponseUpdateSatus)=>{
-                                if (reponseUpdateSatus.matchedCount==1) {
-                                    BackupScheduler.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
-                                    res.json({Error: false, ErrorMsg: "Scheduler Data", Data: BackupScheduler})
-                                } else {
-                                    this.LogAppliError("SaveConfig Status error : more than 1 entry in DB")
-                                    res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: more than 1 entry in DB", Data: ""})
-                                }
-                            },(erreur)=>{
-                                this.LogAppliError("SaveConfig Status error : " + erreur)
-                                res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: "+ erreur, Data: ""})
-                            })
-                        },(erreur)=>{
-                            this.LogAppliError("SchedulerSetStatus, get Google key error : " + erreur)
-                            res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus Get GoogleKey: "+ erreur, Data: ""})
-                        })
-                    },(erreur)=>{
-                        this.LogAppliError("SchedulerSetStatus error : " + erreur)
-                        res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
-                    })
-                } else {
-                    this.LogAppliError("JobScheduler already exist")
-                    res.json({Error: true, ErrorMsg: "Error JobScheduler already exist", Data: ""})
-                }
-            } else {
-                if (this._JobSchedule == null){
-                    res.json({Error: true, ErrorMsg: "Error no JobScheduler defined", Data: ""})
-                } else {
-                    this._JobSchedule.cancel()
-                    this._JobSchedule = null
-                    // Save nouveau status
-                    this.GetSchedulerData().then((reponse)=>{
-                        let BackupScheduler = new Object()
-                        BackupScheduler.JobScheduleHour = reponse.JobScheduleHour
-                        BackupScheduler.JobScheduleMinute = reponse.JobScheduleMinute
-                        BackupScheduler.JobScheduleStarted = ApiData.Started
-                        let DataS = new Object()
-                        DataS.Value = BackupScheduler
-                        const Query = { [this._MongoConfigKey]: "BackupScheduler"}
-                        this._Mongo.UpdatePromise(Query, DataS, this._MongoConfigCollection).then((reponse)=>{
-                            if (reponse.matchedCount==1) {
-                                BackupScheduler.JobScheduleNext = "Scheduler not started"
-                                res.json({Error: false, ErrorMsg: "Scheduler Data", Data: BackupScheduler})
-                            } else {
-                                this.LogAppliError("SaveConfig Status error : more than 1 entry in DB")
-                                res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: more than 1 entry in DB", Data: ""})
-                            }
-                        },(erreur)=>{
-                            this.LogAppliError("SaveConfig Status error : " + erreur)
-                            res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: "+ erreur, Data: ""})
-                        })
-                    },(erreur)=>{
-                        this.LogAppliError("SchedulerSetStatus error : " + erreur)
-                        res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
-                    })
-                }
-            }
-        } else if (ApiData.Fct == "SaveGoogleKey"){
-            this.LogAppliInfo("Call ApiAdmin SaveGoogleKey")
-            // Save Google Key
-            let BackupGoogle = new Object()
-            BackupGoogle.GoogleKey = ApiData.key
-            BackupGoogle.Folder = ApiData.folder
-            let Data = new Object()
-            Data.Value = BackupGoogle
-            const Query = { [this._MongoConfigKey]: "BackupGoogle"}
-            this._Mongo.UpdatePromise(Query, Data, this._MongoConfigCollection).then((reponse)=>{
-                if (reponse.matchedCount==1) {
-                    res.json({Error: false, ErrorMsg: "SaveGoogleKey Data", Data: null})
-                } else {
-                    this.LogAppliError("Upadte error : Key Value not found in config")
-                    res.json({Error: true, ErrorMsg: "Upadte error : Key Value not found in config", Data: ""})
-                }
-            },(erreur)=>{
-                this.LogAppliError("SaveGoogleKey error : " + erreur)
-                res.json({Error: true, ErrorMsg: "Error during SaveGoogleKey: "+ erreur, Data: ""})
-            })
-        } else if (ApiData.Fct == "CleanLog") {
-            this.LogAppliInfo("Call ApiAdmin CleanLog")
-            const Query = {}
-            this._Mongo.DeleteByQueryPromise(Query, this._MongoLogAppliCollection).then((reponse)=>{
-                res.json({Error: false, ErrorMsg: "CleanLog Data", Data: null})
-            },(erreur)=>{
-                this.LogAppliError("CleanLog error : " + erreur)
-                res.json({Error: true, ErrorMsg: "Error during CleanLog: "+ erreur, Data: ""})
-            })
-        } else {
-            this.LogAppliError("Backup: ApiData.Fct not found= "+ ApiData.Fct)
-            res.json({Error: true, ErrorMsg: "Error during Backup: ApiData.Fct not found= "+ ApiData.Fct, Data: ""})
-        }
-    }
-    /**
-     * Promise Get scheduler data
-     */
-    GetSchedulerData(){
-        return new Promise((resolve, reject)=>{
-            let SchedulerData = new Object()
-            this.GetDbConfig("BackupScheduler").then((reponse)=>{
-                SchedulerData = reponse
-                if (this._JobSchedule == null) {
-                    SchedulerData.JobScheduleStarted = false
-                    SchedulerData.JobScheduleNext = "Scheduler not started"
-                } else {
-                    SchedulerData.JobScheduleStarted = true
-                    SchedulerData.JobScheduleNext = this.GetDateTimeString(this._JobSchedule.nextInvocation())
-                }
-                resolve(SchedulerData)
-            },(erreur)=>{
-                this.LogAppliError("GetSchedulerData error : " + erreur)
-                reject(erreur)
-            })
-        })
-    }
-
-    /**
-     * retourne un string avec la date formatee
-     * @param {string} DateString string de format date
-     */
-    GetDateTimeString(DateString){
-        var Now = new Date(DateString)
-        var dd = Now.getDate()
-        var mm = Now.getMonth()+1
-        var yyyy = Now.getFullYear()
-        var heure = Now.getHours()
-        var minute = Now.getMinutes()
-        var seconde = Now.getSeconds()
-        if(dd<10) {dd='0'+dd} 
-        if(mm<10) {mm='0'+mm}
-        if(heure<10) {heure='0'+heure}
-        if(minute<10) {minute='0'+minute}
-        if(seconde<10) {seconde='0'+seconde}
-        return yyyy + "-" + mm + "-" + dd + " " + heure + ":" + minute + ":" + seconde
-    }
-    /** Get My Data of a connected user (meme fonction pour Api et ApiAdmin) */
-    ApiGetMyData(App, Id, res){
-        this.LogAppliInfo("Call ApiAdmin ApiGetMyData, Data: App=" + App + " Id="+Id)
-        let MongoObjectId = require('./Mongo.js').MongoObjectId
-        // Définition de la collection de Mongo en fonction du type de user
-        let mongocollection =""
-        if (App == "Admin") {mongocollection = this._MongoLoginAdminCollection}
-        else {mongocollection = this._MongoLoginClientCollection}
-        // Definition de la Query de Mongo
-        const Query = {'_id': new MongoObjectId(Id)}
-        // Definition de la projection de Mongo en fonction du type de user
-        let Projection = { projection:{ _id: 0}}
-        // Find de type Promise de Mongo
-        this._Mongo.FindPromise(Query,Projection, mongocollection).then((reponse)=>{
-            if(reponse.length == 0){
-                this.LogAppliError("Wrong User Id")
-                res.json({Error: true, ErrorMsg: "Wrong User Id", Data: null})
-            } else {
-                // les password sont effacés de la réponse
-                reponse[0][this._MongoLoginPassItem]=""
-                reponse[0][this._MongoLoginConfirmPassItem]=""
-                // la reponse est envoyée
-                res.json({Error: false, ErrorMsg: "User data in DB", Data: reponse})
-            }
-        },(erreur)=>{
-            this.LogAppliError("ApiAdminGetUserData DB error : " + erreur)
-            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
-        })
-    }
-    /* Update d'un user (meme fonction pour Api et ApiAdmin) */
-    ApiAUpdateUser(Data, res){
-        this.LogAppliInfo("Call Api"+ Data.UserType + " UpdateUser, Data: " + JSON.stringify(Data))
-        // Définition de la collection de Mongo en fonction du type de user
-        let mongocollection =""
-        if (Data.UserType == "Admin") {mongocollection = this._MongoLoginAdminCollection}
-        else {mongocollection = this._MongoLoginClientCollection}
-        // changement du password que si il est different de vide
-        if (Data.Data[this._MongoLoginPassItem] == ""){
-            delete Data.Data[this._MongoLoginPassItem]
-            delete Data.Data[this._MongoLoginConfirmPassItem]
-        }
-        // Update de type Promise de Mongo
-        this._Mongo.UpdateByIdPromise(Data.UsesrId, Data.Data, mongocollection).then((reponse)=>{
-            if (reponse.matchedCount==1) {
-                res.json({Error: false, ErrorMsg: "User Updated in DB", Data: null})
-            } else {
-                this.LogAppliError("User not found in DB")
-                res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
-            }
-        },(erreur)=>{
-            this.LogAppliError("ApiAUpdateUser DB error : " + erreur)
-            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
-        })
+    /** Set JobSchedule */
+    SetJobSchedule(JobSchedule){
+        this._JobSchedule = JobSchedule
     }
 }
 

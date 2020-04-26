@@ -14,11 +14,11 @@ class DbBackup{
         var me = this
         return new Promise((resolve, reject)=>{
             if(this._GooglePrivatekey){
+                this._LogFct("Start Mongodump")
                 const exec = require('child_process').exec
                 // Backup de la db
                 const cmd = 'mongodump --db ' + this._BdName + ' --gzip --archive=' + __dirname + "/" + this._BdName +".gz"
                 exec(cmd, function (error, stdout, stderr) {
-                    me._LogFct("Start Mongodump")
                     if (error) {
                         console.log(error)
                         reject("Erreur lors de la creation du dump de la DB")
@@ -248,7 +248,6 @@ class DbBackup{
      * @param {reject} reject reject de la fonction promise de backup
      */
     RestoreDb(BackupDbPath, BackupDbName, resolve, reject){
-        this._LogFct("Start mongorestore")
         const fs = require("fs")
         let me = this
         const exec = require('child_process').exec
@@ -259,7 +258,7 @@ class DbBackup{
                 console.log(error)
                 reject("Erreur lors du restore du dump de la DB")
             } else {
-                me._LogFct("Backup restored")
+                me._LogFct("MongoRestore Done")
                 fs.unlink(BackupDbPath + "/" + BackupDbName, (err) => {
                     if (err){
                         console.log(err)
