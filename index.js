@@ -66,6 +66,8 @@ class corex {
     set IconRelPath(val){this._Icon = val}
     set ClientAppFolder(val){this._ClientAppFolder = val}
     set AdminAppFolder(val){this._AdminAppFolder = val}
+    get AppName(){return this._AppName}
+    get MongoUrl(){return this._MongoUrl}
 
     /* Start du Serveur de l'application */
     Start(){

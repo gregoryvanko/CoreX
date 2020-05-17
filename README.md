@@ -116,10 +116,14 @@ MyServeurApp.Start()
 
 ### Fonction globale du serveur
 Pour faire un Log en DB il faut utiliser les fonctions serveur LogAppliInfo(Valeur) ou LogAppliError(Valeur)
-- Valeur       : valeur a enregister dans la db en tant que type 'info"
 ```js 
 this._MyServeurApp.LogAppliInfo(Valeur)
 this._MyServeurApp.LogAppliError(Valeur)
+```
+Les fonctions Get de la class CoreX
+```js 
+this._MyServeurApp.AppName // Return le nom de l'application
+this._MyServeurApp.MongoUrl // Return le MongoUrl de l'application
 ```
 
 Les fonction MongoDB
