@@ -1,6 +1,6 @@
 {
   "name": "@gregvanko/corex",
-  "version": "4.11.0",
+  "version": "4.12.0",
   "description": "Module CoreX",
   "main": "index.js",
   "scripts": {
