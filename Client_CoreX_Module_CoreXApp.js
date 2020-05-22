@@ -87,7 +87,7 @@ class CoreXApp{
             font-size: var(--CoreX-Titrefont-size);
             color: var(--CoreX-color);
         }
-        .ContainerCommand{width: 70%;}
+        .ContainerCommand{width: 100%;}
         .Text{font-size: var(--CoreX-font-size);}
         .ImageConteneur{
             border: 1px solid black;
