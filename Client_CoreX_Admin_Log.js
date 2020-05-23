@@ -1,7 +1,6 @@
 class CoreXAdminLogApp{
     constructor(HtmlId){
-        this._HtmlId = HtmlId
-        this._DivApp = null
+        this._DivApp = document.getElementById(HtmlId)
         this._LogCursor = 0
         this._LogIdListe = []
     }
@@ -11,10 +10,7 @@ class CoreXAdminLogApp{
         this._LogCursor = 0
         this._LogIdListe = []
         // Clear view
-        document.getElementById(this._HtmlId).innerHTML = ""
-        // construction et ajout au body de la page HTML start
-        this._DivApp = CoreXBuild.Div("App","DivContent")
-        document.getElementById(this._HtmlId).appendChild(this._DivApp)
+        this._DivApp.innerHTML=""
         // Add CSS
         this._DivApp.innerHTML = this.GetCss()
         // Global action
@@ -117,13 +113,6 @@ class CoreXAdminLogApp{
     GetCss(){
         return /*html*/`
         <style>
-            .DivContent{
-                padding: 1px;
-                margin: 20px auto 10px auto;
-                width: 96%;
-                margin-left: auto;
-                margin-right: auto;
-            }
             #Titre{
                 margin: 1% 1% 4% 1%;
                 font-size: var(--CoreX-Titrefont-size);
@@ -180,7 +169,6 @@ class CoreXAdminLogApp{
             }
             @media screen and (min-width: 1200px)
             {
-                .DivContent{width: 1100px;}
                 #Titre{font-size: var(--CoreX-TitreMax-font-size);}
                 .Text{font-size: var(--CoreX-Max-font-size);}
                 .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}

@@ -92,7 +92,6 @@ class CoreXLoader {
         // Get Token
         this._LoginToken = this.GetTokenLogin() 
         if(this._LoginToken != null){
-            //console.log("Token exist")
             this.LoadApp()
         } else {
             const OptionCoreXLogin = {Site:this._Site, CallBackLogedIn:this.LoginDone.bind(this), Color: this._Color}
@@ -170,7 +169,6 @@ class CoreXLoader {
             </div>`
         document.body.innerHTML = LoadingText
         // appeler le serveur
-        //console.log("Start loading App")
         let me = this
         var xhttp = new XMLHttpRequest()
         xhttp.onreadystatechange = function() {
@@ -213,6 +211,5 @@ class CoreXLoader {
         xhttp.open("POST", "loadApp", true)
         xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
         xhttp.send(JSON.stringify({Site:me._Site, Token:me.GetTokenLogin()})) 
-         
     }
 }

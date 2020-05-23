@@ -1,19 +1,15 @@
 class CoreXAdminBackupApp{
     constructor(HtmlId){
-        this._HtmlId = HtmlId
-        this._DivApp = null
+        this._DivApp = document.getElementById(HtmlId)
         this._JobScheduleHour = null
         this._JobScheduleMinute = null
     }
     /** Start de l'application */
     Start(){
         // Clear view
-        document.getElementById(this._HtmlId).innerHTML = ""
+        this._DivApp.innerHTML=""
         // Add CSS
-        document.getElementById(this._HtmlId).innerHTML = this.GetCss()
-        // construction et ajout au body de la page HTML start
-        this._DivApp = CoreXBuild.Div("App","DivContent")
-        document.getElementById(this._HtmlId).appendChild(this._DivApp)
+        this._DivApp.innerHTML = this.GetCss()
         // Global action
         GlobalClearActionList()
         GlobalAddActionInList("Refresh", this.Start.bind(this))
@@ -345,13 +341,6 @@ class CoreXAdminBackupApp{
     GetCss(){
         return /*html*/`
         <style>
-            .DivContent{
-                padding: 1px;
-                margin: 20px auto 10px auto;
-                width: 96%;
-                margin-left: auto;
-                margin-right: auto;
-            }
             #Titre{
                 margin: 1% 1% 4% 1%;
                 font-size: var(--CoreX-Titrefont-size);
@@ -444,7 +433,6 @@ class CoreXAdminBackupApp{
             }
             @media screen and (min-width: 1200px)
             {
-                .DivContent{width: 1100px;}
                 #Titre{font-size: var(--CoreX-TitreMax-font-size);}
                 .Text{font-size: var(--CoreX-Max-font-size);}
                 .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
