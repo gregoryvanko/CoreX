@@ -76,6 +76,11 @@ class ServeurTestCoreX{
             Color:{
                 //--CoreX-color
                 Normale:"rgb(20, 163, 255)"
+            },
+            AppContent:{
+                WidthNormale:"96%",
+                WidthIphone:"96%",
+                WidthMax:"1100px"
             }
         }
         // Affichier les message de debug du serveur

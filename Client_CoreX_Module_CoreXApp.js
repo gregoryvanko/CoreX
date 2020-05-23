@@ -6,7 +6,7 @@ class CoreXApp{
         this._MyCoreXActionButton = new CoreXActionButton(this._AppIsSecured)
         this._MyCoreXActionButton.Start()
         this._ListApplications = new Array()
-        document.body.appendChild(CoreXBuild.Div(this._ContentAppId))
+        document.body.appendChild(CoreXBuild.Div(this._ContentAppId,"CoreXAppContent"))
     }
 
     /** Get Set */

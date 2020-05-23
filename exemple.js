@@ -4,7 +4,7 @@ class ServeurTestCoreX{
         let corex = require('./index').corex
         const OptionApplication = {
             AppName: "CoreXAppTest",                // Nom de l'application
-            Port: 3000,                             // Port du serveur
+            Port: 5000,                             // Port du serveur
             Secret: "TestAppSecret",                // phrase secrete pour l'encodage du token 
             MongoUrl: "mongodb://localhost:27017"   // Url de la DB Mongo
         }
@@ -14,7 +14,7 @@ class ServeurTestCoreX{
         // Parametres de l'application CoreX
         const CSS= {
             FontSize:{
-                TexteNomrale:"1.5vw",                 //--CoreX-font-size
+                TexteNomrale:"1.5vw",               //--CoreX-font-size
                 TexteIphone:"3vw",                  //--CoreX-Iphone-font-size
                 TexteMax:"18px",                    //--CoreX-Max-font-size
                 TitreNormale:"4vw",                 //--CoreX-Titrefont-size
@@ -23,6 +23,11 @@ class ServeurTestCoreX{
             },
             Color:{
                 Normale:"rgb(20, 163, 255)"         //--CoreX-color
+            },
+            AppContent:{
+                WidthNormale:"96%",
+                WidthIphone:"96%",
+                WidthMax:"1100px"
             }
         }
         // Affichier les message de debug du serveur

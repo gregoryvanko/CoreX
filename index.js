@@ -10,7 +10,11 @@ class corex {
         // Variable externe secondaire
         this._Debug = true
         this._AppIsSecured = true
-        this._CSS = {FontSize:{TexteNomrale:"2vw", TexteIphone:"3vw", TexteMax:"20px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},Color:{Normale:"rgb(20, 163, 255)"}}
+        this._CSS = {
+            FontSize:{TexteNomrale:"2vw", TexteIphone:"3vw", TexteMax:"20px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},
+            Color:{Normale:"rgb(20, 163, 255)"},
+            AppContent:{WidthNormale:"96%",WidthIphone:"96%",WidthMax:"1100px"}
+        }
         this._Icon = __dirname + "/apple-icon-192x192.png"
         this._ClientAppFolder = null
         this._AdminAppFolder = null
@@ -580,6 +584,23 @@ class corex {
                 text-rendering: optimizelegibility;
                 width: 100%;
                 height: 100%;
+            }
+            .CoreXAppContent{
+                padding: 1px;
+                margin: 20px auto 10px auto;
+                width: `+ this._CSS.AppContent.WidthNormale +`;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
+            only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
+            screen and (max-width: 700px)
+            {
+                .CoreXAppContent{width: `+ this._CSS.AppContent.WidthIphone +`;}
+            }
+            @media screen and (min-width: 1200px)
+            {
+                .CoreXAppContent{width: `+ this._CSS.AppContent.WidthMax +`;}
             }
         </style>` 
 
