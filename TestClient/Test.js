@@ -1,10 +1,10 @@
 class TestCoreXApp{
     constructor(HtmlId){
-        this._HtmlId = HtmlId
+        this._DivApp = document.getElementById(HtmlId)
     }
     /** Start de l'application */
     Start(){
-        document.getElementById(this._HtmlId).innerHTML = `<div id="TestCSS">Hi all</div>`
+        this._DivApp.innerHTML = `<div id="TestCSS">Hi all</div>`
         GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
     }
     ClickTestButton(){
@@ -14,6 +14,7 @@ class TestCoreXApp{
             alert(erreur)
         })
     }
+    
     GetTitre(){
         return "App 1"
     }
