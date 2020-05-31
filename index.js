@@ -51,9 +51,9 @@ class corex {
         this._ApiAdmin = new ApiAdminR(this.LogAppliInfo.bind(this), this.LogAppliError.bind(this), this._Mongo, this._MongoVar)
 
         // Variable Interne SocketIO
-        this._RoomName = "Secured";
-        this._io=null;
-        this._NumClientConnected = 0
+        this._RoomName = "CoreX"
+        this._io=null
+        this._SocketIoClients = 0
 
         // Variable Interne Express
         this._Express = require('express')()
@@ -306,69 +306,49 @@ class corex {
             
             // Middleware sur socket io qui analyse la validité du Token genere via le login
             this._io.use(function(socket, next){
-                // if (me._AppIsSecured) {
-                // 	if (socket.handshake.query && socket.handshake.query.token){
-                //         if (socket.handshake.query.token != "null"){
-                //             let Token = me.DecryptDataToken(socket.handshake.query.token)
-                //             if(Token != null){ // le token est valide
-                //                 me.LogDebug("Token valide")
-                //                 next()
-                //             } else { // Le token n'est pas valide
-                //                 me.LogDebug("Token non valide")
-                //                 let err  = new Error('Token error')
-                //                 err.data = { type : 'Token ne correspons pas' }
-                //                 next(err)
-                //             }
-                //         } else {
-                //             me.LogDebug("Token est null")
-                //             let err  = new Error('Token error')
-                //             err.data = { type : 'Token est null' }
-                //             next(err)
-                //         }
-                // 	} else {
-                // 		me.LogDebug("Token non disponible")
-                // 		let err  = new Error('Token error')
-                // 		err.data = { type : 'Token non disponible' }
-                // 		next(err)
-                // 	} 
-                // } else {
+                if (me._AppIsSecured) {
+                	if (socket.handshake.query && socket.handshake.query.token){
+                        if (socket.handshake.query.token != "null"){
+                            let DecryptTokenReponse = me.DecryptDataToken(socket.handshake.query.token)
+                            if(DecryptTokenReponse.TokenValide){ // le token est valide
+                                me.LogDebug("Token valide")
+                                next()
+                            } else { // Le token n'est pas valide
+                                me.LogDebug("SocketIO Token non valide")
+                                let err  = new Error('Token error')
+                                err.data = { type : 'Token ne correspons pas' }
+                                next(err)
+                            }
+                        } else {
+                            me.LogDebug("Token est null")
+                            let err  = new Error('Token error')
+                            err.data = { type : 'Token est null' }
+                            next(err)
+                        }
+                	} else {
+                		me.LogDebug("Token non disponible")
+                		let err  = new Error('Token error')
+                		err.data = { type : 'Token non disponible' }
+                		next(err)
+                	} 
+                } else {
                     next()
-                //}
+                }
             })
             
             this._io.on('connection', function(socket){	
-            //    // Get Token
-            //    let Token = {data:"Not Secured app"}
-            //    if (me._AppIsSecured){
-            //        // Get Token
-            //        Token = me.DecryptDataToken(socket.handshake.query.token)
-            //    }
-            //    // Count user connected
-            //    me._NumClientConnected ++	
-            //    // Le socket rejoint la room securisee
-            //    socket.join(me._RoomName);
-            //    // Envoie au client le code de l'application
-            //    socket.emit('LoadingApp', me.GetCode(Token.data))
-            //    // LogDebug du nombre de user
-            //    me.LogDebug('user connected, nb user :' + me.UserCount());
+               // Count user connected
+               me._SocketIoClients ++
+               me.LogDebug('user connected, nb user :' + me.UserCount())
+               // Le socket rejoint la room securisee
+               socket.join(me._RoomName);
 
-            //    // Reception du message client de déconnection
-            //    socket.on('disconnect', () => {
-            //        // Count User Connected
-            //        me._NumClientConnected --
-                    // LogDebug du nombre de user
-            //        me.LogDebug('user disconnected, nb user: ' + me.UserCount());
-            //    })
-
-            //    // Reception du message de changement de config
-            //    socket.on('UserConfig', (Message) => {
-            //        me.ChangeUserConfig(socket, Token.data._id, Message)
-            //    })
-
-            //    // Reception des autres messages du client via un callbalck
-            //    if(me._ServerMessage != null){
-            //        me._ServerMessage(socket)
-            //    }
+               // Reception du message client de déconnection
+               socket.on('disconnect', () => {
+                   // Count User Connected
+                   me._SocketIoClients --
+                   me.LogDebug('user disconnected, nb user: ' + me.UserCount());
+               })
             })
         }
         // Gestion des erreur
@@ -652,7 +632,7 @@ class corex {
 
         let LoadScript = ` 
         <script>
-            let OptionCoreXLoader = {Usesocketio: ` + this._Usesocketio + `, Color: "`+ this._CSS.Color.Normale +`", AppIsSecured: "`+ AppIsSecured +`"}
+            let OptionCoreXLoader = {Color: "`+ this._CSS.Color.Normale +`", AppIsSecured: "`+ AppIsSecured +`"}
             var MyCoreXLoader = new CoreXLoader(OptionCoreXLoader)
             function GlobalLogout(){MyCoreXLoader.LogOut()}
             onload = function() {
@@ -782,6 +762,7 @@ class corex {
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Modules.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXBuild.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Module_CoreXApp.js", 'utf8') + os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Module_SocketIo.js", 'utf8') + os.EOL
         MyApp.JS += `
             // Creation de l'application
             let MyApp = new CoreXApp(`+this._AppIsSecured+`)

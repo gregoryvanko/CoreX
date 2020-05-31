@@ -37,7 +37,7 @@ class ServeurTestCoreX{
         // Css de base de l'application
         this._MyServeurApp.CSS = CSS
         // L'application utilise SocketIo
-        this._MyServeurApp.Usesocketio = false
+        this._MyServeurApp.Usesocketio = true
         // Chemin vers le dossier contenant sources Js et CSS de l'app client
         this._MyServeurApp.ClientAppFolder = __dirname + "/TestClient"
         // Chemin vers le dossier contenant sources Js et CSS de l'app Admin

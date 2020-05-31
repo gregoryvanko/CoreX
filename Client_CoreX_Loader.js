@@ -1,7 +1,6 @@
 class CoreXLoader {
-    constructor({Usesocketio=false, Color = "rgb(20, 163, 255)", AppIsSecured=true} = {}){
+    constructor({Color = "rgb(20, 163, 255)", AppIsSecured=true} = {}){
         // Variable externe indispensable de la class
-        this._Usesocketio = Usesocketio
         this._LoginToken = null
         this._Color = Color
         this._AppIsSecured = AppIsSecured
@@ -11,77 +10,9 @@ class CoreXLoader {
 
         // Variable interne de la class
         this._DbKeyLogin = ""
-
-        // Variable SocketIO
-        if (this._Usesocketio){
-            this._SocketIo = io({autoConnect: false, reconnection: true, reconnectionAttempts: 10, reconnectionDelay: 100, reconnectionDelayMax: 1000})
-            this.InitSocketIoMessage()
-            // pour ouvir le socket il faut executer les deux commandes ci-dessous
-            //this._SocketIo.io.opts.query = {token: this._LoginToken}
-            //this._SocketIo.open() 
-        }
     }
+    
     set Site(val){this._Site = val}
-
-    /* Init des messages socket io */
-    InitSocketIoMessage(){
-        // Init des messages error socket io
-        this._SocketIo.on('error', function(err) {
-            var today = new Date()
-            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
-            console.log(time + ' SocketIo.on error, err: ' + err.type)
-            document.body.innerHTML = /*html*/`
-                <div style='font-size: 2vw; color: red; text-align: center; margin-top: 10%;'>` + err.type + /*html*/`</div>
-                `
-        })
-        
-        // Init des messages connect socket io
-        this._SocketIo.on('connect', () => {
-            var today = new Date()
-            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
-            console.log(time + ' SocketIo.on connect')
-        })
-        
-        // Init des messages disconnect socket io
-        this._SocketIo.on('disconnect', (reason) => {
-            var today = new Date()
-            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
-            console.log(time + ' SocketIo.on disconnect, reason : ' + reason)
-        })
-
-        // Init des messages disconnect socket io
-        this._SocketIo.on('reconnect', (attemptNumber) => {
-            console.log('SocketIo.on reconnect, attemptNumber: ' + attemptNumber)
-        })
-        
-        // Init des messages disconnect socket io
-        this._SocketIo.on('reconnect_attempt', (attemptNumber) => {
-            //console.log('SocketIo.on reconnect_attempt, attemptNumber: ' + attemptNumber)
-        })
-
-        // Init des messages disconnect socket io
-        this._SocketIo.on('reconnecting', (attemptNumber) => {
-            //console.log('SocketIo.on reconnecting, attemptNumber: ' + attemptNumber)
-        })
-
-        // Init des messages disconnect socket io
-        this._SocketIo.on('reconnect_error', (error) => {
-            var today = new Date()
-            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
-            console.log(time + ' SocketIo.on reconnect_error, error: ' + error)
-        })
-
-        // Init des messages disconnect socket io
-        this._SocketIo.on('reconnect_failed', () => {
-            var today = new Date()
-            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
-            console.log(time + ' SocketIo.on reconnect_failed')
-            document.body.innerHTML = `
-                <div style='font-size: 3vw; color: red; text-align: center; margin-top: 10%;'>User disconnected</div>
-                <div style='margin-top: 5%; display: flex; justify-content: center;'><button style='width: 30%; font-size: 3vw; cursor: pointer; border: 1px solid rgb(44,1,21); border-radius: 20px; text-align: center; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7); background: white; outline: none;' onclick="location.reload();">Reload</button></div>
-                `
-        })
-    }
     
     /* Fonction lancee au debut du chargement de la page */
     Start(){
@@ -118,7 +49,6 @@ class CoreXLoader {
         document.body.innerHTML = ""
         this._LoginToken = null
         localStorage.removeItem(this._DbKeyLogin)
-        if (this._Usesocketio){this._SocketIo.disconnect()}
         // Effacer l'anienne application
         if (document.getElementById("CodeJs")) {
             var CodeJs = document.getElementById("CodeJs")
