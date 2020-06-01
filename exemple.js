@@ -48,6 +48,8 @@ class ServeurTestCoreX{
         this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this))
         // Add serveur api Admin for FctName = test
         this._MyServeurApp.AddApiAdminFct("Test", this.TestApiAdminCallForFctTest.bind(this))
+        // Add SocketIo api
+        this._MyServeurApp.AddSocketIoFct("Test", this.Test.bind(this))
         // Lancement du module corex
         this._MyServeurApp.Start()
     }
@@ -55,9 +57,14 @@ class ServeurTestCoreX{
         this._MyServeurApp.LogAppliInfo("Call de l API User, fonction Test par le user: " + UserId)
         Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct Test=" + Data})
     }
-    TestApiAdminCallForFctTest(Data, Res, UserId){
+    TestApiAdminCallForFctTest(Data, Res, UserId){ 
         this._MyServeurApp.LogAppliInfo("Call de l API Admin, fonction Test par le user: " + UserId)
         Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct Test=" + Data})
+    }
+    Test(Data, Socket){
+        this._MyServeurApp.LogAppliInfo("Call SocketIo ModuleName: Test, Data.Action:" + Data.Action + " Data.Value: " + Data.Value)
+        let Io = this._MyServeurApp.Io
+        Io.emit("Ping", "Test de ping")
     }
 }
 

@@ -21,6 +21,7 @@ class corex {
         this._Usesocketio = false
         this._ApiFctList = []
         this._ApiAdminFctList = []
+        this._SocketIoFctList = []
 
         // Varaible interne MongoDB
         let MongoR = require('./Mongo.js').Mongo
@@ -72,6 +73,7 @@ class corex {
     set AdminAppFolder(val){this._AdminAppFolder = val}
     get AppName(){return this._AppName}
     get MongoUrl(){return this._MongoUrl}
+    get Io(){return this._io}
 
     /* Start du Serveur de l'application */
     Start(){
@@ -301,8 +303,9 @@ class corex {
         })
         // Si on utilise Socket IO, alors on effectue une initialisation de socket io
         if(this._Usesocketio){
+            this.LogAppliInfo("SocketIo is used")
             // Creation de socket io
-            this._io= require('socket.io')(this._http);
+            this._io= require('socket.io')(this._http)
             
             // Middleware sur socket io qui analyse la validité du Token genere via le login
             this._io.use(function(socket, next){
@@ -339,16 +342,29 @@ class corex {
             this._io.on('connection', function(socket){	
                // Count user connected
                me._SocketIoClients ++
-               me.LogDebug('user connected, nb user :' + me.UserCount())
+               me.LogDebug(`user connected, nb user : ${me._SocketIoClients}`)
                // Le socket rejoint la room securisee
-               socket.join(me._RoomName);
+               socket.join(me._RoomName)
 
                // Reception du message client de déconnection
                socket.on('disconnect', () => {
                    // Count User Connected
                    me._SocketIoClients --
-                   me.LogDebug('user disconnected, nb user: ' + me.UserCount());
+                   me.LogDebug(`user disconnected, nb user: ${me._SocketIoClients}`)
                })
+               // Reception du message client
+               socket.on('api', (Data) => {
+                let FctNotFound = true
+                me._SocketIoFctList.forEach(element => {
+                    if (element.ModuleName == Data.ModuleName){
+                        element.Fct(Data.Data, socket)
+                        FctNotFound = false
+                    }
+                })
+                if (FctNotFound){
+                    me.LogAppliError("No SocketIo Action defined for action: " + Data.ModuleName)
+                }
+            })
             })
         }
         // Gestion des erreur
@@ -521,6 +537,13 @@ class corex {
         apiobject.Fct = Fct
         this._ApiAdminFctList.push(apiobject)
     }
+    /** Ajout d'un fonction a gerer via SocketIo */
+    AddSocketIoFct(ModuleName, Fct){
+        let apiobject = new Object()
+        apiobject.ModuleName = ModuleName
+        apiobject.Fct = Fct
+        this._SocketIoFctList.push(apiobject)
+    }
     /* Generation du fichier HTML de base */
 	GetInitialHTML(AppIsSecured){
         let fs = require('fs')
@@ -635,6 +658,7 @@ class corex {
             let OptionCoreXLoader = {Color: "`+ this._CSS.Color.Normale +`", AppIsSecured: "`+ AppIsSecured +`"}
             var MyCoreXLoader = new CoreXLoader(OptionCoreXLoader)
             function GlobalLogout(){MyCoreXLoader.LogOut()}
+            function GlobalGetToken(){return MyCoreXLoader.GetTokenLogin()}
             onload = function() {
                 MyCoreXLoader.Site = TokenApp
                 MyCoreXLoader.Start()
@@ -765,7 +789,7 @@ class corex {
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Module_SocketIo.js", 'utf8') + os.EOL
         MyApp.JS += `
             // Creation de l'application
-            let MyApp = new CoreXApp(`+this._AppIsSecured+`)
+            let MyApp = new CoreXApp(`+this._AppIsSecured+`,`+ this._Usesocketio +`)
             // Fonction globale GlobalClearActionList
             function GlobalClearActionList() {
                 MyApp.ClearActionList()
@@ -773,6 +797,15 @@ class corex {
             // Fonction gloable AddActionInList
             function GlobalAddActionInList(Titre, Action) {
                 MyApp.AddActionInList(Titre, Action)
+            }
+            // Fonction globale GetSocketIo
+            function GlobalGetSocketIo(){
+                return MyApp.SocketIo
+            }
+            // Fonction globale Send SocketIO
+            function GlobalSendSocketIo(ModuleName, Action, Value){
+                let SocketIo = GlobalGetSocketIo()
+                SocketIo.emit('api', {ModuleName: ModuleName, Data: {Action: Action, Value: Value}})
             }
             // Fonction globale GetContentAppId
             function GlobalCoreXGetAppContentId() {

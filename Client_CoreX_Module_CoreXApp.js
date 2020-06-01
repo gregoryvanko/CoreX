@@ -1,17 +1,25 @@
 /** Core de la gestion d'un application par page */
 class CoreXApp{
-    constructor(AppIsSecured){
+    constructor(AppIsSecured, Usesocketio){
         this._AppIsSecured = AppIsSecured
+        this._Usesocketio = Usesocketio
         this._ContentAppId = "CoreXAppContent"
         this._MyCoreXActionButton = new CoreXActionButton(this._AppIsSecured)
         this._MyCoreXActionButton.Start()
         this._ListApplications = new Array()
         document.body.appendChild(CoreXBuild.Div(this._ContentAppId,"CoreXAppContent"))
+        // if Use Socketio
+        this._CoreXSocketIo = null
+        if (this._Usesocketio){
+            this._CoreXSocketIo = new CoreXSocketIo()
+            this._CoreXSocketIo.Init()
+        }
     }
 
     /** Get Set */
     get ContentAppId(){return this._ContentAppId}
     set ContentAppId(NewContentAppId){this._ContentAppId = NewContentAppId}
+    get SocketIo(){return this._CoreXSocketIo.SocketIo}
 
     /** Vider la vue actuelle */
     ClearView(){

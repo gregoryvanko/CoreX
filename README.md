@@ -239,6 +239,9 @@ Voici les fonction globale du client
 /** Logout de l'application securisée */
 GlobalLogout()
 
+/** Get Login Token **/
+GlobalGetToken()
+
 /** Vider la liste des action de l'application */
 GlobalClearActionList()
 
@@ -286,8 +289,11 @@ CoreXWindow.DeleteWindow()
 Pour ajouter une fonction dans l'API du serveur il faut utiliser la fonction serveur AddApiFct(FctName, FctBinded)
 - FctName: est le nom (string) de la fonction appelee via l'API
 - FctBinded: est la référence à la fonction a executer sur le serveur lorsque l'on recoit une commande API pour FctName
+- La fonction FctBinded possède les paramètres (Data, Res, UserId)
 ```js
-this._MyServeurApp.AddApiFct(FctName, FctBinded)
+this._MyServeurApp.AddApiFct("Test", this.Test.bind(this))
+Test(Data, Res, UserId){
+}
 ``` 
 
 
@@ -400,6 +406,44 @@ GlobalGetUserDataPromise().then((reponse)=>{
 Pour ajouter une fonction dans l'API Admin du serveur il faut utiliser la fonction serveur AddApiAdminFct(FctName, FctBinded)
 - FctName: est le nom (string) de la fonction appelee via l'API
 - FctBinded: est la référence à la fonction a executer sur le serveur lorsque l'on recoit une commande API pour FctName
+- La fonction FctBinded possède les paramètres (Data, Res, UserId)
 ```js
-this._MyServeurApp.AddApiAdminFct(FctName, FctBinded)
+this._MyServeurApp.AddApiAdminFct("Test", this.Test.bind(this))
+Test(Data, Res, UserId){
+}
 ``` 
+
+## SocketIo
+CoreX permet d'utiliser SocketIo
+### Client Side de l'application
+Pour envoyer un message au serveur, il faut utiliser la fonction globale : GlobalSendSocketIo(ModuleName, Action, Value)
+- ModuleName: est le nom (string) du module qui apelle le serveur via SocketIo
+- Action: est l'action a effectuer
+- Value: est la valeur associée à une action
+```js
+GlobalSendSocketIo("Test", "Action1", "Value1")
+```
+
+### Server Side de l'application
+Pour ajouter un message a écouter coté serveur, il faut utiliser la fonction serveur AddSocketIoFct(ModuleName; FctBinded)
+- ModuleName: est le nom (string) du module qui apelle le serveur via SocketIo
+- FctBinded: est la référence à la fonction a executer sur le serveur lorsque l'on recoit une commande API pour FctName
+- La fonction FctBinded possède les paramètres (Data, Socket). Data est un objet : Data.Action et Data.Value
+```js
+this._MyServeurApp.AddSocketIoFct("Test", this.Test.bind(this))
+Test(Data, Socket){
+    this._MyServeurApp.LogAppliInfo("Call SocketIo ModuleName: Test, Data.Action:" + Data.Action + " Data.Value: " + Data.Value)
+}
+``` 
+Pour que le serveur envoie un message à tous les client, il faut récuperer l'objet Io et ensuite utiliser la fonction emit("Event", "Value")
+```js
+// Sur le serveur
+let Io = this._MyServeurApp.Io
+Io.emit("Ping", "Test de ping")
+
+// Sur les client
+this.SocketIo = GlobalGetSocketIo()
+this.SocketIo.on('Ping', function(message) {
+    console.log('Le serveur a un message Ping pour vous : ' + message)
+})
+```

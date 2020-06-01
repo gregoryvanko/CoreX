@@ -7,13 +7,14 @@ class CoreXSocketIo{
         return this._SocketIo
     }
     
-    Initi(){
-        this._SocketIo = io({autoConnect: false, reconnection: true, reconnectionAttempts: 10, reconnectionDelay: 100, reconnectionDelayMax: 1000})
+    Init(){
+        this._SocketIo = io({autoConnect: false, reconnection: true, reconnectionAttempts: 2, reconnectionDelay: 1000, reconnectionDelayMax: 1000})
         this.InitSocketIoMessage()
+        this.Open()
     }
 
     Open(){
-        this._SocketIo.io.opts.query = {token: this._LoginToken}
+        this._SocketIo.io.opts.query = {token: GlobalGetToken()}
         this._SocketIo.open() 
     }
 
@@ -57,14 +58,14 @@ class CoreXSocketIo{
 
         // Init des messages disconnect socket io
         this._SocketIo.on('reconnect_error', (error) => {
-            console.log(this.GetTime() + ' SocketIo.on reconnect_error, error: ' + error)
+            console.log(this.GetTime() + ' SocketIo.on reconnect_error, ' + error)
         })
 
         // Init des messages disconnect socket io
         this._SocketIo.on('reconnect_failed', () => {
             console.log(this.GetTime() + ' SocketIo.on reconnect_failed')
             document.body.innerHTML = `
-                <div style='font-size: 3vw; color: red; text-align: center; margin-top: 10%;'>User disconnected</div>
+                <div style='font-size: 3vw; color: red; text-align: center; margin-top: 10%;'>SocketIo: User disconnected</div>
                 <div style='margin-top: 5%; display: flex; justify-content: center;'><button style='width: 30%; font-size: 3vw; cursor: pointer; border: 1px solid rgb(44,1,21); border-radius: 20px; text-align: center; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7); background: white; outline: none;' onclick="location.reload();">Reload</button></div>
                 `
         })

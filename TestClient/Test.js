@@ -1,11 +1,18 @@
 class TestCoreXApp{
     constructor(HtmlId){
         this._DivApp = document.getElementById(HtmlId)
+        this.SocketIo = null
     }
     /** Start de l'application */
     Start(){
         this._DivApp.innerHTML = `<div id="TestCSS">Hi all</div>`
         GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
+
+        this.SocketIo = GlobalGetSocketIo()
+        this.SocketIo.on('Ping', function(message) {
+            console.log('Le serveur a un message Ping pour vous : ' + message)
+        })
+        GlobalSendSocketIo("Test", "ActionX", "ValueX")
     }
     ClickTestButton(){
         GlobalCallApiPromise("Test", "TestDataGreg").then((reponse)=>{
