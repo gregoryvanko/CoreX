@@ -27,7 +27,7 @@ class CoreXSocketIo{
         this._SocketIo.on('error', function(err) {
             console.log(this.GetTime() + ' SocketIo.on error, err: ' + err.type)
             document.body.innerHTML =`
-                <div style='font-size: 2vw; color: red; text-align: center; margin-top: 10%;'>` + err.type +`</div>
+                <div style='font-size: 3vh; color: red; text-align: center; margin-top: 10%;'>` + err.type +`</div>
                 `
         })
         
@@ -48,12 +48,12 @@ class CoreXSocketIo{
         
         // Init des messages disconnect socket io
         this._SocketIo.on('reconnect_attempt', (attemptNumber) => {
-            //console.log('SocketIo.on reconnect_attempt, attemptNumber: ' + attemptNumber)
+            console.log('SocketIo.on reconnect_attempt, attemptNumber: ' + attemptNumber)
         })
 
         // Init des messages disconnect socket io
         this._SocketIo.on('reconnecting', (attemptNumber) => {
-            //console.log('SocketIo.on reconnecting, attemptNumber: ' + attemptNumber)
+            console.log('SocketIo.on reconnecting, attemptNumber: ' + attemptNumber)
         })
 
         // Init des messages disconnect socket io
@@ -65,8 +65,8 @@ class CoreXSocketIo{
         this._SocketIo.on('reconnect_failed', () => {
             console.log(this.GetTime() + ' SocketIo.on reconnect_failed')
             document.body.innerHTML = `
-                <div style='font-size: 3vw; color: red; text-align: center; margin-top: 10%;'>SocketIo: User disconnected</div>
-                <div style='margin-top: 5%; display: flex; justify-content: center;'><button style='width: 30%; font-size: 3vw; cursor: pointer; border: 1px solid rgb(44,1,21); border-radius: 20px; text-align: center; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7); background: white; outline: none;' onclick="location.reload();">Reload</button></div>
+                <div style='font-size: 3vh; color: red; text-align: center; margin-top: 10%;'>SocketIo: User disconnected</div>
+                <div style='margin-top: 2%; display: flex; justify-content: center;'><button style='padding: 2vh; font-size: 3vh; cursor: pointer; border: 1px solid rgb(44,1,21); border-radius: 20px; text-align: center; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7); background: white; outline: none;' onclick="location.reload();">Reload</button></div>
                 `
         })
     }

@@ -314,22 +314,22 @@ class corex {
                         if (socket.handshake.query.token != "null"){
                             let DecryptTokenReponse = me.DecryptDataToken(socket.handshake.query.token)
                             if(DecryptTokenReponse.TokenValide){ // le token est valide
-                                me.LogDebug("Token valide")
+                                me.LogAppliInfo("Token valide in soketIo connection")
                                 next()
                             } else { // Le token n'est pas valide
-                                me.LogDebug("SocketIO Token non valide")
+                                me.LogAppliError("SocketIO Token non valide")
                                 let err  = new Error('Token error')
                                 err.data = { type : 'Token ne correspons pas' }
                                 next(err)
                             }
                         } else {
-                            me.LogDebug("Token est null")
+                            me.LogAppliError("Token est null")
                             let err  = new Error('Token error')
                             err.data = { type : 'Token est null' }
                             next(err)
                         }
                 	} else {
-                		me.LogDebug("Token non disponible")
+                		me.LogAppliError("Token non disponible")
                 		let err  = new Error('Token error')
                 		err.data = { type : 'Token non disponible' }
                 		next(err)

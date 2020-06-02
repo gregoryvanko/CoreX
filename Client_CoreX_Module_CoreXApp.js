@@ -33,6 +33,7 @@ class CoreXApp{
         if(this._Usesocketio){
             let SocketIo = GlobalGetSocketIo()
             SocketIo.off()
+            this._CoreXSocketIo.InitSocketIoMessage()
         }
         // Clear de la page start
         this.ClearView()
