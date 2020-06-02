@@ -29,6 +29,11 @@ class CoreXApp{
 
     /** Load de la vue Start de l'application */
     Start(){
+        // Si on utilise les SocketIo, on efface tous les message listener
+        if(this._Usesocketio){
+            let SocketIo = GlobalGetSocketIo()
+            SocketIo.off()
+        }
         // Clear de la page start
         this.ClearView()
         // Ajout du CSS
