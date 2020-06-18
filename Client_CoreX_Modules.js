@@ -175,7 +175,7 @@ class CoreXActionButton{
         .CoreXActionMenuButton{
             position: fixed;
             top: 0px;
-            font-size: var(--CoreX-font-size);
+            font-size: 1.5vw;
             float: left;
             border-style: solid;
             border-width: 2px;
@@ -200,14 +200,14 @@ class CoreXActionButton{
             .Text{font-size: var(--CoreX-Iphone-font-size);}
             .CoreXActionButtonButton{font-size: calc(var(--CoreX-Iphone-font-size)*1.5); border-radius: 40px; height: 12VW;}
             .CoreXActionButtonImageButton{width:15%;}
-            .CoreXActionMenuButton{font-size: calc(var(--CoreX-Iphone-font-size)*1.5);height: 10VW; width: 10VW;}
+            .CoreXActionMenuButton{font-size: calc(3vw * 1.5);height: 10VW; width: 10VW;}
         }
         @media screen and (min-width: 1200px)
         {
             .Text{font-size: var(--CoreX-Max-font-size);}
             .CoreXActionButtonButton {font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
             .CoreXActionButtonImageButton{width:43px;}
-            .CoreXActionMenuButton {font-size: var(--CoreX-Max-font-size);}
+            .CoreXActionMenuButton {font-size: 18px;}
         }
         </style>
         `
