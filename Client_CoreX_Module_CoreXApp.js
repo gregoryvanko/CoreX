@@ -63,7 +63,8 @@ class CoreXApp{
                 })
             }
         }
-
+        // Set Display Action to Toggle
+        this.SetDisplayAction("Toggle")
     }
     /** Build AppCard */
     BuildAppCard(Titre, Src, Start){
@@ -90,6 +91,11 @@ class CoreXApp{
         App.ImgSrc = ImgSrc
         App.Start = Start
         this._ListApplications.push(App)
+    }
+
+    /** Set Display Action Button */
+    SetDisplayAction(Type){
+        this._MyCoreXActionButton.SetDisplayAction(Type)
     }
 
     /** Css de base de l'application */

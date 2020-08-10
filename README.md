@@ -248,11 +248,24 @@ GlobalClearActionList()
 /** Ajouter une action a la liste des actions de l'application */
 GlobalAddActionInList(Titre, Action) 
 
-/** Get html id du content de l'application */
-GlobalCoreXGetAppContentId()
+/** Get de l'object SocketIo */
+GlobalGetSocketIo()
 
 /** Ajouter une application */
 GlobalCoreXAddApp(AppTitre, AppSrc, AppStart)
+
+/** Get html id du content de l'application */
+GlobalCoreXGetAppContentId()
+
+/** Envoie d'un message avec SocketIo */
+// ModuleName: est le nom (string) du module qui apelle le serveur via SocketIo
+// Action: est l'action a effectuer
+// Value: est la valeur associée à une action
+GlobalSendSocketIo(ModuleName, Action, Value)
+
+/** Affichage du bouton action */
+// Type: le type (string: 'On', 'Off', 'Toggle') d'affichage du bouton action
+GlobalDisplayAction(Type)
 
 /** Appel à l'Api du serveur */
 // FctName: le nom de la fonction a executer

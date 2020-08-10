@@ -5,6 +5,7 @@ class CoreXActionButton{
         this._HtmlId = "AdminCoreXActionButton"
         this._ActionList=[]
         this._lastTap = 0
+        this._DisplayType = "Toggle"
     }
     /** Start de l'action button */
     Start(){
@@ -17,33 +18,38 @@ class CoreXActionButton{
         Button.setAttribute("class", "CoreXActionMenuButton")
         Button.innerHTML = "&#9733"
         Button.addEventListener("click", this.OnClickCoreXActionButton.bind(this))
+        Button.addEventListener("mouseover", this.OnMouseOverCoreXActionButton.bind(this))
+        Button.addEventListener("mouseout", this.OnMouseOutCoreXActionButton.bind(this))
         div.appendChild(Button)
         document.body.appendChild(div)
         document.addEventListener("touchstart", this.DoubleTouchEventFct.bind(this))
     }
     /** Détection d'un double tap sur l'écran */
     DoubleTouchEventFct(){
-        if (document.getElementById(this._HtmlId)) {
-            let currentTime = new Date().getTime()
-            let tapLength = currentTime - this._lastTap
-            if (tapLength < 500 && tapLength > 0) {
-                if (document.getElementById(this._HtmlId).style.opacity == "1") {
-                    document.getElementById(this._HtmlId).style.opacity = "0"
-                } else {
-                    document.getElementById(this._HtmlId).style.opacity = "1"
-                }
-                event.preventDefault()
-            } 
-            this._lastTap = currentTime
-        } else {
-            console.log(this._HtmlId + " n'existe pas dans la fonction DoubleTouchEventFct")
+        if (this._DisplayType == "Toggle"){
+            if (document.getElementById(this._HtmlId)) {
+                let currentTime = new Date().getTime()
+                let tapLength = currentTime - this._lastTap
+                if (tapLength < 500 && tapLength > 0) {
+                    if (document.getElementById(this._HtmlId).style.opacity == "1") {
+                        document.getElementById(this._HtmlId).style.opacity = "0"
+                    } else {
+                        document.getElementById(this._HtmlId).style.opacity = "1"
+                    }
+                } 
+                this._lastTap = currentTime
+            } else {
+                console.log(this._HtmlId + " n'existe pas dans la fonction DoubleTouchEventFct")
+            }
         }
     }
     /** Hide action Button */
     HideActionButton(){
-        if (document.getElementById(this._HtmlId)) {
-            if (document.getElementById(this._HtmlId).style.opacity == "1") {
-                document.getElementById(this._HtmlId).style.opacity = "0"
+        if (this._DisplayType == "Toggle"){
+            if (document.getElementById(this._HtmlId)) {
+                if (document.getElementById(this._HtmlId).style.opacity == "1") {
+                    document.getElementById(this._HtmlId).style.opacity = "0"
+                }
             }
         }
     }
@@ -82,6 +88,22 @@ class CoreXActionButton{
         
         CoreXWindow.BuildWindow(Div)
         this.HideActionButton()
+    }
+    /** On Mouse Hover */
+    OnMouseOverCoreXActionButton(){
+        if (this._DisplayType == "Toggle"){
+            if (document.getElementById(this._HtmlId)) {
+                document.getElementById(this._HtmlId).style.opacity = "1"
+            }
+        }
+    }
+    /** On Mouse Out */
+    OnMouseOutCoreXActionButton(){
+        if (this._DisplayType == "Toggle"){
+            if (document.getElementById(this._HtmlId)) {
+                document.getElementById(this._HtmlId).style.opacity = "0"
+            }
+        }
     }
     /** Template d'un bouton Action */
     GetTemplateActionBoutton(Titre, Fct){
@@ -191,8 +213,7 @@ class CoreXActionButton{
             width: 50px;
             text-align: center;
         }
-        .CoreXActionMenuButton:hover,
-        .CoreXActionMenuButton:active{opacity: 1;}
+        
         @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
         only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
         screen and (max-width: 700px)
@@ -223,6 +244,34 @@ class CoreXActionButton{
         action.Fct = Fct
         this._ActionList.push(action)
     }
+    /** Set display Action button */
+    SetDisplayAction(Type){
+        switch (Type) {
+            case "On":
+                this._DisplayType = Type
+                if (document.getElementById(this._HtmlId)) {
+                    document.getElementById(this._HtmlId).style.opacity = "1"
+                    document.getElementById(this._HtmlId).style.display = "inline"
+                }
+                break
+            case "Off":
+                this._DisplayType = Type
+                if (document.getElementById(this._HtmlId)) {
+                    document.getElementById(this._HtmlId).style.opacity = "0"
+                    document.getElementById(this._HtmlId).style.display = "none"
+                }
+                break
+            
+            default:
+                this._DisplayType = "Toggle"
+                if (document.getElementById(this._HtmlId)) {
+                    document.getElementById(this._HtmlId).style.opacity = "0"
+                    document.getElementById(this._HtmlId).style.display = "inline"
+                }
+                break
+        }
+    }
+
     /** Redirect to app */
     GoToApp(App){
         if(App){

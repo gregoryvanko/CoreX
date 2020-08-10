@@ -825,6 +825,10 @@ class corex {
                     })
                 })
             }
+            // Fonction globale GlobalDisplayAction
+            function GlobalDisplayAction(Type){
+                MyApp.SetDisplayAction(Type)
+            }
             `
         switch (Site) {
             case "Admin":

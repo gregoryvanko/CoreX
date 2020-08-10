@@ -8,6 +8,11 @@ class TestCoreXApp{
         this._DivApp.innerHTML = `<div id="TestCSS">Hi all</div>`
         GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
 
+        // Test affichage action button
+        GlobalDisplayAction("On")
+        //GlobalDisplayAction("Off")
+        //GlobalDisplayAction("Toggle")
+
         // Test de SocketIO
         this.SocketIo = GlobalGetSocketIo()
         this.SocketIo.on('Ping', function(message) {
