@@ -10,11 +10,11 @@ class DbBackup{
      * Backup d'une BD mongodb sur google drive
      */
     Backup(){
-        this._LogFct("Start Backup")
+        this._LogFct("Start Backup", "Server", "Server")
         var me = this
         return new Promise((resolve, reject)=>{
             if(this._GooglePrivatekey){
-                this._LogFct("Start Mongodump")
+                this._LogFct("Start Mongodump", "Server", "Server")
                 const exec = require('child_process').exec
                 // Backup de la db
                 const cmd = 'mongodump --db ' + this._BdName + ' --gzip --archive=' + __dirname + "/" + this._BdName +".gz"
@@ -40,7 +40,7 @@ class DbBackup{
      * @param {reject} reject reject
      */
     GoogleBackup(BackupDbPath, BackupDbName, resolve, reject){
-        this._LogFct("Get Google file list")
+        this._LogFct("Get Google file list", "Server", "Server")
         var me = this
         const {google} = require('googleapis');
         let credentials = this._GooglePrivatekey
@@ -89,7 +89,7 @@ class DbBackup{
      * @param {reject} reject Fonction reject
      */
     GoogleCreateFile(drive, GoogleBackupFolderId, BackupDbPath, BackupDbName, resolve, reject){
-        this._LogFct("Start creation file on google")
+        this._LogFct("Start creation file on google", "Server", "Server")
         const fs = require("fs")
         drive.files.create({
             resource: {'name': BackupDbName, parents: [GoogleBackupFolderId]},
@@ -100,7 +100,7 @@ class DbBackup{
                 console.log(err)
                 reject("Erreur lors de la creation du fichier backup sur google drive")
             } else {
-                this._LogFct("File on google created")
+                this._LogFct("File on google created", "Server", "Server")
                 //console.log('File Id: ', result.data.id)
                 fs.unlink(BackupDbPath + "/" + BackupDbName, (err) => {
                     if (err){
@@ -124,7 +124,7 @@ class DbBackup{
      * @param {reject} reject reject de la fonction promise de backup
      */
     GoogleUpdateFile(drive, GoogleBackupFileId, BackupDbPath, BackupDbName, resolve, reject){
-        this._LogFct("Start update file on google")
+        this._LogFct("Start update file on google", "Server", "Server")
         const fs = require("fs")
         drive.files.update({
             fileId: GoogleBackupFileId,
@@ -135,7 +135,7 @@ class DbBackup{
               console.log(err)
               reject("Erreur lors de l'update du fichier backup sur google drive")
             } else {
-                this._LogFct("File on Google updated")
+                this._LogFct("File on Google updated", "Server", "Server")
                 //console.log('File Id: ', file.data.id)
                 fs.unlink(BackupDbPath + "/" + BackupDbName, (err) => {
                     if (err){
@@ -153,7 +153,7 @@ class DbBackup{
      * Restore d'une DB mongodb a partir de google drive
      */
     Restore(){
-        this._LogFct("Start restore backup")
+        this._LogFct("Start restore backup", "Server", "Server")
         return new Promise((resolve, reject)=>{
             if(this._GooglePrivatekey){
                 // Recuperer le Backup sur google drive
@@ -172,7 +172,7 @@ class DbBackup{
      * @param {reject} reject reject de la fonctin promise Restore
      */
     GoogleRestore(BackupDbPath, BackupDbName, resolve, reject){
-        this._LogFct("Get google file list")
+        this._LogFct("Get google file list", "Server", "Server")
         var me = this
         const {google} = require('googleapis');
         let credentials = this._GooglePrivatekey
@@ -221,14 +221,14 @@ class DbBackup{
      * @param {reject} reject reject de la fonction promise de backup
      */
     GoogleGetBackupFile(drive, GoogleBackupFileId, BackupDbPath, BackupDbName, resolve, reject){
-        this._LogFct("Start downloading backup")
+        this._LogFct("Start downloading backup", "Server", "Server")
         var me = this
         const fs = require("fs")
         var dest = fs.createWriteStream(BackupDbPath + "/" + BackupDbName)
         drive.files.get({fileId: GoogleBackupFileId, alt: 'media'}, {responseType: 'stream'},function(err, res){
             res.data
             .on('end', () => {
-                me._LogFct("Backup file is downloaded")
+                me._LogFct("Backup file is downloaded", "Server", "Server")
                 // Restore de la db
                 me.RestoreDb(BackupDbPath, BackupDbName, resolve, reject)
             })
@@ -258,7 +258,7 @@ class DbBackup{
                 console.log(error)
                 reject("Erreur lors du restore du dump de la DB")
             } else {
-                me._LogFct("MongoRestore Done")
+                me._LogFct("MongoRestore Done", "Server", "Server")
                 fs.unlink(BackupDbPath + "/" + BackupDbName, (err) => {
                     if (err){
                         console.log(err)

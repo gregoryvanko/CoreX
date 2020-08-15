@@ -7,8 +7,8 @@ class ApiAdmin{
     }
 
     /* Get list of all user via l'ApiAdmin */
-    GetAllUsers(type, res){
-        this.LogAppliInfo("Call ApiAdmin GetAllUsers, Data: " + type)
+    GetAllUsers(type, res, User, UserId){
+        this.LogAppliInfo("Call ApiAdmin GetAllUsers, Data: " + type, User, UserId)
         let mongocollection =""
         if (type == "Admin") {mongocollection = this._MongoVar.LoginAdminCollection}
         else {mongocollection = this._MongoVar.LoginClientCollection}
@@ -22,14 +22,14 @@ class ApiAdmin{
                 res.json({Error: false, ErrorMsg: "User in DB", Data: reponse})
             }
         },(erreur)=>{
-            this.LogAppliError("ApiAdminGetAllUsers DB error : " + erreur)
+            this.LogAppliError("ApiAdminGetAllUsers DB error : " + erreur, User, UserId)
             res.json({Error: true, ErrorMsg: "DB Error", Data: ""})
         })
     }
 
     /* Get list of user data via l'ApiAdmin */
-    GetUserData(Data, res){
-        this.LogAppliInfo("Call ApiAdmin GetUserData, Data: " + JSON.stringify(Data))
+    GetUserData(Data, res, User, UserId){
+        this.LogAppliInfo("Call ApiAdmin GetUserData, Data: " + JSON.stringify(Data), User, UserId)
         let MongoObjectId = require('./Mongo.js').MongoObjectId
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
@@ -42,8 +42,8 @@ class ApiAdmin{
         // Find de type Promise de Mongo
         this._Mongo.FindPromise(Query,Projection, mongocollection).then((reponse)=>{
             if(reponse.length == 0){
-                this.LogAppliError("Wrong User Id")
-                res.json({Error: true, ErrorMsg: "Wrong User Id", Data: null})
+                this.LogAppliError("Wrong UserId", User, UserId)
+                res.json({Error: true, ErrorMsg: "Wrong UserId", Data: null})
             } else {
                 // les password sont effacés de la réponse
                 reponse[0][this._MongoVar.LoginPassItem]=""
@@ -52,14 +52,14 @@ class ApiAdmin{
                 res.json({Error: false, ErrorMsg: "User data in DB", Data: reponse})
             }
         },(erreur)=>{
-            this.LogAppliError("ApiAdminGetUserData DB error : " + erreur)
+            this.LogAppliError("ApiAdminGetUserData DB error : " + erreur, User, UserId)
             res.json({Error: true, ErrorMsg: "DB Error", Data: null})
         })
     }
 
     /* Delete d'un user via l'ApiAdmin */
-    DeleteUser(Data, res){
-        this.LogAppliInfo("Call ApiAdmin DeleteUser, Data: " + JSON.stringify(Data))
+    DeleteUser(Data, res, User, UserId){
+        this.LogAppliInfo("Call ApiAdmin DeleteUser, Data: " + JSON.stringify(Data), User, UserId)
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
         if (Data.UserType == "Admin") {mongocollection = this._MongoVar.LoginAdminCollection}
@@ -69,18 +69,18 @@ class ApiAdmin{
             if (reponse.deletedCount==1) {
                 res.json({Error: false, ErrorMsg: "User deleted in DB", Data: null})
             } else {
-                this.LogAppliError("User not found in DB")
+                this.LogAppliError("User not found in DB", User, UserId)
                 res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
             }
         },(erreur)=>{
-            this.LogAppliError("ApiAdminDeleteUser DB error : " + erreur)
+            this.LogAppliError("ApiAdminDeleteUser DB error : " + erreur, User, UserId)
             res.json({Error: true, ErrorMsg: "DB Error", Data: null})
         })
     }
 
     /* Update d'un user (meme fonction pour Api et ApiAdmin) */
-    UpdateUser(Data, res){
-        this.LogAppliInfo("Call Api"+ Data.UserType + " UpdateUser, Data: " + JSON.stringify(Data))
+    UpdateUser(Data, res, User, UserId){
+        this.LogAppliInfo("Call Api"+ Data.UserType + " UpdateUser, Data: " + JSON.stringify(Data), User, UserId)
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
         if (Data.UserType == "Admin") {mongocollection = this._MongoVar.LoginAdminCollection}
@@ -95,18 +95,18 @@ class ApiAdmin{
             if (reponse.matchedCount==1) {
                 res.json({Error: false, ErrorMsg: "User Updated in DB", Data: null})
             } else {
-                this.LogAppliError("User not found in DB")
+                this.LogAppliError("User not found in DB", User, UserId)
                 res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
             }
         },(erreur)=>{
-            this.LogAppliError("UpdateUser DB error : " + erreur)
+            this.LogAppliError("UpdateUser DB error : " + erreur, User, UserId)
             res.json({Error: true, ErrorMsg: "DB Error", Data: null})
         })
     }
 
     /** Get de la structure d'un user */
-    GetUserDataStructure(Data, res){
-        this.LogAppliInfo("Call ApiAdmin GetUserDataStructure, Data: " + Data)
+    GetUserDataStructure(Data, res, User, UserId){
+        this.LogAppliInfo("Call ApiAdmin GetUserDataStructure, Data: " + Data, User, UserId)
         let reponse=[]
         // Data strucutre d'un user
         reponse.push(this._MongoVar.LoginUserItem)
@@ -123,8 +123,8 @@ class ApiAdmin{
     }
 
     /** Creation d'un nouvel user */
-    NewUser(Data, res){
-        this.LogAppliInfo("Call ApiAdmin NewUser, Data: " + JSON.stringify(Data))
+    NewUser(Data, res, User, UserId){
+        this.LogAppliInfo("Call ApiAdmin NewUser, Data: " + JSON.stringify(Data), User, UserId)
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
         if (Data.UserType == "Admin") {mongocollection = this._MongoVar.LoginAdminCollection}
@@ -134,28 +134,28 @@ class ApiAdmin{
         this._Mongo.InsertOnePromise(DataToDb, mongocollection).then((reponse)=>{
             res.json({Error: false, ErrorMsg: "User added in DB", Data: null})
         },(erreur)=>{
-            this.LogAppliError("ApiAdminNewUser DB error : " + erreur)
+            this.LogAppliError("ApiAdminNewUser DB error : " + erreur, User, UserId)
             res.json({Error: true, ErrorMsg: "DB Error", Data: null})
         })
     }
 
     /** Get My Data of a connected user (meme fonction pour Api et ApiAdmin) */
-    GetMyData(App, Id, res){
-        this.LogAppliInfo("Call ApiAdmin ApiGetMyData, Data: App=" + App + " Id="+Id)
+    GetMyData(App, res, User, UserId){
+        this.LogAppliInfo("Call ApiAdmin ApiGetMyData, Data: App=" + App, User, UserId)
         let MongoObjectId = require('./Mongo.js').MongoObjectId
         // Définition de la collection de Mongo en fonction du type de user
         let mongocollection =""
         if (App == "Admin") {mongocollection = this._MongoVar.LoginAdminCollection}
         else {mongocollection = this._MongoVar.LoginClientCollection}
         // Definition de la Query de Mongo
-        const Query = {'_id': new MongoObjectId(Id)}
+        const Query = {'_id': new MongoObjectId(UserId)}
         // Definition de la projection de Mongo en fonction du type de user
         let Projection = { projection:{ _id: 0}}
         // Find de type Promise de Mongo
         this._Mongo.FindPromise(Query,Projection, mongocollection).then((reponse)=>{
             if(reponse.length == 0){
-                this.LogAppliError("Wrong User Id")
-                res.json({Error: true, ErrorMsg: "Wrong User Id", Data: null})
+                this.LogAppliError("Wrong UserId", User, UserId)
+                res.json({Error: true, ErrorMsg: "Wrong UserId", Data: null})
             } else {
                 // les password sont effacés de la réponse
                 reponse[0][this._MongoVar.LoginPassItem]=""
@@ -164,14 +164,14 @@ class ApiAdmin{
                 res.json({Error: false, ErrorMsg: "User data in DB", Data: reponse})
             }
         },(erreur)=>{
-            this.LogAppliError("ApiGetMyData DB error : " + erreur)
+            this.LogAppliError("ApiGetMyData DB error : " + erreur, User, UserId)
             res.json({Error: true, ErrorMsg: "DB Error", Data: null})
         })
     }
 
     /** Get des log de l'application */
-    GetLog(Data, res){
-        this.LogAppliInfo("Call ApiAdmin GetLog, Skip data value: " + Data)
+    GetLog(Data, res, User, UserId){
+        this.LogAppliInfo("Call ApiAdmin GetLog, Skip data value: " + Data, User, UserId)
         let mongocollection = this._MongoVar.LogAppliCollection
         const Query = {}
         const Projection = {}
@@ -183,15 +183,15 @@ class ApiAdmin{
                 res.json({Error: false, ErrorMsg: "Log in DB", Data: reponse})
             }
         },(erreur)=>{
-            this.LogAppliError("ApiAdminGetLog DB error : " + erreur)
+            this.LogAppliError("ApiAdminGetLog DB error : " + erreur, User, UserId)
             res.json({Error: true, ErrorMsg: "DB Error", Data: ""})
         })
     }
 
     /** Get des log de l'application */
-    Backup(ApiData, res, GetJobSchedule, SetJobSchedule){
+    Backup(ApiData, res, GetJobSchedule, SetJobSchedule, User, UserId){
         if (ApiData.Fct == "BackupNow"){
-            this.LogAppliInfo("Call ApiAdmin BackupNow")
+            this.LogAppliInfo("Call ApiAdmin BackupNow", User, UserId)
             // Get GoogleKey
             this.GetDbConfig("BackupGoogle").then((reponse)=>{
                 res.json({Error: false, ErrorMsg: "", Data: "DB Backup Started, see log for end validation"})
@@ -200,16 +200,16 @@ class ApiAdmin{
                 let DbBackup = require('./DbBackup').DbBackup
                 let MyDbBackup = new DbBackup(this._MongoVar.DbName,credentials,folder, this.LogAppliInfo.bind(this))
                 MyDbBackup.Backup().then((reponse)=>{
-                    this.LogAppliInfo("Backup Now sucessfully ended")
+                    this.LogAppliInfo("Backup Now sucessfully ended", User, UserId)
                 },(erreur)=>{
-                    this.LogAppliError("Backup Now error: " + erreur)
+                    this.LogAppliError("Backup Now error: " + erreur, User, UserId)
                 })
             },(erreur)=>{
-                this.LogAppliError("BackupNow Get GoogleKey: "+ erreur)
+                this.LogAppliError("BackupNow Get GoogleKey: "+ erreur, User, UserId)
                 res.json({Error: true, ErrorMsg: "Error during BackupNow Get GoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "RestoreNow"){
-            this.LogAppliInfo("Call ApiAdmin RestoreNow")
+            this.LogAppliInfo("Call ApiAdmin RestoreNow", User, UserId)
             // Get GoogleKey
             this.GetDbConfig("BackupGoogle").then((reponse)=>{
                 res.json({Error: false, ErrorMsg: "", Data: "DB Restore Started, see log for end validation and reload browser"})
@@ -218,16 +218,16 @@ class ApiAdmin{
                 let DbBackup = require('./DbBackup').DbBackup
                 let MyDbBackup = new DbBackup(this._MongoVar.DbName, credentials,folder, this.LogAppliInfo.bind(this))
                 MyDbBackup.Restore().then((reponse)=>{
-                    this.LogAppliInfo("Restore Now sucessfully ended")
+                    this.LogAppliInfo("Restore Now sucessfully ended", User, UserId)
                 },(erreur)=>{
-                    this.LogAppliError("Restore Now error: " + erreur)
+                    this.LogAppliError("Restore Now error: " + erreur, User, UserId)
                 })
             },(erreur)=>{
-                this.LogAppliError("RestoreNow Get GoogleKey: "+ erreur)
+                this.LogAppliError("RestoreNow Get GoogleKey: "+ erreur, User, UserId)
                 res.json({Error: true, ErrorMsg: "Error during RestoreNow Get GoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "GetSchedulerData"){
-            this.LogAppliInfo("Call ApiAdmin GetSchedulerData")
+            this.LogAppliInfo("Call ApiAdmin GetSchedulerData", User, UserId)
             let ApiReponse = new Object()
             ApiReponse.GoogleKeyExist = false
             ApiReponse.SchedulerData = null
@@ -242,16 +242,16 @@ class ApiAdmin{
                         ApiReponse.SchedulerData =reponsedata
                         res.json({Error: false, ErrorMsg: "Scheduler Data", Data: ApiReponse})
                     },(erreur)=>{
-                        this.LogAppliError("GetSchedulerData error : " + erreur)
+                        this.LogAppliError("GetSchedulerData error : " + erreur, User, UserId)
                         res.json({Error: true, ErrorMsg: "Error during GetSchedulerData: "+ erreur, Data: ""})
                     })
                 }
             },(erreur)=>{
-                this.LogAppliError("GetSchedulerData error in get google key : " + erreur)
+                this.LogAppliError("GetSchedulerData error in get google key : " + erreur, User, UserId)
                 res.json({Error: true, ErrorMsg: "Error during GetSchedulerData, get google key: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "SaveConfig"){
-            this.LogAppliInfo("Call ApiAdmin SaveConfig")
+            this.LogAppliInfo("Call ApiAdmin SaveConfig", User, UserId)
             // Save nouvelle heure
             let BackupScheduler = new Object()
             BackupScheduler.JobScheduleHour = ApiData.Hour
@@ -276,18 +276,18 @@ class ApiAdmin{
                     this.GetSchedulerData(JobSchedule).then((reponse)=>{
                         res.json({Error: false, ErrorMsg: "Scheduler Data", Data: reponse})
                     },(erreur)=>{
-                        this.LogAppliError("SaveConfig error : " + erreur)
+                        this.LogAppliError("SaveConfig error : " + erreur, User, UserId)
                         res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
                     })
                 } else {
                     res.json({Error: true, ErrorMsg: "Upadte error : Key Value not found in config", Data: ""})
                 }
             },(erreur)=>{
-                this.LogAppliError("SaveConfig error : " + erreur)
+                this.LogAppliError("SaveConfig error : " + erreur, User, UserId)
                 res.json({Error: true, ErrorMsg: "Error during SaveConfig: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "SchedulerSetStatus"){
-            this.LogAppliInfo("Call ApiAdmin SchedulerSetStatus")
+            this.LogAppliInfo("Call ApiAdmin SchedulerSetStatus", User, UserId)
             if (ApiData.Started){
                 let JobSchedule = GetJobSchedule()
                 if (JobSchedule== null){
@@ -305,10 +305,10 @@ class ApiAdmin{
                                 let MyDbBackup = new DbBackup(me._MongoVar.DbName,credentials,folder,me.LogAppliInfo.bind(me))
                                 MyDbBackup.Backup().then((reponse)=>{
                                     var now = new Date()
-                                    me.LogAppliInfo(reponse)
+                                    me.LogAppliInfo(reponse, User, UserId)
                                     console.log(reponse + " " + now)
                                 },(erreur)=>{
-                                    me.LogAppliError("SchedulerSetStatus error : " + erreur)
+                                    me.LogAppliError("SchedulerSetStatus error : " + erreur, User, UserId)
                                     console.log("Error during SchedulerSetStatus: "+ erreur + " " + now)
                                 })
                             })
@@ -327,23 +327,23 @@ class ApiAdmin{
                                     BackupScheduler.JobScheduleNext = this.GetDateTimeString(JobSchedule.nextInvocation())
                                     res.json({Error: false, ErrorMsg: "Scheduler Data", Data: BackupScheduler})
                                 } else {
-                                    this.LogAppliError("SaveConfig Status error : more than 1 entry in DB")
+                                    this.LogAppliError("SaveConfig Status error : more than 1 entry in DB", User, UserId)
                                     res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: more than 1 entry in DB", Data: ""})
                                 }
                             },(erreur)=>{
-                                this.LogAppliError("SaveConfig Status error : " + erreur)
+                                this.LogAppliError("SaveConfig Status error : " + erreur, User, UserId)
                                 res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: "+ erreur, Data: ""})
                             })
                         },(erreur)=>{
-                            this.LogAppliError("SchedulerSetStatus, get Google key error : " + erreur)
+                            this.LogAppliError("SchedulerSetStatus, get Google key error : " + erreur, User, UserId)
                             res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus Get GoogleKey: "+ erreur, Data: ""})
                         })
                     },(erreur)=>{
-                        this.LogAppliError("SchedulerSetStatus error : " + erreur)
+                        this.LogAppliError("SchedulerSetStatus error : " + erreur, User, UserId)
                         res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
                     })
                 } else {
-                    this.LogAppliError("JobScheduler already exist")
+                    this.LogAppliError("JobScheduler already exist", User, UserId)
                     res.json({Error: true, ErrorMsg: "Error JobScheduler already exist", Data: ""})
                 }
             } else {
@@ -367,21 +367,21 @@ class ApiAdmin{
                                 BackupScheduler.JobScheduleNext = "Scheduler not started"
                                 res.json({Error: false, ErrorMsg: "Scheduler Data", Data: BackupScheduler})
                             } else {
-                                this.LogAppliError("SaveConfig Status error : more than 1 entry in DB")
+                                this.LogAppliError("SaveConfig Status error : more than 1 entry in DB", User, UserId)
                                 res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: more than 1 entry in DB", Data: ""})
                             }
                         },(erreur)=>{
-                            this.LogAppliError("SaveConfig Status error : " + erreur)
+                            this.LogAppliError("SaveConfig Status error : " + erreur, User, UserId)
                             res.json({Error: true, ErrorMsg: "Error during SaveConfig Status: "+ erreur, Data: ""})
                         })
                     },(erreur)=>{
-                        this.LogAppliError("SchedulerSetStatus error : " + erreur)
+                        this.LogAppliError("SchedulerSetStatus error : " + erreur, User, UserId)
                         res.json({Error: true, ErrorMsg: "Error during SchedulerSetStatus: "+ erreur, Data: ""})
                     })
                 }
             }
         } else if (ApiData.Fct == "SaveGoogleKey"){
-            this.LogAppliInfo("Call ApiAdmin SaveGoogleKey")
+            this.LogAppliInfo("Call ApiAdmin SaveGoogleKey", User, UserId)
             // Save Google Key
             let BackupGoogle = new Object()
             BackupGoogle.GoogleKey = ApiData.key
@@ -393,24 +393,24 @@ class ApiAdmin{
                 if (reponse.matchedCount==1) {
                     res.json({Error: false, ErrorMsg: "SaveGoogleKey Data", Data: null})
                 } else {
-                    this.LogAppliError("Upadte error : Key Value not found in config")
+                    this.LogAppliError("Upadte error : Key Value not found in config", User, UserId)
                     res.json({Error: true, ErrorMsg: "Upadte error : Key Value not found in config", Data: ""})
                 }
             },(erreur)=>{
-                this.LogAppliError("SaveGoogleKey error : " + erreur)
+                this.LogAppliError("SaveGoogleKey error : " + erreur, User, UserId)
                 res.json({Error: true, ErrorMsg: "Error during SaveGoogleKey: "+ erreur, Data: ""})
             })
         } else if (ApiData.Fct == "CleanLog") {
-            this.LogAppliInfo("Call ApiAdmin CleanLog")
+            this.LogAppliInfo("Call ApiAdmin CleanLog", User, UserId)
             const Query = {}
             this._Mongo.DeleteByQueryPromise(Query, this._MongoVar.LogAppliCollection).then((reponse)=>{
                 res.json({Error: false, ErrorMsg: "CleanLog Data", Data: null})
             },(erreur)=>{
-                this.LogAppliError("CleanLog error : " + erreur)
+                this.LogAppliError("CleanLog error : " + erreur, User, UserId)
                 res.json({Error: true, ErrorMsg: "Error during CleanLog: "+ erreur, Data: ""})
             })
         } else {
-            this.LogAppliError("Backup: ApiData.Fct not found= "+ ApiData.Fct)
+            this.LogAppliError("Backup: ApiData.Fct not found= "+ ApiData.Fct, User, UserId)
             res.json({Error: true, ErrorMsg: "Error during Backup: ApiData.Fct not found= "+ ApiData.Fct, Data: ""})
         }
     }
@@ -432,7 +432,7 @@ class ApiAdmin{
                     reject("Error GetDbConfig: too much entry for this Key and ConfigType")
                 }
             },(erreur)=>{
-                this.LogAppliError("GetDbConfig error : " + erreur)
+                this.LogAppliError("GetDbConfig error : " + erreur, "Server", "Server")
                 reject(erreur)
             })
         })
@@ -455,7 +455,7 @@ class ApiAdmin{
                 }
                 resolve(SchedulerData)
             },(erreur)=>{
-                this.LogAppliError("GetSchedulerData error : " + erreur)
+                this.LogAppliError("GetSchedulerData error : " + erreur, "Server", "Server")
                 reject(erreur)
             })
         })

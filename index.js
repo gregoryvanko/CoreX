@@ -42,6 +42,8 @@ class corex {
         this._MongoVar.LogAppliNow = "Now"
         this._MongoVar.LogAppliType = "Type"
         this._MongoVar.LogAppliValeur = "Valeur"
+        this._MongoVar.LogAppliUser = "User"
+        this._MongoVar.LogAppliUserId = "UserId"
 
         this._MongoVar.ConfigCollection = "Config"
         this._MongoVar.ConfigKey = "Key"
@@ -82,7 +84,7 @@ class corex {
         var me = this
         // Message de demarrage
         console.log("Application started")
-        this.LogAppliInfo("Application started")
+        this.LogAppliInfo("Application started", "Server", "Server")
         // Initiation de la DB
         this.InitMongoDb()
         // utilistaion de body-parser
@@ -95,7 +97,7 @@ class corex {
         })
         // Creation d'un route pour le login via Post
 		this._Express.post('/login', function (req, res){
-            me.LogAppliInfo("Receive Post Login: " + JSON.stringify(req.body))
+            me.LogAppliInfo("Receive Post Login: " + JSON.stringify(req.body), "Server", "Server")
             // analyse du login en fonction du site
             switch (req.body.Site) {
                 case "App":
@@ -105,7 +107,7 @@ class corex {
                     me.VerifyLogin(res, me._MongoVar.LoginAdminCollection, req.body.Login,req.body.Pass)
                     break
                 default:
-                    me.LogAppliError("No login for site: " + req.body.Site)
+                    me.LogAppliError("No login for site: " + req.body.Site, "Server", "Server")
                     res.json({Error: true, ErrorMsg:"No login for site: " + req.body.Site, Token: ""})
                     break
             }
@@ -120,11 +122,11 @@ class corex {
                     // vérification que le UserId du Token existe en DB et envoie de l'app
                     me.CheckTokenUserIdAndSendApp(req.body.Site, DecryptTokenReponse.TokenData.data.UserData._id, DecryptTokenReponse.TokenData.data.LoginCollection, res)
                 } else {
-                    me.LogAppliError("Token non valide")
+                    me.LogAppliError("Token non valide", "Server", "Server")
                     res.json({Error: true, ErrorMsg:"Token non valide"})
                 }
             } else {
-                let MyApp = me.GetAppCode(req.body.Site)
+                let MyApp = me.GetAppCode(req.body.Site, "anonymous","anonymous")
                 res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
             }
             
@@ -133,21 +135,26 @@ class corex {
 		this._Express.post('/api', function(req, res, next){
             let Continue = false
             let DecryptTokenReponse = null
+            // Definition du user
+            let User = "Anonyme"
+            let UserId = "Anonyme"
             // Si l'application est securisee 
             if (me._AppIsSecured){
                 // validation du Token
                 DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
                 if (DecryptTokenReponse.TokenValide){
                     if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoVar.LoginClientCollection){
+                        User = DecryptTokenReponse.TokenData.data.UserData.User
+                        UserId = DecryptTokenReponse.TokenData.data.UserData._id
                         Continue = true
                     } else {
                         Continue = false
-                        me.LogAppliError("Token non valide, LoginCollection incorrect")
+                        me.LogAppliError("Token non valide, LoginCollection incorrect", "Server", "Server")
                         res.json({Error: true, ErrorMsg:"Token non valide, LoginCollection incorrect"})
                     }
                 } else {
                     Continue = false
-                    me.LogAppliError("Token non valide")
+                    me.LogAppliError("Token non valide", "Server", "Server")
                     res.json({Error: true, ErrorMsg:"Token non valide"})
                 }
             } else {
@@ -159,9 +166,9 @@ class corex {
                 switch (req.body.FctName) {
                     case "GetMyData":
                         if (DecryptTokenReponse != null) {
-                            me._ApiAdmin.GetMyData("App",DecryptTokenReponse.TokenData.data.UserData._id, res)
+                            me._ApiAdmin.GetMyData("App", res, User, UserId)
                         } else {
-                            me.LogAppliError("No personal data for application not secured")
+                            me.LogAppliError("No personal data for application not secured", User, UserId)
                             res.json({Error: true, ErrorMsg:"No personal data for application not secured"})
                         }
                         break
@@ -171,26 +178,22 @@ class corex {
                             DataCall.UsesrId = DecryptTokenReponse.TokenData.data.UserData._id
                             DataCall.UserType = ""
                             DataCall.Data = req.body.FctData
-                            me._ApiAdmin.UpdateUser(DataCall, res)
+                            me._ApiAdmin.UpdateUser(DataCall, res, User, UserId)
                         } else {
-                            me.LogAppliError("No personal data for application not secured")
+                            me.LogAppliError("No personal data for application not secured", User, UserId)
                             res.json({Error: true, ErrorMsg:"No personal data for application not secured"})
                         }
                         break
                     default:
-                        let UserId = "Anonyme"
-                        if (DecryptTokenReponse != null){
-                            UserId = DecryptTokenReponse.TokenData.data.UserData._id
-                        }
                         let FctNotFound = true
                         me._ApiFctList.forEach(element => {
                             if (element.FctName == req.body.FctName){
-                                element.Fct(req.body.FctData, res, UserId)
+                                element.Fct(req.body.FctData, res, User, UserId)
                                 FctNotFound = false
                             }
                         })
                         if (FctNotFound){
-                            me.LogAppliError("No API for FctName: " + req.body.FctName)
+                            me.LogAppliError("No API for FctName: " + req.body.FctName, User, UserId)
                             res.json({Error: true, ErrorMsg:"No API for FctName: " + req.body.FctName})
                         }
                         break
@@ -202,64 +205,65 @@ class corex {
             // validation du Token
             let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
             if (DecryptTokenReponse.TokenValide) {
+                let User = DecryptTokenReponse.TokenData.data.UserData.User
+                let UserId = DecryptTokenReponse.TokenData.data.UserData._id
                 if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoVar.LoginAdminCollection){
                     // Analyse de la logincollection en fonction du site
                     switch (req.body.FctName) {
                         case "GetAllUser":
-                            me._ApiAdmin.GetAllUsers(req.body.FctData, res)
+                            me._ApiAdmin.GetAllUsers(req.body.FctData, res, User, UserId)
                             break
                         case "GetUserData":
-                            me._ApiAdmin.GetUserData(req.body.FctData, res)
+                            me._ApiAdmin.GetUserData(req.body.FctData, res, User, UserId)
                             break
                         case "UpdateUser":
-                            me._ApiAdmin.UpdateUser(req.body.FctData, res)
+                            me._ApiAdmin.UpdateUser(req.body.FctData, res, User, UserId)
                             break
                         case "DeleteUser":
-                            me._ApiAdmin.DeleteUser(req.body.FctData, res)
+                            me._ApiAdmin.DeleteUser(req.body.FctData, res, User, UserId)
                             break
                         case "GetUserDataStructure":
-                            me._ApiAdmin.GetUserDataStructure(req.body.FctData, res)
+                            me._ApiAdmin.GetUserDataStructure(req.body.FctData, res, User, UserId)
                             break
                         case "NewUser":
-                            me._ApiAdmin.NewUser(req.body.FctData, res)
+                            me._ApiAdmin.NewUser(req.body.FctData, res, User, UserId)
                             break
                         case "GetLog":
-                            me._ApiAdmin.GetLog(req.body.FctData, res)
+                            me._ApiAdmin.GetLog(req.body.FctData, res, User, UserId)
                             break
                         case "Backup":
-                            me._ApiAdmin.Backup(req.body.FctData, res, me.GetJobSchedule.bind(me), me.SetJobSchedule.bind(me))
+                            me._ApiAdmin.Backup(req.body.FctData, res, me.GetJobSchedule.bind(me), me.SetJobSchedule.bind(me), User, UserId)
                             break
                         case "GetMyData":
-                            me._ApiAdmin.GetMyData("Admin",DecryptTokenReponse.TokenData.data.UserData._id, res)
+                            me._ApiAdmin.GetMyData("Admin", res, User, UserId)
                             break
                         case "UpdateMyUser":
                             let DataCall = new Object()
                             DataCall.UsesrId = DecryptTokenReponse.TokenData.data.UserData._id
                             DataCall.UserType = "Admin"
                             DataCall.Data = req.body.FctData
-                            me._ApiAdmin.UpdateUser(DataCall, res)
+                            me._ApiAdmin.UpdateUser(DataCall, res, User, UserId)
                             break
                         default:
-                            let UserId = DecryptTokenReponse.TokenData.data.UserData._id
                             let FctNotFound = true
                             me._ApiAdminFctList.forEach(element => {
                                 if (element.FctName == req.body.FctName){
-                                    element.Fct(req.body.FctData, res, UserId)
+                                    element.Fct(req.body.FctData, res, User, UserId)
                                     FctNotFound = false
                                 }
                             })
                             if (FctNotFound){
-                                me.LogAppliError("No API Admin for FctName: " + req.body.FctName)
+                                me.LogAppliError("No API Admin for FctName: " + req.body.FctName, User, UserId)
                                 res.json({Error: true, ErrorMsg:"No API Admin for FctName: " + req.body.FctName})
                             }
                             break
                     }
                 } else {
-                    me.LogAppliError("Token non valide, LoginCollection incorrect")
+                    me.LogAppliError("Token non valide, LoginCollection incorrect", User, UserId)
                     res.json({Error: true, ErrorMsg:"Token non valide, LoginCollection incorrect"})
                 }
             } else {
-                me.LogAppliError("Token non valide")
+                me.LogAppliError("Token non valide", "Server", "Server")
                 res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         })
@@ -270,7 +274,7 @@ class corex {
             if (IconFile!=null){
                 res.send(IconFile)
             } else {
-                me.LogAppliError('Icon not found')
+                me.LogAppliError('Icon not found', "Server", "Server")
                 res.status(404).send("Sorry, the route Icon not found");
             }
         })
@@ -281,7 +285,7 @@ class corex {
             if (IconFile!=null){
                 res.send(IconFile)
             } else {
-                me.LogAppliError('Icon not found')
+                me.LogAppliError('Icon not found', "Server", "Server")
                 res.status(404).send("Sorry, the route Icon not found");
             }
         })
@@ -292,20 +296,24 @@ class corex {
             if (IconFile!=null){
                 res.send(IconFile)
             } else {
-                me.LogAppliError('Icon not found')
+                me.LogAppliError('Icon not found', "Server", "Server")
                 res.status(404).send("Sorry, the route Icon not found");
             }
         })
         // Creation de la route 404
         this._Express.use(function(req, res, next) {
-            me.LogAppliError('Mauvaise route: ' + req.originalUrl)
+            me.LogAppliError('Mauvaise route: ' + req.originalUrl, "Server", "Server")
             res.status(404).send("Sorry, the route " + req.originalUrl +" doesn't exist");
         })
         // Si on utilise Socket IO, alors on effectue une initialisation de socket io
         if(this._Usesocketio){
-            this.LogAppliInfo("SocketIo is used")
+            this.LogAppliInfo("SocketIo is used", "Server", "Server")
             // Creation de socket io
             this._io= require('socket.io')(this._http)
+
+            // Identification du user
+            let User = "Anonyme"
+            let UserId = "Anonyme"
             
             // Middleware sur socket io qui analyse la validité du Token genere via le login
             this._io.use(function(socket, next){
@@ -314,22 +322,24 @@ class corex {
                         if (socket.handshake.query.token != "null"){
                             let DecryptTokenReponse = me.DecryptDataToken(socket.handshake.query.token)
                             if(DecryptTokenReponse.TokenValide){ // le token est valide
-                                me.LogAppliInfo("Token valide in soketIo connection")
+                                User = DecryptTokenReponse.TokenData.data.UserData.User
+                                UserId = DecryptTokenReponse.TokenData.data.UserData._id
+                                me.LogAppliInfo("Token valide in soketIo connection", User, UserId)
                                 next()
                             } else { // Le token n'est pas valide
-                                me.LogAppliError("SocketIO Token non valide")
+                                me.LogAppliError("SocketIO Token non valide", "Server", "Server")
                                 let err  = new Error('Token error')
                                 err.data = { type : 'Token ne correspons pas' }
                                 next(err)
                             }
                         } else {
-                            me.LogAppliError("Token est null")
+                            me.LogAppliError("Token est null", "Server", "Server")
                             let err  = new Error('Token error')
                             err.data = { type : 'Token est null' }
                             next(err)
                         }
                 	} else {
-                		me.LogAppliError("Token non disponible")
+                		me.LogAppliError("Token non disponible", "Server", "Server")
                 		let err  = new Error('Token error')
                 		err.data = { type : 'Token non disponible' }
                 		next(err)
@@ -357,12 +367,12 @@ class corex {
                 let FctNotFound = true
                 me._SocketIoFctList.forEach(element => {
                     if (element.ModuleName == Data.ModuleName){
-                        element.Fct(Data.Data, socket)
+                        element.Fct(Data.Data, socket, User, UserId)
                         FctNotFound = false
                     }
                 })
                 if (FctNotFound){
-                    me.LogAppliError("No SocketIo Action defined for action: " + Data.ModuleName)
+                    me.LogAppliError("No SocketIo Action defined for action: " + Data.ModuleName, User, UserId)
                 }
             })
             })
@@ -396,21 +406,21 @@ class corex {
         if(this._Debug){console.log(data)}
     }
     /** Log applicatif de type info dans la DB */
-    LogAppliInfo(Valeur){
+    LogAppliInfo(Valeur= "undefined", User= "undefined", UserId= "undefined"){
         var now = new Date()
-        const DataToDb = { [this._MongoVar.LogAppliNow]: now, [this._MongoVar.LogAppliType]: "Info", [this._MongoVar.LogAppliValeur]: Valeur}
+        const DataToDb = { [this._MongoVar.LogAppliNow]: now, [this._MongoVar.LogAppliType]: "Info", [this._MongoVar.LogAppliValeur]: Valeur, [this._MongoVar.LogAppliUser]: User, [this._MongoVar.LogAppliUserId]: UserId}
         this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.LogAppliCollection).then((reponse)=>{
-            this.LogDebug(this.GetDateString(now) + " " + "Info" + " " + Valeur)
+            this.LogDebug(this.GetDateString(now) + " Info " + User + " " + Valeur)
         },(erreur)=>{
             this.LogDebug("LogAppliInfo DB error : " + erreur)
         })
     }
     /** Log applicatif de type error dans la DB */
-    LogAppliError(Valeur){
+    LogAppliError(Valeur= "undefined", User= "undefined", UserId= "undefined"){
         var now = new Date()
-        const DataToDb = { [this._MongoVar.LogAppliNow]: now, [this._MongoVar.LogAppliType]: "Error", [this._MongoVar.LogAppliValeur]: Valeur}
+        const DataToDb = { [this._MongoVar.LogAppliNow]: now, [this._MongoVar.LogAppliType]: "Error", [this._MongoVar.LogAppliValeur]: Valeur, [this._MongoVar.LogAppliUser]: User, [this._MongoVar.LogAppliUserId]: UserId}
         this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.LogAppliCollection).then((reponse)=>{
-            this.LogDebug(this.GetDateString(now) + " " + "Error " + Valeur)
+            this.LogDebug(this.GetDateString(now) + " Error " + User + " " + Valeur)
         },(erreur)=>{
             this.LogDebug("LogAppliError DB error : " + erreur)
         })
@@ -438,20 +448,20 @@ class corex {
         }
         let DoneCallbackAdminCollection = (Data) => {
             if(Data){
-                this.LogAppliInfo("La collection suivante existe : " + this._MongoVar.LoginAdminCollection)
+                this.LogAppliInfo("La collection suivante existe : " + this._MongoVar.LoginAdminCollection, "Server", "Server")
             } else {
                 const DataToDb = { [this._MongoVar.LoginUserItem]: "Admin", [this._MongoVar.LoginFirstNameItem]: "Admin First Name", [this._MongoVar.LoginLastNameItem]: "Admin Last Name", [this._MongoVar.LoginPassItem]: "Admin", [this._MongoVar.LoginConfirmPassItem]: "Admin"}
                 this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.LoginAdminCollection).then((reponse)=>{
-                    this.LogAppliInfo("Creation de la collection : " + this._MongoVar.LoginAdminCollection)
+                    this.LogAppliInfo("Creation de la collection : " + this._MongoVar.LoginAdminCollection, "Server", "Server")
                 },(erreur)=>{
-                    this.LogAppliError("Insert temp user admin in collection Login Admin")
+                    this.LogAppliError("Insert temp user admin in collection Login Admin", "Server", "Server")
                     throw new Error('Erreur lors de la creation du User Admin de la collection Admin de la db: ' + erreur)
                 })
             }
         }
         let DoneCallbackConfigCollection = (Data) => {
             if(Data){
-                this.LogAppliInfo("La collection suivante existe : " + this._MongoVar.ConfigCollection)
+                this.LogAppliInfo("La collection suivante existe : " + this._MongoVar.ConfigCollection, "Server", "Server")
                 // Start du Backup
                 this.StartJobScheduleBackup()
             } else {
@@ -470,9 +480,9 @@ class corex {
                 ]
 
                 this._Mongo.InsertMultiplePromise(DataToDb, this._MongoVar.ConfigCollection).then((reponse)=>{
-                    this.LogAppliInfo("Creation de la collection : " + this._MongoVar.ConfigCollection)
+                    this.LogAppliInfo("Creation de la collection : " + this._MongoVar.ConfigCollection, "Server", "Server")
                 },(erreur)=>{
-                    this.LogAppliError("Error Insert JobSchedule config in collection Config")
+                    this.LogAppliError("Error Insert JobSchedule config in collection Config", "Server", "Server")
                     throw new Error('Erreur lors de la creation de la config JobSchedule dans la collection Config de la db: ' + erreur)
                 })
             }
@@ -493,7 +503,7 @@ class corex {
                         if((reponse.GoogleKey != "") && (reponse.Folder != "")){
                             let credentials = JSON.parse(reponse.GoogleKey)
                             let folder = reponse.Folder
-                            this.LogAppliInfo("Start JobScheduleBackup ")
+                            this.LogAppliInfo("Start JobScheduleBackup", "Server", "Server")
                             var schedule = require('node-schedule')
                             let options = {minute: BackupScheduler.JobScheduleMinute, hour: BackupScheduler.JobScheduleHour}
                             var me = this
@@ -501,26 +511,26 @@ class corex {
                                 let DbBackup = require('./DbBackup').DbBackup
                                 let MyDbBackup = new DbBackup(me._MongoVar.DbName,credentials,folder, me.LogAppliInfo.bind(me))
                                 MyDbBackup.Backup().then((reponse)=>{
-                                    me.LogAppliInfo(reponse)
+                                    me.LogAppliInfo(reponse, "Server", "Server")
                                 },(erreur)=>{
-                                    me.LogAppliError("StartJobScheduleBackup error : " + erreur)
+                                    me.LogAppliError("StartJobScheduleBackup error : " + erreur, "Server", "Server")
                                     console.log("Error during StartJobScheduleBackup: "+ erreur + " " + now)
                                 })
                             })
                         } else {
-                            this.LogAppliError("StartJobScheduleBackup Google key or Google folder is empty")
+                            this.LogAppliError("StartJobScheduleBackup Google key or Google folder is empty", "Server", "Server")
                         }
                     },(erreur)=>{
-                        this.LogAppliError("StartJobScheduleBackup, get Google key error : " + erreur)
+                        this.LogAppliError("StartJobScheduleBackup, get Google key error : " + erreur, "Server", "Server")
                     })
                 } else {
-                    this.LogAppliError("JobScheduler already exist")
+                    this.LogAppliError("JobScheduler already exist", "Server", "Server")
                 }
             } else {
-                this.LogAppliInfo("JobScheduleBackup not started")
+                this.LogAppliInfo("JobScheduleBackup not started", "Server", "Server")
             }
         },(erreur)=>{
-            this.LogAppliError("StartJobScheduleBackup: " + erreur)
+            this.LogAppliError("StartJobScheduleBackup: " + erreur, "Server", "Server")
         })
     }
     /** Ajout d'un fonction a gerer via l'API user */
@@ -675,29 +685,29 @@ class corex {
     /* Verification du login */
     VerifyLogin(res, LoginCollection, Login, Pass){
         const Query = { [this._MongoVar.LoginUserItem]: Login}
-        const Projection = { projection:{ _id: 1, [this._MongoVar.LoginPassItem]: 1}}
+        const Projection = { projection:{ _id: 1, [this._MongoVar.LoginPassItem]: 1, [this._MongoVar.LoginUserItem]: 1}}
         this._Mongo.FindPromise(Query,Projection, LoginCollection).then((reponse)=>{
             if(reponse.length == 0){
-                this.LogAppliError("Login non valide, pas de row en db pour ce user")
+                this.LogAppliError("Login non valide, pas de row en db pour ce user", "Server", "Server")
                 res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
             } else if (reponse.length == 1){
                 if (reponse[0][this._MongoVar.LoginPassItem] == Pass){
-                    this.LogAppliInfo("Login valide")
+                    this.LogAppliInfo("Login valide", reponse[0][this._MongoVar.LoginUserItem], reponse[0]._id)
                     delete reponse[0][this._MongoVar.LoginPassItem]
                     let MyToken = new Object()
                     MyToken.UserData = reponse[0]
                     MyToken.LoginCollection = LoginCollection
                     res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(MyToken)})
                 } else {
-                    this.LogAppliError("Login non valide, le Pass est different du password en db")
+                    this.LogAppliError("Login non valide, le Pass est different du password en db", "Server", "Server")
                     res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
                 }
             } else {
-                this.LogAppliError("Login non valide, trop de row en db pour ce user")
+                this.LogAppliError("Login non valide, trop de row en db pour ce user", "Server", "Server")
                 res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
             }
         },(erreur)=>{
-            this.LogAppliError("Login non valide, erreur dans le call à la db : " + erreur)
+            this.LogAppliError("Login non valide, erreur dans le call à la db : " + erreur, "Server", "Server")
             res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
         })
     }
@@ -722,7 +732,7 @@ class corex {
                 reponse.TokenData = jwt.verify(DecryptReponse.decryptedData, this._Secret)
                 reponse.TokenValide = true
             } catch(err) {
-                this.LogAppliError("jsonwebtoken non valide")
+                this.LogAppliError("jsonwebtoken non valide", "Server", "Server")
             }
         }
         return reponse
@@ -745,7 +755,7 @@ class corex {
             reponse.decryptedData = cryptr.decrypt(text)
             reponse.decryptedValide = true
         } catch (error) {
-            this.LogAppliError("cryptr non valide")
+            this.LogAppliError("cryptr non valide", "Server", "Server")
         }
         return reponse
     }
@@ -758,23 +768,23 @@ class corex {
                 // Get Name of user in DB
                 let Projection = { projection:{[this._MongoVar.LoginUserItem]: 1}}
                 this._Mongo.FindPromise(Query, Projection, Collection).then((reponse)=>{
-                    this.LogAppliInfo("TokenUserId validé. User = " + reponse[0].User)
-                    let MyApp = this.GetAppCode(Site)
+                    this.LogAppliInfo("TokenUserId validé", reponse[0].User, Id)
+                    let MyApp = this.GetAppCode(Site, reponse[0].User, Id)
                     res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
                 },(erreur)=>{
-                    this.LogAppliError("CheckTokenUserIdAndSendApp DB error : " + erreur)
+                    this.LogAppliError("CheckTokenUserIdAndSendApp DB error : " + erreur, "Server", "Server")
                 })
             } else {
-                this.LogAppliError("TokenUserId non validé. Nombre d'Id trouvéen DB: " + reponse)
+                this.LogAppliError("TokenUserId non validé. Nombre d'Id trouvéen DB: " + reponse, "Server", "Server")
                 res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         },(erreur)=>{
-            this.LogAppliError("TokenUserId validation => DB error : " + erreur)
+            this.LogAppliError("TokenUserId validation => DB error : " + erreur, "Server", "Server")
             res.json({Error: true, ErrorMsg:"Token non valide"})
         })
     }
     /* Recuperer le code de l'App */
-    GetAppCode(Site){
+    GetAppCode(Site, User="null", UserId="null"){
         let MyApp = new Object()
         MyApp.JS = ""
         MyApp.CSS = ""
@@ -832,11 +842,11 @@ class corex {
             `
         switch (Site) {
             case "Admin":
-                this.LogAppliInfo("Start loading App Admin")
+                this.LogAppliInfo("Start loading App Admin", User, UserId)
                 MyApp = this.LoadAppFilesFromAdminFolder(MyApp)
                 break
             default:
-                this.LogAppliInfo("Start loading App")
+                this.LogAppliInfo("Start loading App", User, UserId)
                 MyApp = this.LoadAppFilesFromClientFolder(MyApp)
                 break
         }
@@ -867,21 +877,21 @@ class corex {
                                 break;
                             default:
                                 MyApp.JS += 'console.log("file extension not know: ' + path.extname(files[i]) + '")' + os.EOL 
-                                this.LogAppliError("file extension not know: " + path.extname(files[i]))
+                                this.LogAppliError("file extension not know: " + path.extname(files[i]), "Server", "Server")
                                 break;
                         }
                     } else {
                         MyApp.JS += 'alert("file not found: ' + folder + "/" + files[i] + '")' + os.EOL 
-                        this.LogAppliError("file not found: " + folder + "/" + files[i])
+                        this.LogAppliError("file not found: " + folder + "/" + files[i], "Server", "Server")
                     }
                 }
             } else {
                 MyApp.JS += 'alert("Client folder not found: ' + folder + '")' + os.EOL 
-                this.LogAppliError("Client folder not found: " + folder)
+                this.LogAppliError("Client folder not found: " + folder), "Server", "Server"
             }
         } else {
             MyApp.JS += 'alert("Client folder not defined (=null)")' + os.EOL 
-            this.LogAppliError("Client folder not defined (=null)")
+            this.LogAppliError("Client folder not defined (=null)", "Server", "Server")
         }
         return MyApp
     }
@@ -912,21 +922,21 @@ class corex {
                                 break;
                             default:
                                 MyApp.JS += 'console.log("file extension not know: ' + path.extname(files[i]) + '")' + os.EOL 
-                                this.LogAppliError("file extension not know: " + path.extname(files[i]))
+                                this.LogAppliError("file extension not know: " + path.extname(files[i]), "Server", "Server")
                                 break;
                         }
                     } else {
                         MyApp.JS += 'alert("file not found: ' + folder + "/" + files[i] + '")' + os.EOL 
-                        this.LogAppliError("file not found: " + folder + "/" + files[i])
+                        this.LogAppliError("file not found: " + folder + "/" + files[i], "Server", "Server")
                     } 
                 }
             } else {
                 MyApp.JS += 'alert("Admin folder not found: ' + folder + '")' + os.EOL 
-                this.LogAppliError("Admin folder not found: " + folder)
+                this.LogAppliError("Admin folder not found: " + folder, "Server", "Server")
             }
         } else {
             //MyApp.JS += 'alert("Admin folder not defined (=null)")' + os.EOL
-            this.LogAppliError("Admin folder not defined (=null) ")
+            this.LogAppliError("Admin folder not defined (=null)", "Server", "Server")
         }
         return MyApp
     }
@@ -947,7 +957,7 @@ class corex {
                     reject("Error GetDbConfig: too much entry for this Key and ConfigType")
                 }
             },(erreur)=>{
-                this.LogAppliError("GetDbConfig error : " + erreur)
+                this.LogAppliError("GetDbConfig error : " + erreur, "Server", "Server")
                 reject(erreur)
             })
         })

@@ -22,11 +22,11 @@ class TestCoreXApp{
     }
     ClickTestButton(){
         GlobalSendSocketIo("Test", "ActionX", "ValueX")
-        // GlobalCallApiPromise("Test", "TestDataGreg").then((reponse)=>{
-        //     alert(reponse)
-        // },(erreur)=>{
-        //     alert(erreur)
-        // })
+         GlobalCallApiPromise("Test", "TestDataGreg").then((reponse)=>{
+             alert(reponse)
+         },(erreur)=>{
+             alert(erreur)
+         })
     }
     
     GetTitre(){

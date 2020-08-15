@@ -1,5 +1,4 @@
 # CoreX
-
 A Node.js package building the core of a secured application with an administration app.
 
 ## Usage
@@ -9,7 +8,8 @@ First, install the package using npm:
 npm install @gregvanko/corex --save
 ```
 
-## File App.js:
+## File App.js
+### Fichier de base
 Créer un fichier "App.js" qui contiendra le code de démarrage du module.
 ```js
 /*--------------------------------------*/
@@ -21,6 +21,7 @@ MyApp.Start()
 ```
 
 ### Option du constructeur de CoreX
+Voici les options possible du constructeur
 ```js
 /*-------------------------------------------*/
 /* Creation de l'appli via CoreX avec option */
@@ -40,12 +41,12 @@ let MyApp = new corex(OptionApplication)
 MyApp.Start()
 ```
 
-### Creation de l'application via une class
+### Creation de CoreX dans une class
 ```js
 /*-------------------------------------------------*/
 /* Creation de l'appli via CoreX et dans une class */
 /*-------------------------------------------------*/
-class ServeurTestCoreX{
+class MyAppCoreX{
     constructor(){
         let corex = require('@gregvanko/corex').corex
         const OptionApplication = {
@@ -104,34 +105,34 @@ class ServeurTestCoreX{
         // Lancement du module corex
         this._MyServeurApp.Start()
     }
-    TestApiCallForFctTest(Data, Res, UserId){
-        this._MyServeurApp.LogAppliInfo("Call de l API User, fonction Test par le user: " + UserId)
+    TestApiCallForFctTest(Data, Res, User, UserId){
+        this._MyServeurApp.LogAppliInfo("Call de l API User, fonction Test", User, UserId)
         Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct Test=" + Data})
     }
-    TestApiAdminCallForFctTest(Data, Res, UserId){
-        this._MyServeurApp.LogAppliInfo("Call de l API Admin, fonction Test par le user: " + UserId)
+    TestApiAdminCallForFctTest(Data, Res, User, UserId){
+        this._MyServeurApp.LogAppliInfo("Call de l API Admin, fonction Test", User, UserId)
         Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct Test=" + Data})
     }
 }
 
 /** Lancement du serveur */
-let MyServeurApp = new ServeurTestCoreX()
-MyServeurApp.Start() 
+let MyApp = new MyAppCoreX()
+MyApp.Start() 
 ```
 
-### Fonction globale du serveur
-Pour faire un Log en DB il faut utiliser les fonctions serveur LogAppliInfo(Valeur) ou LogAppliError(Valeur)
+## Les fonctions Backend
+### Log info et Log Error
+Pour faire un Log en DB il faut utiliser les fonctions serveur  LogAppliInfo(Valeur= "undefined", User= "undefined", UserId= "undefined") ou LogAppliError(Valeur= "undefined", User= "undefined", UserId= "undefined")
 ```js 
-this._MyServeurApp.LogAppliInfo(Valeur)
-this._MyServeurApp.LogAppliError(Valeur)
+this._MyServeurApp. LogAppliInfo(Valeur, User, UserId)
+this._MyServeurApp.LogAppliError(Valeur, User, UserId)
 ```
-Les fonctions Get de la class CoreX
+### Les fonctions Get de la class CoreX
 ```js 
 this._MyServeurApp.AppName // Return le nom de l'application
 this._MyServeurApp.MongoUrl // Return le MongoUrl de l'application
 ```
-
-Les fonction MongoDB
+### Les fonction MongoDB
 ```js
 //** MongoDb */
 let MongoR = require('@gregvanko/corex').Mongo
@@ -150,7 +151,7 @@ const Projection = { projection:{ _id: 1, [this._MongoLoginPassItem]: 1}}
 Mongo.FindPromise(Querry, Projection, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur, User, UserId)
 })
 
 // Find Sort
@@ -158,7 +159,7 @@ const Sort = {[this._MongoLoginUserItem]: 1}
 Mongo.FindSortPromise(Querry, Projection, Sort, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur, User, UserId)
 })
 
 // Find Sort Skip
@@ -166,14 +167,14 @@ Let Limit = 10
 Mongo.FindSortLimitSkipPromise(Querry, Projection, Sort, Limit, Skip, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur, User, UserId)
 })
 
 // Delete By Id (Id = string)
 Mongo.DeleteByIdPromise(Id, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur, User, UserId)
 })
 
 // Delete By Query
@@ -181,21 +182,21 @@ let Query = { address: "test" }
 Mongo.DeleteByQueryPromise(Query, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur, User, UserId)
 })
 
 // Update by Id (Id = string)
 Mongo.UpdateByIdPromise(Id, Data, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur, User, UserId)
 })
 
 // Update
 Mongo.UpdatePromise(Query, Data, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur, User, UserId)
 })
 
 // Count
@@ -204,7 +205,7 @@ const Query = {'_id': new MongoObjectId(Id)}
 Mongo.CountPromise(Querry, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur, User, UserId)
 })
 
 // Insert One
@@ -212,7 +213,7 @@ let Data = { [this._MongoLoginUserItem]: "test", [this._MongoLoginFirstNameItem]
 Mongo.InsertOnePromise(Data, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur, User, UserId)
 })
 
 // Insert Multiple document
@@ -223,18 +224,15 @@ let DataToDb = [
 Mongo.InsertMultiplePromise(Data, Collection).then((reponse)=>{
     // ToDo
 },(erreur)=>{
-    this.LogAppliError("DB error : " + erreur)
+    this.LogAppliError("DB error : " + erreur, User, UserId)
 })
 ```
 
-
-
-## l'application cliente
-CoreX permet de creer une application customisee
-### Client side de l'application cliente
+## Une application basée sur CoreX
+CoreX permet de creer un Frontend et un Backend customise pour l'application
+### Frontend de l'application
 Les fichiers JS et CSS du frontend client de l'application doivent se trouver sous répertoire défini par la variable "ClientAppFolder".
-
-Voici les fonction globale du client
+### Les fonction globale du Frontend
 ```js
 /** Logout de l'application securisée */
 GlobalLogout()
@@ -290,7 +288,7 @@ let App1 = new TestCoreXApp(GlobalCoreXGetAppContentId())
 // Ajout de l'application 1
 GlobalCoreXAddApp(App1.GetTitre(), App1.GetImgSrc(),App1.Start.bind(App1))
 ```
-Les modules disponible
+### Les modules disponible dans le Frontend
 ```js
 //** Les fenetres */
 // Creation d'un fenetre
@@ -298,7 +296,7 @@ CoreXWindow.BuildWindow(ElementHtml) // ElementHtml est le contenu object html d
 // Suppression de la fenetre
 CoreXWindow.DeleteWindow()
 ```
-### Server side de l'application cliente
+### Backend de l'application
 Pour ajouter une fonction dans l'API du serveur il faut utiliser la fonction serveur AddApiFct(FctName, FctBinded)
 - FctName: est le nom (string) de la fonction appelee via l'API
 - FctBinded: est la référence à la fonction a executer sur le serveur lorsque l'on recoit une commande API pour FctName
@@ -307,13 +305,11 @@ Pour ajouter une fonction dans l'API du serveur il faut utiliser la fonction ser
 this._MyServeurApp.AddApiFct("Test", this.Test.bind(this))
 Test(Data, Res, UserId){
 }
-``` 
+```
 
-
-
-## l'application Admin
-CoreX possède une application Admin pouvant etre customisée
-### Client side de l'application Admin
+## Une application basée sur CoreX, la partie Admin
+CoreX permet de créer un Frontend et un Backend customise pour la partie Admin de l'application
+### Frontend de l'application Admin
 Les fichiers JS et CSS du frontend client de l'application admin doivent se trouver sous répertoire défini par la variable "AdminAppFolder".
 Voici un exemple d'application Admin
 ```js
@@ -415,7 +411,7 @@ GlobalGetUserDataPromise().then((reponse)=>{
 })
 ```
 
-### Serveur side de l'application Admin
+### Backend de l'application Admin
 Pour ajouter une fonction dans l'API Admin du serveur il faut utiliser la fonction serveur AddApiAdminFct(FctName, FctBinded)
 - FctName: est le nom (string) de la fonction appelee via l'API
 - FctBinded: est la référence à la fonction a executer sur le serveur lorsque l'on recoit une commande API pour FctName
@@ -444,8 +440,8 @@ Pour ajouter un message a écouter coté serveur, il faut utiliser la fonction s
 - La fonction FctBinded possède les paramètres (Data, Socket). Data est un objet : Data.Action et Data.Value
 ```js
 this._MyServeurApp.AddSocketIoFct("Test", this.Test.bind(this))
-Test(Data, Socket){
-    this._MyServeurApp.LogAppliInfo("Call SocketIo ModuleName: Test, Data.Action:" + Data.Action + " Data.Value: " + Data.Value)
+Test(Data, Socket, User, UserId){
+    this._MyServeurApp.LogAppliInfo("Call SocketIo ModuleName: Test, Data.Action:" + Data.Action + " Data.Value: " + Data.Value, User, UserId)
 }
 ``` 
 Pour que le serveur envoie un message à tous les client, il faut récuperer l'objet Io et ensuite utiliser la fonction emit("Event", "Value")
