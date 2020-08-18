@@ -60,9 +60,10 @@ class CoreXAdminLogApp{
                 }
                 Liste.appendChild(flex)
 
-                flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "Text", "width:20%; margin-right:1%;"))
-                flex.appendChild(CoreXBuild.DivTexte(element.Type,"", "Text", "width:10%;"))
-                flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "Text", "width:65%; overflow-wrap:break-word"))
+                flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "Text LogDate", ""))
+                flex.appendChild(CoreXBuild.DivTexte(element.Type,"", "Text LogType", ""))
+                flex.appendChild(CoreXBuild.DivTexte(element.User,"", "Text LogUser", ""))
+                flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "Text LogValeur", "overflow-wrap:break-word"))
             })
             let DivButton = CoreXBuild.Div("", "FlexRowCenterspacearound", "width:90%; border-top: 1px solid black; margin-top:1%;")
             document.getElementById("ListOfLog").appendChild(DivButton)
@@ -71,7 +72,7 @@ class CoreXAdminLogApp{
     }
     /** Get des next log */
     GetNextLog(){
-        this._LogCursor += 10
+        this._LogCursor += 20
         document.getElementById("ButtonNext").innerHTML = "Waiting..."
         GlobalCallApiPromise("GetLog", this._LogCursor).then((reponse)=>{
             this.LoadNextLog(reponse)
@@ -101,9 +102,10 @@ class CoreXAdminLogApp{
                     }
                     document.getElementById("Liste").appendChild(flex)
 
-                    flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "Text", "width:20%; margin-right:1%;"))
-                    flex.appendChild(CoreXBuild.DivTexte(element.Type,"", "Text", "width:10%;"))
-                    flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "Text", "width:65%; overflow-wrap:break-word"))
+                    flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "Text LogDate", ""))
+                    flex.appendChild(CoreXBuild.DivTexte(element.Type,"", "Text LogType", ""))
+                    flex.appendChild(CoreXBuild.DivTexte(element.User,"", "Text LogUser", ""))
+                    flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "Text LogValeur", "overflow-wrap:break-word"))
                 }
             })
         }
@@ -158,6 +160,10 @@ class CoreXAdminLogApp{
             .Button:hover{
                 box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
             }
+            .LogDate{width:20%;}
+            .LogType{width:8%;}
+            .LogUser{width:20%;}
+            .LogValeur{width:50%; font-size: calc(var(--CoreX-font-size)*0.8);}
 
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
@@ -166,12 +172,17 @@ class CoreXAdminLogApp{
                 #Titre{font-size: var(--CoreX-TitreIphone-font-size);}
                 .Text{font-size: var(--CoreX-Iphone-font-size);}
                 .Button{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
+                .LogDate{width:20%;}
+                .LogType{width:8%;}
+                .LogUser{width:20%;}
+                .LogValeur{width:50%; font-size: calc(var(--CoreX-Iphone-font-size)*0.8);}
             }
             @media screen and (min-width: 1200px)
             {
                 #Titre{font-size: var(--CoreX-TitreMax-font-size);}
                 .Text{font-size: var(--CoreX-Max-font-size);}
                 .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
+                .LogValeur{font-size: calc(var(--CoreX-Max-font-size)*0.8);}
             }
         </style>`
     }

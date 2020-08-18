@@ -176,7 +176,7 @@ class ApiAdmin{
         const Query = {}
         const Projection = {}
         const Sort = {[this._MongoVar.LogAppliNow]: -1}
-        this._Mongo.FindSortLimitSkipPromise(Query,Projection, Sort, 10, parseInt(Data), mongocollection).then((reponse)=>{
+        this._Mongo.FindSortLimitSkipPromise(Query,Projection, Sort, 20, parseInt(Data), mongocollection).then((reponse)=>{
             if(reponse.length == 0){
                 res.json({Error: false, ErrorMsg: "No Log in BD", Data: null})
             } else {
