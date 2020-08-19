@@ -9,15 +9,13 @@ class CoreXLoader {
         this._Site = null
 
         // Variable interne de la class
-        this._DbKeyLogin = ""
+        this._DbKeyLogin = "CoreXLoginToken"
     }
     
     set Site(val){this._Site = val}
     
     /* Fonction lancee au debut du chargement de la page */
     Start(){
-        // Set du nom de la key DB qui contiendra le token du site
-        this._DbKeyLogin = "CoreXLoginToken" + this._Site
         // si non securisee on enregistre un token anonyme
         if(!this._AppIsSecured){localStorage.setItem(this._DbKeyLogin, "Anonyme")}
         // Get Token

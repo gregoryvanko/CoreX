@@ -23,22 +23,23 @@ class CoreXSocketIo{
     }
 
     InitSocketIoMessage(){
+        let me = this
         // Init des messages error socket io
         this._SocketIo.on('error', function(err) {
-            console.log(this.GetTime() + ' SocketIo.on error, err: ' + err.type)
+            console.log(me.GetTime() + ' SocketIo.on error, err: ' + err.type)
             document.body.innerHTML =`
-                <div style='font-size: 3vh; color: red; text-align: center; margin-top: 10%;'>` + err.type +`</div>
+                <div style='font-size: 3vh; color: red; text-align: center; margin-top: 10%;'>SocketIo.on error: ` + err.type +`</div>
                 `
         })
         
         // Init des messages connect socket io
         this._SocketIo.on('connect', () => {
-            console.log(this.GetTime() + ' SocketIo.on connect')
+            console.log(me.GetTime() + ' SocketIo.on connect')
         })
         
         // Init des messages disconnect socket io
         this._SocketIo.on('disconnect', (reason) => {
-            console.log(this.GetTime() + ' SocketIo.on disconnect, reason : ' + reason)
+            console.log(me.GetTime() + ' SocketIo.on disconnect, reason : ' + reason)
         })
 
         // Init des messages disconnect socket io
@@ -58,12 +59,12 @@ class CoreXSocketIo{
 
         // Init des messages disconnect socket io
         this._SocketIo.on('reconnect_error', (error) => {
-            console.log(this.GetTime() + ' SocketIo.on reconnect_error, ' + error)
+            console.log(me.GetTime() + ' SocketIo.on reconnect_error, ' + error)
         })
 
         // Init des messages disconnect socket io
         this._SocketIo.on('reconnect_failed', () => {
-            console.log(this.GetTime() + ' SocketIo.on reconnect_failed')
+            console.log(me.GetTime() + ' SocketIo.on reconnect_failed')
             document.body.innerHTML = `
                 <div style='font-size: 3vh; color: red; text-align: center; margin-top: 10%;'>SocketIo: User disconnected</div>
                 <div style='margin-top: 2%; display: flex; justify-content: center;'><button style='padding: 2vh; font-size: 3vh; cursor: pointer; border: 1px solid rgb(44,1,21); border-radius: 20px; text-align: center; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7); background: white; outline: none;' onclick="location.reload();">Reload</button></div>

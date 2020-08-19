@@ -30,13 +30,13 @@ class corex {
         this._MongoVar = new Object()
         this._MongoVar.DbName = this._MongoDbName
 
-        this._MongoVar.LoginClientCollection = "LoginClient"
-        this._MongoVar.LoginAdminCollection = "LoginAdmin"
+        this._MongoVar.UserCollection = "User"
         this._MongoVar.LoginUserItem = "User"
         this._MongoVar.LoginPassItem = "Password"
         this._MongoVar.LoginConfirmPassItem = "Confirm-Password"
         this._MongoVar.LoginFirstNameItem = "First-name"
         this._MongoVar.LoginLastNameItem = "Last-name"
+        this._MongoVar.LoginAdminItem = "Admin"
 
         this._MongoVar.LogAppliCollection = "LogAppli"
         this._MongoVar.LogAppliNow = "Now"
@@ -93,34 +93,24 @@ class corex {
         this._Express.use(bodyParser.json({limit: '200mb'}))
         // Creation d'une route de base pour l'application
 		this._Express.get('/', function(req, res, next){
+            me.LogAppliInfo("Receive Get Start Page", "Server", "Server")
             res.send(me.GetInitialHTML(me._AppIsSecured))
         })
         // Creation d'un route pour le login via Post
 		this._Express.post('/login', function (req, res){
             me.LogAppliInfo("Receive Post Login: " + JSON.stringify(req.body), "Server", "Server")
             // analyse du login en fonction du site
-            switch (req.body.Site) {
-                case "App":
-                    me.VerifyLogin(res, me._MongoVar.LoginClientCollection, req.body.Login,req.body.Pass)
-                    break
-                case "Admin":
-                    me.VerifyLogin(res, me._MongoVar.LoginAdminCollection, req.body.Login,req.body.Pass)
-                    break
-                default:
-                    me.LogAppliError("No login for site: " + req.body.Site, "Server", "Server")
-                    res.json({Error: true, ErrorMsg:"No login for site: " + req.body.Site, Token: ""})
-                    break
-            }
+            me.VerifyLogin(res, req.body.Site, req.body.Login,req.body.Pass)
         })
         // Creation d'une route pour loader l'application
 		this._Express.post('/loadApp', function(req, res, next){
-            me.LogDebug("Receive Post loadApp")
+            me.LogAppliInfo("Receive Post loadApp", "Server", "Server")
             if (me._AppIsSecured){
                 // validation du Token
                 let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
                 if (DecryptTokenReponse.TokenValide) {
                     // vérification que le UserId du Token existe en DB et envoie de l'app
-                    me.CheckTokenUserIdAndSendApp(req.body.Site, DecryptTokenReponse.TokenData.data.UserData._id, DecryptTokenReponse.TokenData.data.LoginCollection, res)
+                    me.CheckTokenUserIdAndSendApp(req.body.Site, DecryptTokenReponse.TokenData.data.UserData._id, DecryptTokenReponse.TokenData.data.Site, res)
                 } else {
                     me.LogAppliError("Token non valide", "Server", "Server")
                     res.json({Error: true, ErrorMsg:"Token non valide"})
@@ -143,14 +133,14 @@ class corex {
                 // validation du Token
                 DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
                 if (DecryptTokenReponse.TokenValide){
-                    if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoVar.LoginClientCollection){
+                    if (DecryptTokenReponse.TokenData.data.Site == "App"){
                         User = DecryptTokenReponse.TokenData.data.UserData.User
                         UserId = DecryptTokenReponse.TokenData.data.UserData._id
                         Continue = true
                     } else {
                         Continue = false
-                        me.LogAppliError("Token non valide, LoginCollection incorrect", "Server", "Server")
-                        res.json({Error: true, ErrorMsg:"Token non valide, LoginCollection incorrect"})
+                        me.LogAppliError("Token non valide, TokenSite incorrect for site App", "Server", "Server")
+                        res.json({Error: true, ErrorMsg:"Token non valide, TokenSite incorrect"})
                     }
                 } else {
                     Continue = false
@@ -207,7 +197,7 @@ class corex {
             if (DecryptTokenReponse.TokenValide) {
                 let User = DecryptTokenReponse.TokenData.data.UserData.User
                 let UserId = DecryptTokenReponse.TokenData.data.UserData._id
-                if (DecryptTokenReponse.TokenData.data.LoginCollection == me._MongoVar.LoginAdminCollection){
+                if (DecryptTokenReponse.TokenData.data.Site == "Admin"){
                     // Analyse de la logincollection en fonction du site
                     switch (req.body.FctName) {
                         case "GetAllUser":
@@ -259,8 +249,8 @@ class corex {
                             break
                     }
                 } else {
-                    me.LogAppliError("Token non valide, LoginCollection incorrect", User, UserId)
-                    res.json({Error: true, ErrorMsg:"Token non valide, LoginCollection incorrect"})
+                    me.LogAppliError("Token non valide, TokenSite incorrect for Site Admin", User, UserId)
+                    res.json({Error: true, ErrorMsg:"Token non valide, TokenSite incorrect"})
                 }
             } else {
                 me.LogAppliError("Token non valide", "Server", "Server")
@@ -322,10 +312,26 @@ class corex {
                         if (socket.handshake.query.token != "null"){
                             let DecryptTokenReponse = me.DecryptDataToken(socket.handshake.query.token)
                             if(DecryptTokenReponse.TokenValide){ // le token est valide
-                                User = DecryptTokenReponse.TokenData.data.UserData.User
-                                UserId = DecryptTokenReponse.TokenData.data.UserData._id
-                                me.LogAppliInfo("Token valide in soketIo connection", User, UserId)
-                                next()
+                                let MongoObjectId = require('./Mongo.js').MongoObjectId
+                                const Query = {'_id': new MongoObjectId(DecryptTokenReponse.TokenData.data.UserData._id)}
+                                me._Mongo.CountPromise(Query, me._MongoVar.UserCollection).then((reponse)=>{
+                                    if (reponse==1) {
+                                        User = DecryptTokenReponse.TokenData.data.UserData.User
+                                        UserId = DecryptTokenReponse.TokenData.data.UserData._id
+                                        me.LogAppliInfo("Token valide in soketIo connection", User, UserId)
+                                        next()
+                                    } else {
+                                        me.LogAppliError("SocketIO Token non valide. Nombre d'Id trouvéen DB: " + reponse, "Server", "Server")
+                                        let err  = new Error('Token error')
+                                        err.data = { type : 'Token error, nombre Id trouvéen DB different de 1' }
+                                        next(err)
+                                    }
+                                },(erreur)=>{
+                                    me.LogAppliError("SocketIO Token non valide => DB error : " + erreur, "Server", "Server")
+                                    let err  = new Error('Token error')
+                                    err.data = { type : 'Token error, DB error' }
+                                    next(err)
+                                })
                             } else { // Le token n'est pas valide
                                 me.LogAppliError("SocketIO Token non valide", "Server", "Server")
                                 let err  = new Error('Token error')
@@ -442,17 +448,17 @@ class corex {
     }
     /* Initialisation des DB */
     InitMongoDb(){
-        // Vérifier si la collection LoginAdmin existe. Si elle n'existe pas alors creation de la collection et du user
+        // Vérifier si la collection User existe. Si elle n'existe pas alors creation de la collection et du user
         let ErrorCallback = (err)=>{
             throw new Error('Erreur lors du check de la collection Login de la db: ' + err)
         }
-        let DoneCallbackAdminCollection = (Data) => {
+        let DoneCallbackUserCollection = (Data) => {
             if(Data){
-                this.LogAppliInfo("La collection suivante existe : " + this._MongoVar.LoginAdminCollection, "Server", "Server")
+                this.LogAppliInfo("La collection suivante existe : " + this._MongoVar.UserCollection, "Server", "Server")
             } else {
-                const DataToDb = { [this._MongoVar.LoginUserItem]: "Admin", [this._MongoVar.LoginFirstNameItem]: "Admin First Name", [this._MongoVar.LoginLastNameItem]: "Admin Last Name", [this._MongoVar.LoginPassItem]: "Admin", [this._MongoVar.LoginConfirmPassItem]: "Admin"}
-                this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.LoginAdminCollection).then((reponse)=>{
-                    this.LogAppliInfo("Creation de la collection : " + this._MongoVar.LoginAdminCollection, "Server", "Server")
+                const DataToDb = { [this._MongoVar.LoginUserItem]: "Admin", [this._MongoVar.LoginFirstNameItem]: "Admin First Name", [this._MongoVar.LoginLastNameItem]: "Admin Last Name", [this._MongoVar.LoginPassItem]: "Admin", [this._MongoVar.LoginConfirmPassItem]: "Admin", [this._MongoVar.LoginAdminItem]: true}
+                this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.UserCollection).then((reponse)=>{
+                    this.LogAppliInfo("Creation de la collection : " + this._MongoVar.UserCollection, "Server", "Server")
                 },(erreur)=>{
                     this.LogAppliError("Insert temp user admin in collection Login Admin", "Server", "Server")
                     throw new Error('Erreur lors de la creation du User Admin de la collection Admin de la db: ' + erreur)
@@ -487,7 +493,9 @@ class corex {
                 })
             }
         }
-        this._Mongo.CollectionExist(this._MongoVar.LoginAdminCollection, DoneCallbackAdminCollection, ErrorCallback)
+        this._Mongo.CollectionExist(this._MongoVar.UserCollection, DoneCallbackUserCollection, ErrorCallback)
+
+        // Vérifier si la collection Config existe. Si elle n'existe pas alors creation de la collection
         this._Mongo.CollectionExist(this._MongoVar.ConfigCollection, DoneCallbackConfigCollection, ErrorCallback)
     }
     /**
@@ -683,33 +691,52 @@ class corex {
         return HTMLStart + SocketIO + HTML1 + CoreXLoaderJsScript + os.EOL + CoreXLoginJsScript + os.EOL + GlobalCallApiPromise + os.EOL + HTML2 + LoadScript + HTMLEnd
     }
     /* Verification du login */
-    VerifyLogin(res, LoginCollection, Login, Pass){
-        const Query = { [this._MongoVar.LoginUserItem]: Login}
-        const Projection = { projection:{ _id: 1, [this._MongoVar.LoginPassItem]: 1, [this._MongoVar.LoginUserItem]: 1}}
-        this._Mongo.FindPromise(Query,Projection, LoginCollection).then((reponse)=>{
-            if(reponse.length == 0){
-                this.LogAppliError("Login non valide, pas de row en db pour ce user", "Server", "Server")
-                res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
-            } else if (reponse.length == 1){
-                if (reponse[0][this._MongoVar.LoginPassItem] == Pass){
-                    this.LogAppliInfo("Login valide", reponse[0][this._MongoVar.LoginUserItem], reponse[0]._id)
-                    delete reponse[0][this._MongoVar.LoginPassItem]
-                    let MyToken = new Object()
-                    MyToken.UserData = reponse[0]
-                    MyToken.LoginCollection = LoginCollection
-                    res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(MyToken)})
-                } else {
-                    this.LogAppliError("Login non valide, le Pass est different du password en db", "Server", "Server")
+    VerifyLogin(res, Site, Login, Pass){
+        if ((Site == "App") || (Site == "Admin")) {
+            const Query = { [this._MongoVar.LoginUserItem]: Login}
+            const Projection = { projection:{ _id: 1, [this._MongoVar.LoginPassItem]: 1, [this._MongoVar.LoginUserItem]: 1, [this._MongoVar.LoginAdminItem]: 1}}
+            this._Mongo.FindPromise(Query,Projection, this._MongoVar.UserCollection).then((reponse)=>{
+                if(reponse.length == 0){
+                    this.LogAppliError("Login non valide, pas de row en db pour ce user", "Server", "Server")
                     res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
+                } else if (reponse.length == 1){
+                    if (reponse[0][this._MongoVar.LoginPassItem] == Pass){
+                        if (Site == "Admin"){
+                            if (reponse[0][this._MongoVar.LoginAdminItem]){
+                                this.LogAppliInfo("Login valide for site:" + Site, "Server", "Server")
+                                delete reponse[0][this._MongoVar.LoginPassItem]
+                                let MyToken = new Object()
+                                MyToken.UserData = reponse[0]
+                                MyToken.Site = Site
+                                res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(MyToken)})
+                            } else {
+                                this.LogAppliError("Login non valide, User not Admin for site Admin", "Server", "Server")
+                                res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
+                            }
+                        } else {
+                            this.LogAppliInfo("Login valide for site:" + Site, "Server", "Server")
+                            delete reponse[0][this._MongoVar.LoginPassItem]
+                            let MyToken = new Object()
+                            MyToken.UserData = reponse[0]
+                            MyToken.Site = Site
+                            res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(MyToken)})
+                        }
+                    } else {
+                        this.LogAppliError("Login non valide, le Pass est different du password en db", "Server", "Server")
+                        res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
+                    }
+                } else {
+                    this.LogAppliError("Login non valide, trop de row en db pour ce user", "Server", "Server")
+                    res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
                 }
-            } else {
-                this.LogAppliError("Login non valide, trop de row en db pour ce user", "Server", "Server")
+            },(erreur)=>{
+                this.LogAppliError("Login non valide, erreur dans le call à la db : " + erreur, "Server", "Server")
                 res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
-            }
-        },(erreur)=>{
-            this.LogAppliError("Login non valide, erreur dans le call à la db : " + erreur, "Server", "Server")
-            res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
-        })
+            })
+        } else {
+            this.LogAppliError("Site not know: " + Site, "Server", "Server")
+            res.json({Error: true, ErrorMsg:"Site not know: " + Site, Token: ""})
+        }
     }
     /* genère et encrypt un Json Web Token */
     EncryptDataToken(DBData){
@@ -760,28 +787,34 @@ class corex {
         return reponse
     }
     /* Check la validation du UserId contenu dans un Token et envoie de l'app */
-    CheckTokenUserIdAndSendApp(Site, Id, Collection, res){
-        let MongoObjectId = require('./Mongo.js').MongoObjectId
-        const Query = {'_id': new MongoObjectId(Id)}
-        this._Mongo.CountPromise(Query, Collection).then((reponse)=>{
-            if (reponse==1) {
-                // Get Name of user in DB
-                let Projection = { projection:{[this._MongoVar.LoginUserItem]: 1}}
-                this._Mongo.FindPromise(Query, Projection, Collection).then((reponse)=>{
-                    this.LogAppliInfo("TokenUserId validé", reponse[0].User, Id)
-                    let MyApp = this.GetAppCode(Site, reponse[0].User, Id)
-                    res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
-                },(erreur)=>{
-                    this.LogAppliError("CheckTokenUserIdAndSendApp DB error : " + erreur, "Server", "Server")
-                })
-            } else {
-                this.LogAppliError("TokenUserId non validé. Nombre d'Id trouvéen DB: " + reponse, "Server", "Server")
+    CheckTokenUserIdAndSendApp(Site, Id, TokenSite, res){
+        if(TokenSite == Site){
+            let MongoObjectId = require('./Mongo.js').MongoObjectId
+            const Query = {'_id': new MongoObjectId(Id)}
+            this._Mongo.CountPromise(Query, this._MongoVar.UserCollection).then((reponse)=>{
+                if (reponse==1) {
+                    // Get Name of user in DB
+                    let Projection = { projection:{[this._MongoVar.LoginUserItem]: 1}}
+                    this._Mongo.FindPromise(Query, Projection, this._MongoVar.UserCollection).then((reponse)=>{
+                        this.LogAppliInfo("TokenUserId validé user:" + reponse[0].User, "Server", "Server")
+                        let MyApp = this.GetAppCode(Site, reponse[0].User, Id)
+                        res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
+                    },(erreur)=>{
+                        this.LogAppliError("CheckTokenUserIdAndSendApp DB error : " + erreur, "Server", "Server")
+                        res.json({Error: true, ErrorMsg:"Token non valide : DB error"})
+                    })
+                } else {
+                    this.LogAppliError("TokenUserId non validé. Nombre d'Id trouvéen DB: " + reponse, "Server", "Server")
+                    res.json({Error: true, ErrorMsg:"Token non valide"})
+                }
+            },(erreur)=>{
+                this.LogAppliError("TokenUserId validation => DB error : " + erreur, "Server", "Server")
                 res.json({Error: true, ErrorMsg:"Token non valide"})
-            }
-        },(erreur)=>{
-            this.LogAppliError("TokenUserId validation => DB error : " + erreur, "Server", "Server")
+            })
+        } else {
+            this.LogAppliError("Site in Token not equal to Site", "Server", "Server")
             res.json({Error: true, ErrorMsg:"Token non valide"})
-        })
+        }
     }
     /* Recuperer le code de l'App */
     GetAppCode(Site, User="null", UserId="null"){
