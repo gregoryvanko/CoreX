@@ -7,15 +7,12 @@ class ApiAdmin{
     }
 
     /* Get list of all user via l'ApiAdmin */
-    GetAllUsers(type, res, User, UserId){
-        this.LogAppliInfo("Call ApiAdmin GetAllUsers, Data: " + type, User, UserId)
-        let mongocollection =""
-        if (type == "Admin") {mongocollection = this._MongoVar.LoginAdminCollection}
-        else {mongocollection = this._MongoVar.LoginClientCollection}
+    GetAllUsers(Data, res, User, UserId){
+        this.LogAppliInfo("Call ApiAdmin GetAllUsers", User, UserId)
         const Query = {}
         const Projection = { projection:{ _id: 1, [this._MongoVar.LoginUserItem]: 1}}
         const Sort = {[this._MongoVar.LoginUserItem]: 1}
-        this._Mongo.FindSortPromise(Query,Projection, Sort, mongocollection).then((reponse)=>{
+        this._Mongo.FindSortPromise(Query,Projection, Sort, this._MongoVar.UserCollection).then((reponse)=>{
             if(reponse.length == 0){
                 res.json({Error: false, ErrorMsg: "No user in BD", Data: null})
             } else {
@@ -31,16 +28,12 @@ class ApiAdmin{
     GetUserData(Data, res, User, UserId){
         this.LogAppliInfo("Call ApiAdmin GetUserData, Data: " + JSON.stringify(Data), User, UserId)
         let MongoObjectId = require('./Mongo.js').MongoObjectId
-        // Définition de la collection de Mongo en fonction du type de user
-        let mongocollection =""
-        if (Data.UserType == "Admin") {mongocollection = this._MongoVar.LoginAdminCollection}
-        else {mongocollection = this._MongoVar.LoginClientCollection}
         // Definition de la Query de Mongo
         const Query = {'_id': new MongoObjectId(Data.UsesrId)}
         // Definition de la projection de Mongo en fonction du type de user
         let Projection = {projection:{}}
         // Find de type Promise de Mongo
-        this._Mongo.FindPromise(Query,Projection, mongocollection).then((reponse)=>{
+        this._Mongo.FindPromise(Query,Projection, this._MongoVar.UserCollection).then((reponse)=>{
             if(reponse.length == 0){
                 this.LogAppliError("Wrong UserId", User, UserId)
                 res.json({Error: true, ErrorMsg: "Wrong UserId", Data: null})
@@ -60,12 +53,8 @@ class ApiAdmin{
     /* Delete d'un user via l'ApiAdmin */
     DeleteUser(Data, res, User, UserId){
         this.LogAppliInfo("Call ApiAdmin DeleteUser, Data: " + JSON.stringify(Data), User, UserId)
-        // Définition de la collection de Mongo en fonction du type de user
-        let mongocollection =""
-        if (Data.UserType == "Admin") {mongocollection = this._MongoVar.LoginAdminCollection}
-        else {mongocollection = this._MongoVar.LoginClientCollection}
         // Delete de type Promise de Mongo
-        this._Mongo.DeleteByIdPromise(Data.UsesrId, mongocollection).then((reponse)=>{
+        this._Mongo.DeleteByIdPromise(Data.UsesrId, this._MongoVar.UserCollection).then((reponse)=>{
             if (reponse.deletedCount==1) {
                 res.json({Error: false, ErrorMsg: "User deleted in DB", Data: null})
             } else {
@@ -81,17 +70,13 @@ class ApiAdmin{
     /* Update d'un user (meme fonction pour Api et ApiAdmin) */
     UpdateUser(Data, res, User, UserId){
         this.LogAppliInfo("Call Api"+ Data.UserType + " UpdateUser, Data: " + JSON.stringify(Data), User, UserId)
-        // Définition de la collection de Mongo en fonction du type de user
-        let mongocollection =""
-        if (Data.UserType == "Admin") {mongocollection = this._MongoVar.LoginAdminCollection}
-        else {mongocollection = this._MongoVar.LoginClientCollection}
         // changement du password que si il est different de vide
         if (Data.Data[this._MongoVar.LoginPassItem] == ""){
             delete Data.Data[this._MongoVar.LoginPassItem]
             delete Data.Data[this._MongoVar.LoginConfirmPassItem]
         }
         // Update de type Promise de Mongo
-        this._Mongo.UpdateByIdPromise(Data.UsesrId, Data.Data, mongocollection).then((reponse)=>{
+        this._Mongo.UpdateByIdPromise(Data.UsesrId, Data.Data, this._MongoVar.UserCollection).then((reponse)=>{
             if (reponse.matchedCount==1) {
                 res.json({Error: false, ErrorMsg: "User Updated in DB", Data: null})
             } else {
@@ -114,24 +99,16 @@ class ApiAdmin{
         reponse.push(this._MongoVar.LoginLastNameItem)
         reponse.push(this._MongoVar.LoginPassItem)
         reponse.push(this._MongoVar.LoginConfirmPassItem)
-        if (Data == "Admin") {
-            // Add data strucutre only for admin
-        } else {
-            // Add data strucutre only for user
-        }
+        reponse.push(this._MongoVar.LoginAdminItem)
         res.json({Error: false, ErrorMsg: "User data structure", Data: reponse})
     }
 
     /** Creation d'un nouvel user */
     NewUser(Data, res, User, UserId){
         this.LogAppliInfo("Call ApiAdmin NewUser, Data: " + JSON.stringify(Data), User, UserId)
-        // Définition de la collection de Mongo en fonction du type de user
-        let mongocollection =""
-        if (Data.UserType == "Admin") {mongocollection = this._MongoVar.LoginAdminCollection}
-        else {mongocollection = this._MongoVar.LoginClientCollection}
-        let DataToDb = { [this._MongoVar.LoginUserItem]: Data.Data[this._MongoVar.LoginUserItem], [this._MongoVar.LoginFirstNameItem]: Data.Data[this._MongoVar.LoginFirstNameItem], [this._MongoVar.LoginLastNameItem]: Data.Data[this._MongoVar.LoginLastNameItem], [this._MongoVar.LoginPassItem]: Data.Data[this._MongoVar.LoginPassItem], [this._MongoVar.LoginConfirmPassItem]: Data.Data[this._MongoVar.LoginConfirmPassItem]}
+        let DataToDb = { [this._MongoVar.LoginUserItem]: Data.Data[this._MongoVar.LoginUserItem], [this._MongoVar.LoginFirstNameItem]: Data.Data[this._MongoVar.LoginFirstNameItem], [this._MongoVar.LoginLastNameItem]: Data.Data[this._MongoVar.LoginLastNameItem], [this._MongoVar.LoginPassItem]: Data.Data[this._MongoVar.LoginPassItem], [this._MongoVar.LoginConfirmPassItem]: Data.Data[this._MongoVar.LoginConfirmPassItem], [this._MongoVar.LoginAdminItem]: Data.Data[this._MongoVar.LoginAdminItem]}
         // Insert de type Promise de Mongo
-        this._Mongo.InsertOnePromise(DataToDb, mongocollection).then((reponse)=>{
+        this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.UserCollection).then((reponse)=>{
             res.json({Error: false, ErrorMsg: "User added in DB", Data: null})
         },(erreur)=>{
             this.LogAppliError("ApiAdminNewUser DB error : " + erreur, User, UserId)
@@ -143,16 +120,12 @@ class ApiAdmin{
     GetMyData(App, res, User, UserId){
         this.LogAppliInfo("Call ApiAdmin ApiGetMyData, Data: App=" + App, User, UserId)
         let MongoObjectId = require('./Mongo.js').MongoObjectId
-        // Définition de la collection de Mongo en fonction du type de user
-        let mongocollection =""
-        if (App == "Admin") {mongocollection = this._MongoVar.LoginAdminCollection}
-        else {mongocollection = this._MongoVar.LoginClientCollection}
         // Definition de la Query de Mongo
         const Query = {'_id': new MongoObjectId(UserId)}
         // Definition de la projection de Mongo en fonction du type de user
-        let Projection = { projection:{ _id: 0}}
+        let Projection = { projection:{ _id: 0, [this._MongoVar.LoginUserItem]:0, [this._MongoVar.LoginAdminItem]:0}}
         // Find de type Promise de Mongo
-        this._Mongo.FindPromise(Query,Projection, mongocollection).then((reponse)=>{
+        this._Mongo.FindPromise(Query,Projection, this._MongoVar.UserCollection).then((reponse)=>{
             if(reponse.length == 0){
                 this.LogAppliError("Wrong UserId", User, UserId)
                 res.json({Error: true, ErrorMsg: "Wrong UserId", Data: null})

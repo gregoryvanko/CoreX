@@ -100,7 +100,7 @@ class corex {
 		this._Express.post('/login', function (req, res){
             me.LogAppliInfo("Receive Post Login: " + JSON.stringify(req.body), "Server", "Server")
             // analyse du login en fonction du site
-            me.VerifyLogin(res, req.body.Site, req.body.Login,req.body.Pass)
+            me.VerifyLogin(res, req.body.Site, req.body.Login, req.body.Pass)
         })
         // Creation d'une route pour loader l'application
 		this._Express.post('/loadApp', function(req, res, next){
@@ -110,7 +110,7 @@ class corex {
                 let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
                 if (DecryptTokenReponse.TokenValide) {
                     // vérification que le UserId du Token existe en DB et envoie de l'app
-                    me.CheckTokenUserIdAndSendApp(req.body.Site, DecryptTokenReponse.TokenData.data.UserData._id, DecryptTokenReponse.TokenData.data.Site, res)
+                    me.CheckTokenUserIdAndSendApp(req.body.Site, DecryptTokenReponse.TokenData.data.UserData._id, res)
                 } else {
                     me.LogAppliError("Token non valide", "Server", "Server")
                     res.json({Error: true, ErrorMsg:"Token non valide"})
@@ -133,15 +133,9 @@ class corex {
                 // validation du Token
                 DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
                 if (DecryptTokenReponse.TokenValide){
-                    if (DecryptTokenReponse.TokenData.data.Site == "App"){
-                        User = DecryptTokenReponse.TokenData.data.UserData.User
-                        UserId = DecryptTokenReponse.TokenData.data.UserData._id
-                        Continue = true
-                    } else {
-                        Continue = false
-                        me.LogAppliError("Token non valide, TokenSite incorrect for site App", "Server", "Server")
-                        res.json({Error: true, ErrorMsg:"Token non valide, TokenSite incorrect"})
-                    }
+                    User = DecryptTokenReponse.TokenData.data.UserData.User
+                    UserId = DecryptTokenReponse.TokenData.data.UserData._id
+                    Continue = true
                 } else {
                     Continue = false
                     me.LogAppliError("Token non valide", "Server", "Server")
@@ -197,7 +191,7 @@ class corex {
             if (DecryptTokenReponse.TokenValide) {
                 let User = DecryptTokenReponse.TokenData.data.UserData.User
                 let UserId = DecryptTokenReponse.TokenData.data.UserData._id
-                if (DecryptTokenReponse.TokenData.data.Site == "Admin"){
+                if (DecryptTokenReponse.TokenData.data.UserData.Admin){
                     // Analyse de la logincollection en fonction du site
                     switch (req.body.FctName) {
                         case "GetAllUser":
@@ -702,12 +696,11 @@ class corex {
                 } else if (reponse.length == 1){
                     if (reponse[0][this._MongoVar.LoginPassItem] == Pass){
                         if (Site == "Admin"){
-                            if (reponse[0][this._MongoVar.LoginAdminItem]){
+                            if (reponse[0][this._MongoVar.LoginAdminItem] == true){
                                 this.LogAppliInfo("Login valide for site:" + Site, "Server", "Server")
                                 delete reponse[0][this._MongoVar.LoginPassItem]
                                 let MyToken = new Object()
                                 MyToken.UserData = reponse[0]
-                                MyToken.Site = Site
                                 res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(MyToken)})
                             } else {
                                 this.LogAppliError("Login non valide, User not Admin for site Admin", "Server", "Server")
@@ -718,7 +711,6 @@ class corex {
                             delete reponse[0][this._MongoVar.LoginPassItem]
                             let MyToken = new Object()
                             MyToken.UserData = reponse[0]
-                            MyToken.Site = Site
                             res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(MyToken)})
                         }
                     } else {
@@ -787,34 +779,40 @@ class corex {
         return reponse
     }
     /* Check la validation du UserId contenu dans un Token et envoie de l'app */
-    CheckTokenUserIdAndSendApp(Site, Id, TokenSite, res){
-        if(TokenSite == Site){
-            let MongoObjectId = require('./Mongo.js').MongoObjectId
-            const Query = {'_id': new MongoObjectId(Id)}
-            this._Mongo.CountPromise(Query, this._MongoVar.UserCollection).then((reponse)=>{
-                if (reponse==1) {
-                    // Get Name of user in DB
-                    let Projection = { projection:{[this._MongoVar.LoginUserItem]: 1}}
-                    this._Mongo.FindPromise(Query, Projection, this._MongoVar.UserCollection).then((reponse)=>{
+    CheckTokenUserIdAndSendApp(Site, Id, res){
+        let MongoObjectId = require('./Mongo.js').MongoObjectId
+        const Query = {'_id': new MongoObjectId(Id)}
+        this._Mongo.CountPromise(Query, this._MongoVar.UserCollection).then((reponse)=>{
+            if (reponse==1) {
+                // Get Name of user in DB
+                let Projection = { projection:{[this._MongoVar.LoginUserItem]: 1, [this._MongoVar.LoginAdminItem]: 1}}
+                this._Mongo.FindPromise(Query, Projection, this._MongoVar.UserCollection).then((reponse)=>{
+                    if(Site== "Admin"){
+                        if (reponse[0].Admin){
+                            this.LogAppliInfo("TokenUserId validé user:" + reponse[0].User, "Server", "Server")
+                            let MyApp = this.GetAppCode(Site, reponse[0].User, Id)
+                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
+                        } else {
+                            this.LogAppliError("TokenUserId non validé. User not Admin for site Admin", "Server", "Server")
+                            res.json({Error: true, ErrorMsg:"Token non valide"})
+                        }
+                    } else {
                         this.LogAppliInfo("TokenUserId validé user:" + reponse[0].User, "Server", "Server")
                         let MyApp = this.GetAppCode(Site, reponse[0].User, Id)
                         res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
-                    },(erreur)=>{
-                        this.LogAppliError("CheckTokenUserIdAndSendApp DB error : " + erreur, "Server", "Server")
-                        res.json({Error: true, ErrorMsg:"Token non valide : DB error"})
-                    })
-                } else {
-                    this.LogAppliError("TokenUserId non validé. Nombre d'Id trouvéen DB: " + reponse, "Server", "Server")
-                    res.json({Error: true, ErrorMsg:"Token non valide"})
-                }
-            },(erreur)=>{
-                this.LogAppliError("TokenUserId validation => DB error : " + erreur, "Server", "Server")
+                    }
+                },(erreur)=>{
+                    this.LogAppliError("CheckTokenUserIdAndSendApp DB error : " + erreur, "Server", "Server")
+                    res.json({Error: true, ErrorMsg:"Token non valide : DB error"})
+                })
+            } else {
+                this.LogAppliError("TokenUserId non validé. Nombre d'Id trouvéen DB: " + reponse, "Server", "Server")
                 res.json({Error: true, ErrorMsg:"Token non valide"})
-            })
-        } else {
-            this.LogAppliError("Site in Token not equal to Site", "Server", "Server")
+            }
+        },(erreur)=>{
+            this.LogAppliError("TokenUserId validation => DB error : " + erreur, "Server", "Server")
             res.json({Error: true, ErrorMsg:"Token non valide"})
-        }
+        })
     }
     /* Recuperer le code de l'App */
     GetAppCode(Site, User="null", UserId="null"){

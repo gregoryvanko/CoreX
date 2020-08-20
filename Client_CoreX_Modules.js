@@ -276,11 +276,12 @@ class CoreXActionButton{
     GoToApp(App){
         if(App){
             localStorage.setItem("CoreXApp", "App")
-            GlobalLogout()
+            //GlobalLogout()
         } else {
             localStorage.setItem("CoreXApp", "Admin")
-            location.reload()
+            //location.reload()
         }
+        location.reload()
     }
 }
 
@@ -596,11 +597,6 @@ class CoreXWindowUserConfig{
         el.forEach(element => {
             AllData[element.name] = element.value
         })
-        // verifier si le user est non vide
-        if(document.getElementById("User").value == ""){
-            InputDataValide = false
-            document.getElementById("ErrorOfMyUserData").innerHTML= "User not empty!"
-        }
         // verifier si le password = confirm password
         if(document.getElementById("Password").value != document.getElementById("Confirm-Password").value){
             InputDataValide = false

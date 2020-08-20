@@ -1,26 +1,22 @@
 class CoreXAdminUserApp{
-    constructor(HtmlId, AdminUser){
+    constructor(HtmlId){
         this._DivApp = document.getElementById(HtmlId)
-        this._ClickOnAdminBox = AdminUser
     }
     /** Start de l'application */
     Start(){
         // Clear view
         this.ClearView()
-        // Select Type of user
-        let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
         // Titre
-        this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of " + TypeTexte, "Titre", "", "margin-top:4%"))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of Users", "Titre", "", "margin-top:4%"))
         // Liste of User
         let ListOfUser = CoreXBuild.Div("ListOfUser", "FlexRowCenterspacearound", "")
         this._DivApp.appendChild(ListOfUser)
         // Waiting text
-        ListOfUser.appendChild(CoreXBuild.DivTexte("Get list of " + TypeTexte +"...", "", "Text",""))
+        ListOfUser.appendChild(CoreXBuild.DivTexte("Get list of Users...", "", "Text",""))
         // Global action
         GlobalAddActionInList("Add User", this.LoadViewCallForNewUser.bind(this))
         // Get All user
-        let Dataofcall = (this._ClickOnAdminBox) ? "Admin" : "User"
-        GlobalCallApiPromise("GetAllUser", Dataofcall).then((reponse)=>{
+        GlobalCallApiPromise("GetAllUser", "").then((reponse)=>{
             this.LoadUserList(reponse)
         },(erreur)=>{
             // Ajout des des action a ActionButton
@@ -30,12 +26,10 @@ class CoreXAdminUserApp{
             document.getElementById("ListOfUser").appendChild(CoreXBuild.DivTexte(erreur,"","Text","color:red;"))
         })
     }
-    GetTitreUser(){
+    GetTitre(){
         return "User"
     }
-    GetTitreAdmin(){
-        return "Admin"
-    }
+
     /* Image fu Box User */
     GetImgSrcUser(){
         return "data:image/png;base64,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"
@@ -57,10 +51,9 @@ class CoreXAdminUserApp{
     }
     /** Load de la vue contenant la liste de tous les users */
     LoadUserList(Users){
-        let TypeTexte = (this._ClickOnAdminBox) ? "Administrators" : "Users"
         document.getElementById("ListOfUser").innerHTML =""
         if (Users == null) {
-            document.getElementById("ListOfUser").appendChild(CoreXBuild.DivTexte("Sorry, no "+TypeTexte+" defined", "", "Text", ""))
+            document.getElementById("ListOfUser").appendChild(CoreXBuild.DivTexte("Sorry, no User defined", "", "Text", ""))
         } else {
             // Creation des box pour chaque User
             Users.forEach(User => {
@@ -91,10 +84,8 @@ class CoreXAdminUserApp{
         divButton.appendChild(buttoncancel)
         this._DivApp.appendChild(divButton)
 
-        // Data for the api Call
-        let UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
         // Call Get user data
-        GlobalCallApiPromise("GetUserDataStructure", UserType).then((reponse)=>{
+        GlobalCallApiPromise("GetUserDataStructure", "").then((reponse)=>{
             this.LoadUserDataStrucutre(reponse)
         },(erreur)=>{
             // Ajout des des action a ActionButton
@@ -138,7 +129,6 @@ class CoreXAdminUserApp{
         // Data for the api Call
         let DataCall = new Object()
         DataCall.UsesrId = UserId
-        DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
         // Call Get user data
         GlobalCallApiPromise("GetUserData", DataCall).then((reponse)=>{
             this.LoadUserData(reponse)
@@ -160,7 +150,6 @@ class CoreXAdminUserApp{
         // Creation de la liste HTML des données du user
         Object.keys(UserDataToShow).forEach(element => {
             document.getElementById("ListOfUserData").appendChild(this.UserDataBuilder(element, UserDataToShow[element]))
-
         })
         document.getElementById("ButtonSave").style.display = "inline"
         document.getElementById("ButtonCancel").style.display = "inline"
@@ -183,6 +172,11 @@ class CoreXAdminUserApp{
                 input.setAttribute("data-Input", "CoreXInput")
                 reponse.appendChild(input)
                 break;
+            case "Admin":
+                // input de type toggle
+                input = CoreXBuild.ToggleSwitch(Key,Value, 30)
+                reponse.appendChild(input)
+                break
             default:
                 // input de type texte
                 input = CoreXBuild.Input(Key,Value,"Input","","text",Key,"")
@@ -198,13 +192,13 @@ class CoreXAdminUserApp{
         let InputDataValide = true
         // Data for the api Call
         let DataCall = new Object()
-        DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
         // selectionner et ajouter tous les input de type CoreXInput dans DataCall
         let AllData = new Object()
         let el = document.querySelectorAll('[data-Input="CoreXInput"]')
         el.forEach(element => {
             AllData[element.name] = element.value
         })
+        AllData.Admin = document.getElementById("Admin").checked
         DataCall.Data = AllData
         // verifier si le user est non vide
         if(document.getElementById("User").value == ""){
@@ -251,7 +245,6 @@ class CoreXAdminUserApp{
             // Data for the api Call
             let DataCall = new Object()
             DataCall.UsesrId = UserId
-            DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
             // Call delete user
             GlobalCallApiPromise("DeleteUser", DataCall).then((reponse)=>{
                 this.Start()
@@ -271,13 +264,13 @@ class CoreXAdminUserApp{
         // Data for the api Call
         let DataCall = new Object()
         DataCall.UsesrId = UserId
-        DataCall.UserType = (this._ClickOnAdminBox) ? "Admin" : "User"
         // selectionner et ajouter tous les input de type CoreXInput dans DataCall
         let AllData = new Object()
         let el = document.querySelectorAll('[data-Input="CoreXInput"]')
         el.forEach(element => {
             AllData[element.name] = element.value
         })
+        AllData.Admin = document.getElementById("Admin").checked
         DataCall.Data = AllData
         // verifier si le user est non vide
         if(document.getElementById("User").value == ""){
