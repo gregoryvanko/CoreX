@@ -14,7 +14,7 @@ class CoreXActionButton{
 
         let Button = document.createElement("button")
         Button.setAttribute("id", this._HtmlId)
-        Button.setAttribute("style", "right: 0px; display: inline;")
+        Button.setAttribute("style", "right: 0px; display: inline; z-index: 20")
         Button.setAttribute("class", "CoreXActionMenuButton")
         Button.innerHTML = "&#9733"
         Button.addEventListener("click", this.OnClickCoreXActionButton.bind(this))
