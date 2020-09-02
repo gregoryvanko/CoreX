@@ -18,6 +18,7 @@ class corex {
         this._Icon = __dirname + "/apple-icon-192x192.png"
         this._ClientAppFolder = null
         this._AdminAppFolder = null
+        this._CommonAppFolder = null
         this._Usesocketio = false
         this._ApiFctList = []
         this._ApiAdminFctList = []
@@ -73,6 +74,7 @@ class corex {
     set IconRelPath(val){this._Icon = val}
     set ClientAppFolder(val){this._ClientAppFolder = val}
     set AdminAppFolder(val){this._AdminAppFolder = val}
+    set CommonAppFolder(val){this._CommonAppFolder = val}
     get AppName(){return this._AppName}
     get MongoUrl(){return this._MongoUrl}
     get Io(){return this._io}
@@ -885,16 +887,18 @@ class corex {
 
         return MyApp
     }
+
     /**
-     * On va chercher le contenu des fichier du repertoire client
-     * @param {object} MyApp Objet contenant le code js et css
+     * Analyse du contenu d'un folder et ajout des fichier CSS et JS existant dans l'objet MyApp
+     * @param {String} FolderName Chemin du folder contenant du code CSS ou JS
+     * @param {Object} MyApp Object contenant le contenu des fichier CSS et JS
      */
-    LoadAppFilesFromClientFolder(MyApp){
+    LoadAppFilesFromFolder(FolderName, MyApp){
         let fs = require('fs')
         let path = require('path')
         let os = require('os')
-        if(this._ClientAppFolder != null){
-            let folder = this._ClientAppFolder
+        if(FolderName != null){
+            let folder = FolderName
             if(fs.existsSync(folder)){
                 var files = fs.readdirSync(folder)
                 for (var i in files){
@@ -921,11 +925,26 @@ class corex {
                 this.LogAppliError("Client folder not found: " + folder), "Server", "Server"
             }
         } else {
-            MyApp.JS += 'alert("Client folder not defined (=null)")' + os.EOL 
-            this.LogAppliError("Client folder not defined (=null)", "Server", "Server")
+            MyApp.JS += 'alert("Folder not defined :" + ' + FolderName + ')' + os.EOL 
+            this.LogAppliError("Client folder not defined :" + FolderName, "Server", "Server")
         }
         return MyApp
     }
+
+    /**
+     * On va chercher le contenu des fichier du repertoire client
+     * @param {object} MyApp Objet contenant le code js et css
+     */
+    LoadAppFilesFromClientFolder(MyApp){
+        // Load du folder client
+        MyApp = this.LoadAppFilesFromFolder(this._ClientAppFolder, MyApp)
+        // Load du folder common
+        if (this._CommonAppFolder != null){
+            MyApp = this.LoadAppFilesFromFolder(this._CommonAppFolder, MyApp)
+        }
+        return MyApp
+    }
+
     /**
      * On va chercher le contenu des fichier du repertoire Admin
      * @param {object} MyApp Objet contenant le code js et css
@@ -938,36 +957,15 @@ class corex {
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_User.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Start.js", 'utf8') + os.EOL
+        // Load du folder Admin
         if(this._AdminAppFolder != null){
-            let folder = this._AdminAppFolder
-            if(fs.existsSync(folder)){
-                var files = fs.readdirSync(folder)
-                for (var i in files){
-                    if(fs.existsSync(folder + "/" + files[i])){
-                        switch (path.extname(files[i])) {
-                            case ".js":
-                                MyApp.JS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
-                                break;
-                            case ".css":
-                                MyApp.CSS += fs.readFileSync(folder + "/" + files[i], 'utf8') + os.EOL 
-                                break;
-                            default:
-                                MyApp.JS += 'console.log("file extension not know: ' + path.extname(files[i]) + '")' + os.EOL 
-                                this.LogAppliError("file extension not know: " + path.extname(files[i]), "Server", "Server")
-                                break;
-                        }
-                    } else {
-                        MyApp.JS += 'alert("file not found: ' + folder + "/" + files[i] + '")' + os.EOL 
-                        this.LogAppliError("file not found: " + folder + "/" + files[i], "Server", "Server")
-                    } 
-                }
-            } else {
-                MyApp.JS += 'alert("Admin folder not found: ' + folder + '")' + os.EOL 
-                this.LogAppliError("Admin folder not found: " + folder, "Server", "Server")
-            }
+            MyApp = this.LoadAppFilesFromFolder(this._AdminAppFolder, MyApp)
         } else {
-            //MyApp.JS += 'alert("Admin folder not defined (=null)")' + os.EOL
             this.LogAppliError("Admin folder not defined (=null)", "Server", "Server")
+        }
+        // Load du folder common
+        if (this._CommonAppFolder != null){
+            MyApp = this.LoadAppFilesFromFolder(this._CommonAppFolder, MyApp)
         }
         return MyApp
     }

@@ -5,7 +5,9 @@ class TestCoreXApp{
     }
     /** Start de l'application */
     Start(){
-        this._DivApp.innerHTML = `<div id="TestCSS">Hi all</div>`
+        // Titre
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Titre Page", "Titre", "", "margin-top:4%"))
+        this._DivApp.innerHTML = this._DivApp.innerHTML + `<div id="TestCSS">Hi all</div>`
         GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
 
         // Test affichage action button

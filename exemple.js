@@ -42,6 +42,8 @@ class ServeurTestCoreX{
         this._MyServeurApp.ClientAppFolder = __dirname + "/TestClient"
         // Chemin vers le dossier contenant sources Js et CSS de l'app Admin
         this._MyServeurApp.AdminAppFolder = __dirname + "/TestAdmin"
+        // Chemin vers le dossier contenant les sources Js et CSS de communes a l'app Admin et Client
+        this._MyServeurApp.CommonAppFolder = __dirname + "/TestCommon"
         // Chemin relatif de l'icone
         this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
         // Add serveur api for FctName = test

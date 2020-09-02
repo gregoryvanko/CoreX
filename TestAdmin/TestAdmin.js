@@ -61,24 +61,18 @@ class TestCoreXAdminApp{
                 margin-left: auto;
                 margin-right: auto;
             }
-            #Titre{
-                margin: 1% 1% 4% 1%;
-                font-size: var(--CoreX-Titrefont-size);
-                color: var(--CoreX-color);
-            }
+            
             .Text{font-size: var(--CoreX-font-size);}
 
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
             screen and (max-width: 700px)
             {
-                #Titre{font-size: var(--CoreX-TitreIphone-font-size);}
                 .Text{font-size: var(--CoreX-Iphone-font-size);}
             }
             @media screen and (min-width: 1200px)
             {
                 .DivContent{width: 1100px;}
-                #Titre{font-size: var(--CoreX-TitreMax-font-size);}
                 .Text{font-size: var(--CoreX-Max-font-size);}
             }
         </style>`
