@@ -21,7 +21,6 @@ class corex {
         this._CommonAppFolder = null
         this._Usesocketio = false
         this._ApiFctList = []
-        this._ApiAdminFctList = []
         this._SocketIoFctList = []
 
         // Varaible interne MongoDB
@@ -148,8 +147,44 @@ class corex {
             }
             // si on a valider la securité
             if (Continue) {
-                // Analyse de la logincollection en fonction du site
                 switch (req.body.FctName) {
+                    case "GetAllUser":
+                        //Api Admin
+                        me.ApiAdminCheckUser(me._ApiAdmin.GetAllUsers.bind(me), DecryptTokenReponse, req, res, User, UserId)
+                        break
+                    case "GetUserData":
+                        //Api Admin
+                        me.ApiAdminCheckUser(me._ApiAdmin.GetUserData.bind(me), DecryptTokenReponse, req, res, User, UserId)
+                        break
+                    case "UpdateUser":
+                        //Api Admin
+                        me.ApiAdminCheckUser(me._ApiAdmin.UpdateUser.bind(me), DecryptTokenReponse, req, res, User, UserId)
+                        break
+                    case "DeleteUser":
+                        //Api Admin
+                        me.ApiAdminCheckUser(me._ApiAdmin.DeleteUser.bind(me), DecryptTokenReponse, req, res, User, UserId)
+                        break
+                    case "GetUserDataStructure":
+                        //Api Admin
+                        me.ApiAdminCheckUser(me._ApiAdmin.GetUserDataStructure.bind(me), DecryptTokenReponse, req, res, User, UserId)
+                        break
+                    case "NewUser":
+                        //Api Admin
+                        me.ApiAdminCheckUser(me._ApiAdmin.NewUser.bind(me), DecryptTokenReponse, req, res, User, UserId)
+                        break
+                    case "GetLog":
+                        //Api Admin
+                        me.ApiAdminCheckUser(me._ApiAdmin.GetLog.bind(me), DecryptTokenReponse, req, res, User, UserId)
+                        break
+                    case "Backup":
+                        //Api Admin
+                        if (DecryptTokenReponse != null) {
+                            me._ApiAdmin.Backup(req.body.FctData, res, me.GetJobSchedule.bind(me), me.SetJobSchedule.bind(me), User, UserId)
+                        } else {
+                            me.LogAppliError("No personal data for application not secured", User, UserId)
+                            res.json({Error: true, ErrorMsg:"No personal data for application not secured"})
+                        }
+                        break
                     case "GetMyData":
                         if (DecryptTokenReponse != null) {
                             me._ApiAdmin.GetMyData("App", res, User, UserId)
@@ -162,7 +197,11 @@ class corex {
                         if (DecryptTokenReponse != null) {
                             let DataCall = new Object()
                             DataCall.UsesrId = DecryptTokenReponse.TokenData.data.UserData._id
-                            DataCall.UserType = ""
+                            if (DecryptTokenReponse.TokenData.data.UserData.Admin){
+                                DataCall.UserType = "Admin"
+                            } else {
+                                DataCall.UserType = ""
+                            }
                             DataCall.Data = req.body.FctData
                             me._ApiAdmin.UpdateUser(DataCall, res, User, UserId)
                         } else {
@@ -174,7 +213,11 @@ class corex {
                         let FctNotFound = true
                         me._ApiFctList.forEach(element => {
                             if (element.FctName == req.body.FctName){
-                                element.Fct(req.body.FctData, res, User, UserId)
+                                if(element.Admin){
+                                    me.ApiAdminCheckUser(element.Fct.bind(me), DecryptTokenReponse, req, res, User, UserId)
+                                } else {
+                                    element.Fct(req.body.FctData, res, User, UserId)
+                                }
                                 FctNotFound = false
                             }
                         })
@@ -184,73 +227,6 @@ class corex {
                         }
                         break
                 }
-            }
-        })
-        // Creation d'une route pour API Admin l'application
-		this._Express.post('/apiadmin', function(req, res, next){
-            // validation du Token
-            let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
-            if (DecryptTokenReponse.TokenValide) {
-                let User = DecryptTokenReponse.TokenData.data.UserData.User
-                let UserId = DecryptTokenReponse.TokenData.data.UserData._id
-                if (DecryptTokenReponse.TokenData.data.UserData.Admin){
-                    // Analyse de la logincollection en fonction du site
-                    switch (req.body.FctName) {
-                        case "GetAllUser":
-                            me._ApiAdmin.GetAllUsers(req.body.FctData, res, User, UserId)
-                            break
-                        case "GetUserData":
-                            me._ApiAdmin.GetUserData(req.body.FctData, res, User, UserId)
-                            break
-                        case "UpdateUser":
-                            me._ApiAdmin.UpdateUser(req.body.FctData, res, User, UserId)
-                            break
-                        case "DeleteUser":
-                            me._ApiAdmin.DeleteUser(req.body.FctData, res, User, UserId)
-                            break
-                        case "GetUserDataStructure":
-                            me._ApiAdmin.GetUserDataStructure(req.body.FctData, res, User, UserId)
-                            break
-                        case "NewUser":
-                            me._ApiAdmin.NewUser(req.body.FctData, res, User, UserId)
-                            break
-                        case "GetLog":
-                            me._ApiAdmin.GetLog(req.body.FctData, res, User, UserId)
-                            break
-                        case "Backup":
-                            me._ApiAdmin.Backup(req.body.FctData, res, me.GetJobSchedule.bind(me), me.SetJobSchedule.bind(me), User, UserId)
-                            break
-                        case "GetMyData":
-                            me._ApiAdmin.GetMyData("Admin", res, User, UserId)
-                            break
-                        case "UpdateMyUser":
-                            let DataCall = new Object()
-                            DataCall.UsesrId = DecryptTokenReponse.TokenData.data.UserData._id
-                            DataCall.UserType = "Admin"
-                            DataCall.Data = req.body.FctData
-                            me._ApiAdmin.UpdateUser(DataCall, res, User, UserId)
-                            break
-                        default:
-                            let FctNotFound = true
-                            me._ApiAdminFctList.forEach(element => {
-                                if (element.FctName == req.body.FctName){
-                                    element.Fct(req.body.FctData, res, User, UserId)
-                                    FctNotFound = false
-                                }
-                            })
-                            if (FctNotFound){
-                                me.LogAppliError("No API Admin for FctName: " + req.body.FctName, User, UserId)
-                                res.json({Error: true, ErrorMsg:"No API Admin for FctName: " + req.body.FctName})
-                            }
-                            break
-                    }
-                } else {
-                    me.LogAppliError("Token non valide, TokenSite incorrect for Site Admin", User, UserId)
-                    res.json({Error: true, ErrorMsg:"Token non valide, TokenSite incorrect"})
-                }
-            } else {
-                me.LogAppliError("Token non valide", "Server", "Server")
-                res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         })
         // Creation d'un route pour l'icone
@@ -537,19 +513,52 @@ class corex {
             this.LogAppliError("StartJobScheduleBackup: " + erreur, "Server", "Server")
         })
     }
-    /** Ajout d'un fonction a gerer via l'API user */
-    AddApiFct(FctName, Fct){
-        let apiobject = new Object()
-        apiobject.FctName = FctName
-        apiobject.Fct = Fct
-        this._ApiFctList.push(apiobject)
+    /**
+     * Execute une fonction si le user est Admin
+     * @param {Function} Fct Fonction a appeler si le user est admin
+     * @param {Object} DecryptTokenReponse Token décripté
+     * @param {req} req req
+     * @param {res} res res
+     * @param {string} User User
+     * @param {string} UserId UserID
+     */
+    ApiAdminCheckUser(Fct, DecryptTokenReponse, req, res, User, UserId){
+        if(this._AppIsSecured){
+            if (DecryptTokenReponse.TokenData.data.UserData.Admin){
+                Fct(req.body.FctData, res, User, UserId)
+            } else {
+                this.LogAppliError("User not Admin and call API Admin: " + req.body.FctName, User, UserId)
+                res.json({Error: true, ErrorMsg:"User not admin"})
+            }
+        } else {
+            if (req.body.Token != "Anonyme"){
+                let DecryptToken = this.DecryptDataToken(req.body.Token)
+                if (DecryptToken.TokenValide){
+                    if (DecryptTokenReponse.TokenData.data.UserData.Admin){
+                        let MyUser = DecryptToken.TokenData.data.UserData.User
+                        let MyUserId = DecryptToken.TokenData.data.UserData._id
+                        Fct(req.body.FctData, res, MyUser, MyUserId)
+                    } else {
+                        this.LogAppliError("User not Admin and call API Admin: " + req.body.FctName, User, UserId)
+                        res.json({Error: true, ErrorMsg:"User not admin"})
+                    }
+                } else {
+                    this.LogAppliError("Token non valide and call API Admin: " + req.body.FctName, User, UserId)
+                    res.json({Error: true, ErrorMsg:"Token non valide"})
+                }
+            } else {
+                this.LogAppliError("User Anonyme call API Admin: " + req.body.FctName, User, UserId)
+                res.json({Error: true, ErrorMsg:"User not admin"})  
+            }
+        }
     }
-    /** Ajout d'un fonction a gerer via l'API Admin */
-    AddApiAdminFct(FctName, Fct){
+    /** Ajout d'un fonction a gerer via l'API user */
+    AddApiFct(FctName, Fct, Admin=false){
         let apiobject = new Object()
         apiobject.FctName = FctName
         apiobject.Fct = Fct
-        this._ApiAdminFctList.push(apiobject)
+        apiobject.Admin = Admin
+        this._ApiFctList.push(apiobject)
     }
     /** Ajout d'un fonction a gerer via SocketIo */
     AddSocketIoFct(ModuleName, Fct){
@@ -634,7 +643,7 @@ class corex {
                 TokenApp ="App"
                 localStorage.setItem("CoreXApp", "App")
             }
-            let apiurl = (TokenApp == "Admin") ? "apiadmin" : "api"
+            let apiurl = "api"
             function GlobalCallApiPromise(FctName, FctData, UploadProgress, DownloadProgress){
                 return new Promise((resolve, reject)=>{
                     var xhttp = new XMLHttpRequest()

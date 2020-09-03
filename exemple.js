@@ -47,9 +47,9 @@ class ServeurTestCoreX{
         // Chemin relatif de l'icone
         this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
         // Add serveur api for FctName = test
-        this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this))
-        // Add serveur api Admin for FctName = test
-        this._MyServeurApp.AddApiAdminFct("Test", this.TestApiAdminCallForFctTest.bind(this))
+        this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this), false)
+        // Add serveur api Admin for FctName = TestAdmin
+        this._MyServeurApp.AddApiFct("TestAdmin", this.TestApiAdminCallForFctTest.bind(this), true)
         // Add SocketIo api
         this._MyServeurApp.AddSocketIoFct("Test", this.Test.bind(this))
         // Lancement du module corex

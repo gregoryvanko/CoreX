@@ -101,9 +101,9 @@ class MyAppCoreX{
         // Chemin relatif de l'icone
         this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
         // Add serveur api for FctName = Test
-        this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this))
-        // Add serveur api Admin for FctName = test
-        this._MyServeurApp.AddApiAdminFct("Test", this.TestApiAdminCallForFctTest.bind(this))
+        this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this), false)
+        // Add serveur api Admin for FctName = TestAdmin
+        this._MyServeurApp.AddApiFct("TestAdmin", this.TestApiAdminCallForFctTest.bind(this), true)
         // Lancement du module corex
         this._MyServeurApp.Start()
     }
@@ -126,7 +126,7 @@ MyApp.Start()
 ### Log info et Log Error
 Pour faire un Log en DB il faut utiliser les fonctions serveur  LogAppliInfo(Valeur= "undefined", User= "undefined", UserId= "undefined") ou LogAppliError(Valeur= "undefined", User= "undefined", UserId= "undefined")
 ```js 
-this._MyServeurApp. LogAppliInfo(Valeur, User, UserId)
+this._MyServeurApp.LogAppliInfo(Valeur, User, UserId)
 this._MyServeurApp.LogAppliError(Valeur, User, UserId)
 ```
 ### Les fonctions Get de la class CoreX
@@ -302,10 +302,10 @@ CoreXWindow.DeleteWindow()
 Pour ajouter une fonction dans l'API du serveur il faut utiliser la fonction serveur AddApiFct(FctName, FctBinded)
 - FctName: est le nom (string) de la fonction appelee via l'API
 - FctBinded: est la référence à la fonction a executer sur le serveur lorsque l'on recoit une commande API pour FctName
-- La fonction FctBinded possède les paramètres (Data, Res, UserId)
+- La fonction FctBinded possède les paramètres (Data, Res, User, UserId)
 ```js
 this._MyServeurApp.AddApiFct("Test", this.Test.bind(this))
-Test(Data, Res, UserId){
+Test(Data, Res, User, UserId){
 }
 ```
 
@@ -316,8 +316,8 @@ Les fichiers JS et CSS du frontend client de l'application admin doivent se trou
 Voici un exemple d'application Admin
 ```js
 class TestCoreXAdminApp{
-    constructor(HtmlId){
-        this._HtmlId = HtmlId
+    constructor(){
+        this._HtmlId = GlobalCoreXGetAppContentId()
         this._DivApp = null
     }
     /** Start de l'application */
@@ -397,7 +397,7 @@ class TestCoreXAdminApp{
 }
 
 // Creation de l'application 1
-let AdminApp1 = new TestCoreXAdminApp(GlobalCoreXGetAppContentId())
+let AdminApp1 = new TestCoreXAdminApp()
 
 // Ajout de l'application 1
 GlobalCoreXAddApp(AdminApp1.GetTitre(), AdminApp1.GetImgSrc(),AdminApp1.Start.bind(AdminApp1))
@@ -412,17 +412,6 @@ GlobalGetUserDataPromise().then((reponse)=>{
     alert(erreur)
 })
 ```
-
-### Backend de l'application Admin
-Pour ajouter une fonction dans l'API Admin du serveur il faut utiliser la fonction serveur AddApiAdminFct(FctName, FctBinded)
-- FctName: est le nom (string) de la fonction appelee via l'API
-- FctBinded: est la référence à la fonction a executer sur le serveur lorsque l'on recoit une commande API pour FctName
-- La fonction FctBinded possède les paramètres (Data, Res, UserId)
-```js
-this._MyServeurApp.AddApiAdminFct("Test", this.Test.bind(this))
-Test(Data, Res, UserId){
-}
-``` 
 
 ## SocketIo
 CoreX permet d'utiliser SocketIo

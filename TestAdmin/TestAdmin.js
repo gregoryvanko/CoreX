@@ -35,7 +35,7 @@ class TestCoreXAdminApp{
     }
 
     ClickTestButton(){
-        GlobalCallApiPromise("Test", "TestData").then((reponse)=>{
+        GlobalCallApiPromise("TestAdmin", "TestData").then((reponse)=>{
             alert(reponse)
         },(erreur)=>{
             alert(erreur)
