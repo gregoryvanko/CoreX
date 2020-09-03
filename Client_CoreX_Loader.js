@@ -4,7 +4,6 @@ class CoreXLoader {
         this._LoginToken = null
         this._Color = Color
         this._AppIsSecured = AppIsSecured
-
         // Variable externe secondaire
         this._Site = null
 
@@ -17,7 +16,7 @@ class CoreXLoader {
     /* Fonction lancee au debut du chargement de la page */
     Start(){
         // si non securisee on enregistre un token anonyme
-        if(!this._AppIsSecured){localStorage.setItem(this._DbKeyLogin, "Anonyme")}
+        if(this._AppIsSecured == "false"){localStorage.setItem(this._DbKeyLogin, "Anonyme")}
         // Get Token
         this._LoginToken = this.GetTokenLogin() 
         if(this._LoginToken != null){
