@@ -122,7 +122,7 @@ let MyApp = new MyAppCoreX()
 MyApp.Start() 
 ```
 
-## Les fonctions Backend
+## Les fonctions Backend de CoreX
 ### Log info et Log Error
 Pour faire un Log en DB il faut utiliser les fonctions serveur  LogAppliInfo(Valeur= "undefined", User= "undefined", UserId= "undefined") ou LogAppliError(Valeur= "undefined", User= "undefined", UserId= "undefined")
 ```js 
@@ -230,7 +230,7 @@ Mongo.InsertMultiplePromise(Data, Collection).then((reponse)=>{
 })
 ```
 
-## Une application basée sur CoreX
+## Une application basée sur CoreX: la partie Application
 CoreX permet de creer un Frontend et un Backend customise pour l'application
 ### Frontend de l'application
 Les fichiers JS et CSS du frontend client de l'application doivent se trouver sous répertoire défini par la variable "ClientAppFolder".
@@ -308,33 +308,27 @@ this._MyServeurApp.AddApiFct("Test", this.Test.bind(this))
 Test(Data, Res, User, UserId){
 }
 ```
-
-## Une application basée sur CoreX, la partie Admin
-CoreX permet de créer un Frontend et un Backend customise pour la partie Admin de l'application
-### Frontend de l'application Admin
-Les fichiers JS et CSS du frontend client de l'application admin doivent se trouver sous répertoire défini par la variable "AdminAppFolder".
-Voici un exemple d'application Admin
+### Exemple d'application Client
+Voici un exemple d'application 
 ```js
-class TestCoreXAdminApp{
+class PlayProgram{
     constructor(){
-        this._HtmlId = GlobalCoreXGetAppContentId()
-        this._DivApp = null
+        this._DivApp = document.getElementById(GlobalCoreXGetAppContentId())
     }
     /** Start de l'application */
     Start(){
         // Clear view
-        document.getElementById(this._HtmlId).innerHTML = ""
-        // Add CSS
-        document.getElementById(this._HtmlId).innerHTML = this.GetCss()
-        // construction et ajout au body de la page HTML start
-        this._DivApp = CoreXBuild.Div("App","DivContent")
-        document.getElementById(this._HtmlId).appendChild(this._DivApp)
-        // Clear view
         this.ClearView()
         // Titre
-        this._DivApp.appendChild(CoreXBuild.DivTexte("Titre Page", "Titre", "", "margin-top:4%"))
-
-        GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Programs", "", "Titre", "margin-top:4%"))
+        // Conteneur de la page
+        this._DivApp.appendChild(CoreXBuild.DivFlexColumn("Conteneur"))
+        // Texte d'info
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Get Configuration...","TxtInfo","Text","text-align: center;"))
+        // Texte du message d'erreur
+        this._DivApp.appendChild(CoreXBuild.DivTexte("","TxtError","Text","color:red; text-align: center;"))
+        // On laisse un blanc avant la fin de la page
+        this._DivApp.appendChild(CoreXBuild.Div("","","height:5vh;"))
     }
     /** Clear view */
     ClearView(){
@@ -345,64 +339,27 @@ class TestCoreXAdminApp{
         this._DivApp.innerHTML=""
     }
 
-    ClickTestButton(){
-        GlobalCallApiPromise("Test", "TestData").then((reponse)=>{
-            alert(reponse)
-        },(erreur)=>{
-            alert(erreur)
-        })
-    }
-
     /** Get Titre de l'application */
     GetTitre(){
-        return "Blogs"
+        return "Progams"
     }
     /** Get Img Src de l'application */
     GetImgSrc(){
         return "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gU3ZnIFZlY3RvciBJY29ucyA6IGh0dHA6Ly93d3cub25saW5ld2ViZm9udHMuY29tL2ljb24gLS0+DQo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgMTAwMCAxMDAwIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMDAwIDEwMDAiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPG1ldGFkYXRhPiBTdmcgVmVjdG9yIEljb25zIDogaHR0cDovL3d3dy5vbmxpbmV3ZWJmb250cy5jb20vaWNvbiA8L21ldGFkYXRhPg0KPGc+PHBhdGggZD0iTTk4My45LDQyMC40YzYuMS0xMi4yLDYuMS0zMC42LDAtNDIuOUw5NDEsMzM0LjZjLTYuMS02LjEtMTIuMi02LjEtMjQuNS02LjFjLTYuMSwwLTE4LjQsMC0yNC41LDYuMUw1NjEuMyw2NTkuMnYyNC41Vjc0NWg5OEw5ODMuOSw0MjAuNHogTTE5My44LDE5My43aDYxMi41VjI1NUgxOTMuOFYxOTMuN0wxOTMuOCwxOTMuN3ogTTE5My44LDM3Ny41aDU2OS42bDQyLjktNDIuOXYtMTguNEgxOTMuOFYzNzcuNXogTTE5My44LDY4My43SDUwMFY3NDVIMTkzLjhWNjgzLjdMMTkzLjgsNjgzLjd6IE0xOTMuOCw1MDBoNDQ3LjFsNjEuMi02MS4zSDE5My44VjUwMHogTTkyOC43LDU2MS4ydjI0NWMwLDY3LjQtNTUuMSwxMjIuNS0xMjIuNSwxMjIuNUgxOTMuOGMtNjcuNCwwLTEyMi41LTU1LjEtMTIyLjUtMTIyLjVWMTkzLjdjMC02Ny40LDU1LjEtMTIyLjUsMTIyLjUtMTIyLjVoNjEyLjVjNjcuNCwwLDEyMi41LDU1LjEsMTIyLjUsMTIyLjV2NzMuNWMxOC40LDAsMzYuOCwxMi4yLDU1LjEsMjQuNWw2LjEsNi4xVjE5My44Qzk5MCw4OS42LDkxMC40LDEwLDgwNi4zLDEwSDE5My44Qzg5LjYsMTAsMTAsODkuNiwxMCwxOTMuOHY2MTIuNUMxMCw5MTAuNCw4OS42LDk5MCwxOTMuOCw5OTBoNjEyLjVDOTEwLjQsOTkwLDk5MCw5MTAuNCw5OTAsODA2LjNWNTAwTDkyOC43LDU2MS4yeiBNMTkzLjgsNjIyLjVoMzI0LjZsNi4xLTYuMWw1NS4xLTU1LjFIMTkzLjhWNjIyLjV6Ii8+PC9nPg0KPC9zdmc+"
     }
-    /** Get Css de l'application */
-    GetCss(){
-        return /*html*/`
-        <style>
-            .DivContent{
-                padding: 1px;
-                margin: 20px auto 10px auto;
-                width: 96%;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            #Titre{
-                margin: 1% 1% 4% 1%;
-                font-size: var(--CoreX-Titrefont-size);
-                color: var(--CoreX-color);
-            }
-            .Text{font-size: var(--CoreX-font-size);}
-
-            @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
-            only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
-            screen and (max-width: 700px)
-            {
-                #Titre{font-size: var(--CoreX-TitreIphone-font-size);}
-                .Text{font-size: var(--CoreX-Iphone-font-size);}
-            }
-            @media screen and (min-width: 1200px)
-            {
-                .DivContent{width: 1100px;}
-                #Titre{font-size: var(--CoreX-TitreMax-font-size);}
-                .Text{font-size: var(--CoreX-Max-font-size);}
-            }
-        </style>`
-    }
 }
 
 // Creation de l'application 1
-let AdminApp1 = new TestCoreXAdminApp()
+let PlayProgramApp = new PlayProgram()
 
 // Ajout de l'application 1
-GlobalCoreXAddApp(AdminApp1.GetTitre(), AdminApp1.GetImgSrc(),AdminApp1.Start.bind(AdminApp1))
+GlobalCoreXAddApp(PlayProgramApp.GetTitre(), PlayProgramApp.GetImgSrc(),PlayProgramApp.Start.bind(PlayProgramApp))
 ```
 
+## Une application basée sur CoreX: la partie Admin
+CoreX permet de créer un Frontend et un Backend customise pour la partie Admin de l'application
+### Frontend de l'application Admin
+Les fichiers JS et CSS du frontend client de l'application admin doivent se trouver sous répertoire défini par la variable "AdminAppFolder".
 voici les fonction blobale du client admin
 ```js
 // Get User and _id de tous les user
