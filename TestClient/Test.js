@@ -1,27 +1,39 @@
 class TestCoreXApp{
     constructor(HtmlId){
-        this._DivApp = document.getElementById(HtmlId)
+        this._DivApp = document.getElementById(GlobalCoreXGetAppContentId())
+
+        this._test = "test"
         this.SocketIo = null
     }
     /** Start de l'application */
     Start(){
-        // Titre
+        //*** Test CoreXBuild
         this._DivApp.appendChild(CoreXBuild.DivTexte("Titre Page", "Titre", "", "margin-top:4%"))
-        this._DivApp.innerHTML = this._DivApp.innerHTML + `<div id="TestCSS">Hi all</div>`
+        //this._DivApp.appendChild(CoreXBuild.DivTexte("Hi all", "TestCSS", "", ""))
+        let Conteneur = CoreXBuild.DivFlexColumn("Conteneur")
+        this._DivApp.appendChild(Conteneur)
+        Conteneur.appendChild(CoreXBuild.InputWithLabel("InputBox", "Label Test", "Text", "MyInputTest","", "Input", "text", "placehoder",this.InputOnBlur.bind(this)))
+        
+        //*** Test ActionList
         GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
 
-        // Test affichage action button
-        GlobalDisplayAction("On")
+        //*** Test affichage action button
+        //GlobalDisplayAction("On")
         //GlobalDisplayAction("Off")
         //GlobalDisplayAction("Toggle")
 
-        // Test de SocketIO
-        this.SocketIo = GlobalGetSocketIo()
-        this.SocketIo.on('Ping', function(message) {
-            console.log('Le serveur a un message Ping pour vous : ' + message)
-        })
-        GlobalSendSocketIo("Test", "ActionX", "ValueX")
+        //*** Test de SocketIO
+        //this.SocketIo = GlobalGetSocketIo()
+        //this.SocketIo.on('Ping', function(message) {
+        //    console.log('Le serveur a un message Ping pour vous : ' + message)
+        //})
+        //GlobalSendSocketIo("Test", "ActionX", "ValueX")
     }
+
+    InputOnBlur(){
+        alert(this._test)
+    }
+
     ClickTestButton(){
         GlobalSendSocketIo("Test", "ActionX", "ValueX")
         GlobalCallApiPromise("Test", "TestDataGreg").then((reponse)=>{
@@ -40,9 +52,9 @@ class TestCoreXApp{
 }
 
 // Creation de l'application 1
-let App1 = new TestCoreXApp(GlobalCoreXGetAppContentId())
-let App2 = new TestCoreXApp(GlobalCoreXGetAppContentId())
-
-// Ajout de l'application 1
+let App1 = new TestCoreXApp()
 GlobalCoreXAddApp(App1.GetTitre(), App1.GetImgSrc(),App1.Start.bind(App1))
-GlobalCoreXAddApp("", "",App2.Start.bind(App2))
+
+//*** Ajout de l'application 2
+//let App2 = new TestCoreXApp()
+//GlobalCoreXAddApp("", "",App2.Start.bind(App2))

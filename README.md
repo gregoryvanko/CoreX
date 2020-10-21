@@ -299,12 +299,13 @@ CoreXWindow.BuildWindow(ElementHtml) // ElementHtml est le contenu object html d
 CoreXWindow.DeleteWindow()
 ```
 ### Backend de l'application
-Pour ajouter une fonction dans l'API du serveur il faut utiliser la fonction serveur AddApiFct(FctName, FctBinded)
+Pour ajouter une fonction dans l'API du serveur il faut utiliser la fonction serveur AddApiFct(FctName, FctBinded, BooleanAdmin)
 - FctName: est le nom (string) de la fonction appelee via l'API
 - FctBinded: est la référence à la fonction a executer sur le serveur lorsque l'on recoit une commande API pour FctName
 - La fonction FctBinded possède les paramètres (Data, Res, User, UserId)
+- BooleanAdmin: Boolean determinant si cet api ne peut etre utilisé que par un user Admin
 ```js
-this._MyServeurApp.AddApiFct("Test", this.Test.bind(this))
+this._MyServeurApp.AddApiFct("Test", this.Test.bind(this), false)
 Test(Data, Res, User, UserId){
 }
 ```

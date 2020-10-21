@@ -67,7 +67,7 @@ class CoreXSocketIo{
             console.log(me.GetTime() + ' SocketIo.on reconnect_failed')
             document.body.innerHTML = `
                 <div style='font-size: 3vh; color: red; text-align: center; margin-top: 10%;'>SocketIo: User disconnected</div>
-                <div style='margin-top: 2%; display: flex; justify-content: center;'><button style='padding: 2vh; font-size: 3vh; cursor: pointer; border: 1px solid rgb(44,1,21); border-radius: 20px; text-align: center; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7); background: white; outline: none;' onclick="location.reload();">Reload</button></div>
+                <div style='margin-top: 2%; display: flex; justify-content: center;'><button style='padding: 1vh; font-size: 3vh; cursor: pointer; border: 1px solid rgb(44,1,21); border-radius: 20px; text-align: center; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7); background: white; outline: none;' onclick="location.reload();">Reload</button></div>
                 `
         })
     }

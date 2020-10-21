@@ -175,6 +175,26 @@ class CoreXBuild{
         return element
     }
 
+    static InputWithLabel(BoxClass=null, Label=null, LabelClass=null, Id="Input", InputValue="", InputClass="", InputType="text", InputPlaceholder="", OnBlur=null){
+        let element = document.createElement("div")
+        if ((BoxClass!=null)&&(BoxClass!="")){element.setAttribute("Class", BoxClass)}
+        if ((Label!=null)&&(Label!="")){
+            if ((LabelClass!=null)&&(LabelClass!="")){
+                element.appendChild(CoreXBuild.DivTexte(Label,"",LabelClass,"width: 100%;"))
+            } else {
+                element.appendChild(CoreXBuild.DivTexte(Label,"","","width: 100%;"))
+            }
+        }
+        let inputStyle="box-sizing: border-box; outline: none; margin: 0; background: #fafafa; -webkit-box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); -moz-box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #666;"
+        let InputProgramName = CoreXBuild.Input(Id,InputValue,InputClass,inputStyle,InputType,Id,InputPlaceholder)
+        InputProgramName.onfocus = function(){InputProgramName.placeholder = ""}
+        if (OnBlur!=null){
+            InputProgramName.onblur = OnBlur
+        }
+        element.appendChild(InputProgramName)
+        return element
+    }
+
     static Textarea(Id,Placeholder, Class, Style){
         let element = document.createElement("textarea")
         element.setAttribute("wrap", "off")
