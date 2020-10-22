@@ -64,9 +64,9 @@ class ServeurTestCoreX{
         Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct Test=" + Data})
     }
     Test(Data, Socket,User, UserId){
-        this._MyServeurApp.LogAppliInfo("Call SocketIo ModuleName: Test, Data.Action: " + Data.Action + " Data.Value: " + Data.Value, User, UserId)
+        this._MyServeurApp.LogAppliInfo("Call SocketIo ModuleName: Test, Data.Action: " + Data.Action + " ,Data.Value: " + Data.Value, User, UserId)
         let Io = this._MyServeurApp.Io
-        Io.emit("Ping", "Test de ping")
+        Io.emit("Ping", "Io: Send ping from server")
     }
 }
 

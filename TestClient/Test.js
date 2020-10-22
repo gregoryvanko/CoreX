@@ -23,10 +23,10 @@ class TestCoreXApp{
         //GlobalDisplayAction("Toggle")
 
         //*** Test de SocketIO
-        //this.SocketIo = GlobalGetSocketIo()
-        //this.SocketIo.on('Ping', function(message) {
-        //    console.log('Le serveur a un message Ping pour vous : ' + message)
-        //})
+        this.SocketIo = GlobalGetSocketIo()
+        this.SocketIo.on('Ping', function(message) {
+            console.log('Le serveur a un message Ping pour vous : ' + message)
+        })
         //GlobalSendSocketIo("Test", "ActionX", "ValueX")
     }
 
@@ -35,12 +35,12 @@ class TestCoreXApp{
     }
 
     ClickTestButton(){
-        GlobalSendSocketIo("Test", "ActionX", "ValueX")
-        GlobalCallApiPromise("Test", "TestDataGreg").then((reponse)=>{
-            alert(reponse)
-        },(erreur)=>{
-            alert(erreur)
-        })
+        GlobalSendSocketIo("Test", "IO-ActionX", "IO-ValueX")
+        // GlobalCallApiPromise("Test", "TestDataGreg").then((reponse)=>{
+        //     alert(reponse)
+        // },(erreur)=>{
+        //     alert(erreur)
+        // })
     }
     
     GetTitre(){

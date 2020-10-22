@@ -382,7 +382,7 @@ class CoreXWindowUserConfig{
             <style>
             .Text{font-size: var(--CoreX-font-size);}
             #CoreXWindowScreen{
-                width:80%;
+                width:50%;
                 display: block;
                 position: fixed;
                 margin-left: auto;
@@ -422,30 +422,24 @@ class CoreXWindowUserConfig{
                 align-items: center;
                 align-content:center;
             }
-            .InputKey{
-                color: gray; 
-                width:25%; 
-                margin:1%; 
-                text-align:right;
+            .CoreXWindowUserConfigInputBox{
+                width: 90%;
+                margin-left: auto;
+                margin-right: auto;
             }
-            .Input {
-                width: 75%;
+            .CoreXWindowUserConfigInput {
+                border: solid 1px #dcdcdc;
                 font-size: var(--CoreX-font-size);
-                padding: 1vh;
-                border: solid 0px #dcdcdc;
-                border-bottom: solid 1px transparent;
-                margin: 1% 0px 1% 0px;
+                padding: 2%;
             }
-            .Input:focus,
-            .Input.focus {
-                outline: none;
-                border: solid 0px #707070;
-                border-bottom-width: 1px;
+            .CoreXWindowUserConfigInput:focus,
+            .CoreXWindowUserConfigInput.focus {
                 border-color: var(--CoreX-color);
             }
-            .Input:hover{
-                border-bottom-width: 1px;
-                border-color: var(--CoreX-color);
+            @media (hover: hover) {
+                .CoreXWindowUserConfigInput:hover{
+                    border-color: var(--CoreX-color);
+                }
             }
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
@@ -454,19 +448,13 @@ class CoreXWindowUserConfig{
                 .Text{font-size: var(--CoreX-Iphone-font-size);}
                 #CoreXWindowScreen{width: 90%;}
                 .CoreXWindowUserConfigButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
-                .InputKey {width:35%;}
-                .Input {
-                    width: 60%;
-                    font-size: var(--CoreX-Iphone-font-size);
-                    border-bottom: solid 1px #dcdcdc;
-                }
+                .CoreXWindowUserConfigInput {font-size: var(--CoreX-Iphone-font-size); padding: 3%;}
             }
             @media screen and (min-width: 1200px)
             {
                 .Text{font-size: var(--CoreX-Max-font-size);}
-                #CoreXWindowScreen{width: 1000px;}
                 .CoreXWindowUserConfigButton {font-size: var(--CoreX-Max-font-size); border-radius: 40px; width: 200px;}
-                .Input {font-size: var(--CoreX-Max-font-size);}
+                .CoreXWindowUserConfigInput {font-size: var(--CoreX-Max-font-size);}
             }
             </style>`
 
@@ -549,43 +537,30 @@ class CoreXWindowUserConfig{
     static LoadUserData(Data){
         // Supprimer les proprietés du user a ne pas afficher
         let UserDataToShow = Data[0]
+        let CoreXWindowUserConfigData = document.getElementById("CoreXWindowUserConfigData")
+        CoreXWindowUserConfigData.innerHTML = ""
+        CoreXWindowUserConfigData.appendChild(CoreXBuild.Div("","","height:2vh;"))
         // Creation de la liste HTML des données du user
-        let reponse =""
         Object.keys(UserDataToShow).forEach(element => {
-            reponse += CoreXWindowUserConfig.UserDataBuilder(element, UserDataToShow[element])
+            CoreXWindowUserConfigData.appendChild(CoreXWindowUserConfig.BuildUserDataview(element, UserDataToShow[element]))
         })
-        document.getElementById("CoreXWindowUserConfigData").innerHTML = reponse
     }
     /** Construcuteur d'un element html pour une Key et une valeur */
-    static UserDataBuilder(Key, Value){
-        let reponse =""
-        switch (Key) {
-            case "Password":
-                // input de type texte
-                reponse = /*html*/`
-                <div class="FlexRowLeftCenter" style="width:90%;">
-                    <div class="Text InputKey">`+ Key.replace("-", " ") + " :" + /*html*/`</div>
-                    <input data-Input="CoreXMyUserDataInput" id="`+ Key + /*html*/`" value="`+ Value + /*html*/`" class="Input" type="password" name="`+ Key + /*html*/`" placeholder=""> 
-                </div>`
-                break
-            case "Confirm-Password":
-                // input de type texte
-                reponse = /*html*/`
-                <div class="FlexRowLeftCenter" style="width:90%;">
-                    <div class="Text InputKey">`+ Key.replace("-", " ") + " :" + /*html*/`</div>
-                    <input data-Input="CoreXMyUserDataInput" id="`+ Key + /*html*/`" value="`+ Value + /*html*/`" class="Input" type="password" name="`+ Key + /*html*/`" placeholder=""> 
-                </div>`
-                break;
-            default:
-                // input de type texte
-                reponse = /*html*/`
-                <div class="FlexRowLeftCenter" style="width:90%;">
-                    <div class="Text InputKey">`+ Key.replace("-", " ") + " :" + /*html*/`</div>
-                    <input data-Input="CoreXMyUserDataInput" id="`+ Key + /*html*/`" value="`+ Value + /*html*/`" class="Input" type="text" name="`+ Key + /*html*/`" placeholder=""> 
-                </div>`
-                break
+    static BuildUserDataview(Key, Value){
+        let element = document.createElement("div")
+        element.setAttribute("Class", "CoreXWindowUserConfigInputBox")
+        element.appendChild(CoreXBuild.DivTexte(Key.replace("-", " "),"","Text","width: 100%;"))
+
+        let inputStyle="box-sizing: border-box; outline: none; margin: 0; background: #fafafa; -webkit-box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); -moz-box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #666; margin-bottom: 1vw;"
+        let InputProgramName = null
+        if((Key== "Password") || (Key== "Confirm-Password")){
+            InputProgramName = CoreXBuild.Input(Key,Value,"CoreXWindowUserConfigInput",inputStyle + "width: 50%;","password",Key,"")
+        } else {
+            InputProgramName = CoreXBuild.Input(Key,Value,"CoreXWindowUserConfigInput",inputStyle+ "width: 100%;","text",Key,"")
         }
-        return reponse
+        InputProgramName.setAttribute("data-Input", "CoreXMyUserDataInput")
+        element.appendChild(InputProgramName)
+        return element
     }
     /** Update Data of user */
     static UpdateMyData(){

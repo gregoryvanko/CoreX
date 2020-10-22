@@ -271,7 +271,7 @@ class corex {
         if(this._Usesocketio){
             this.LogAppliInfo("SocketIo is used", "Server", "Server")
             // Creation de socket io
-            this._io= require('socket.io')(this._http)
+            this._io= require('socket.io')(this._http, {pingTimeout: 60000})
 
             // Identification du user
             let User = "Anonyme"
