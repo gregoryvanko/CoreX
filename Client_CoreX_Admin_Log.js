@@ -17,12 +17,12 @@ class CoreXAdminLogApp{
         GlobalClearActionList()
         GlobalAddActionInList("Refresh", this.Start.bind(this))
         // Titre
-        this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of logs", "Titre", "", "margin-top:4%"))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of logs", "CoreXAdminLogTitre", "", "margin-top:4%"))
         // Liste of log
-        let ListOflog = CoreXBuild.Div("ListOfLog", "FlexColumnCenterSpaceAround", "")
+        let ListOflog = CoreXBuild.Div("ListOfLog", "CoreXAdminLogFlexColumnCenterSpaceAround", "")
         this._DivApp.appendChild(ListOflog)
         // Waiting text
-        ListOflog.appendChild(CoreXBuild.DivTexte("Get list of Log...", "", "Text",""))
+        ListOflog.appendChild(CoreXBuild.DivTexte("Get list of Log...", "", "CoreXAdminLogText",""))
         // Get All Log
         GlobalCallApiPromise("GetLog", this._LogCursor).then((reponse)=>{
             this.LoadLog(reponse)
@@ -31,7 +31,7 @@ class CoreXAdminLogApp{
             GlobalClearActionList()
             GlobalAddActionInList("Refresh", this.Start.bind(this))
             document.getElementById("ListOfLog").innerHTML=""
-            document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte(erreur,"","Text","color:red;"))
+            document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte(erreur,"","CoreXAdminLogText","color:red;"))
         })
     }
     GetTitre(){
@@ -45,29 +45,28 @@ class CoreXAdminLogApp{
     LoadLog(Data){
         document.getElementById("ListOfLog").innerHTML =""
         if (Data == null) {
-            document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte("Sorry, no Log stored", "", "Text", ""))
+            document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte("Sorry, no Log stored", "", "CoreXAdminLogText", ""))
         } else {
-            let Liste = CoreXBuild.Div("Liste", "FlexColumnCenterSpaceAround", "width:90%;")
+            let Liste = CoreXBuild.Div("Liste", "CoreXAdminLogFlexColumnCenterSpaceAround", "width:90%;")
             document.getElementById("ListOfLog").appendChild(Liste)
             // Creation des box pour chaque Log
             Data.forEach(element => {
                 this._LogIdListe.push(element._id)
                 let flex = null
                 if(element.Type == "Error"){
-                    flex = CoreXBuild.Div("", "FlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;")
+                    flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;")
                 } else {
-                    flex = CoreXBuild.Div("", "FlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%;")
+                    flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%;")
                 }
                 Liste.appendChild(flex)
 
-                flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "Text LogDate", ""))
-                flex.appendChild(CoreXBuild.DivTexte(element.Type,"", "Text LogType", ""))
-                flex.appendChild(CoreXBuild.DivTexte(element.User,"", "Text LogUser", ""))
-                flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "Text LogValeur", "overflow-wrap:break-word"))
+                flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "CoreXAdminLogText CoreXAdminLogDate", ""))
+                flex.appendChild(CoreXBuild.DivTexte(element.User,"", "CoreXAdminLogText CoreXAdminLogUser", ""))
+                flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "CoreXAdminLogText CoreXAdminLogValeur", "overflow-wrap:break-word"))
             })
-            let DivButton = CoreXBuild.Div("", "FlexRowCenterspacearound", "width:90%; border-top: 1px solid black; margin-top:1%;")
+            let DivButton = CoreXBuild.Div("", "CoreXAdminLogFlexRowCenterspacearound", "width:90%; border-top: 1px solid black; margin-top:1%;")
             document.getElementById("ListOfLog").appendChild(DivButton)
-            DivButton.appendChild(CoreXBuild.Button("Next",this.GetNextLog.bind(this),"Button", "ButtonNext"))
+            DivButton.appendChild(CoreXBuild.Button("Next",this.GetNextLog.bind(this),"CoreXAdminLogButton", "ButtonNext"))
         }
     }
     /** Get des next log */
@@ -81,14 +80,14 @@ class CoreXAdminLogApp{
             GlobalClearActionList()
             GlobalAddActionInList("Refresh", this.Start.bind(this))
             document.getElementById("ListOfLog").innerHTML=""
-            document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte(erreur,"","Text","color:red;"))
+            document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte(erreur,"","CoreXAdminLogText","color:red;"))
         })
     }
     /** Load des next log */
     LoadNextLog(Data){
         document.getElementById("ButtonNext").innerHTML = "Next"
         if (Data == null) {
-            document.getElementById("Liste").appendChild(CoreXBuild.DivTexte("End of log", "", "FlexRowCenterspacearound", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;"))
+            document.getElementById("Liste").appendChild(CoreXBuild.DivTexte("End of log", "", "CoreXAdminLogFlexRowCenterspacearound", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;"))
             document.getElementById("ButtonNext").style.visibility = 'hidden'
         } else {
             Data.forEach(element => {
@@ -96,16 +95,15 @@ class CoreXAdminLogApp{
                     this._LogIdListe.push(element._id)
                     let flex = null
                     if(element.Type == "Error"){
-                        flex = CoreXBuild.Div("", "FlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;")
+                        flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;")
                     } else {
-                        flex = CoreXBuild.Div("", "FlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%;")
+                        flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%;")
                     }
                     document.getElementById("Liste").appendChild(flex)
 
-                    flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "Text LogDate", ""))
-                    flex.appendChild(CoreXBuild.DivTexte(element.Type,"", "Text LogType", ""))
-                    flex.appendChild(CoreXBuild.DivTexte(element.User,"", "Text LogUser", ""))
-                    flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "Text LogValeur", "overflow-wrap:break-word"))
+                    flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "CoreXAdminLogText CoreXAdminLogDate", ""))
+                    flex.appendChild(CoreXBuild.DivTexte(element.User,"", "CoreXAdminLogText CoreXAdminLogUser", ""))
+                    flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "CoreXAdminLogText CoreXAdminLogValeur", "overflow-wrap:break-word"))
                 }
             })
         }
@@ -115,20 +113,20 @@ class CoreXAdminLogApp{
     GetCss(){
         return /*html*/`
         <style>
-            #Titre{
+            #CoreXAdminLogTitre{
                 margin: 1% 1% 4% 1%;
                 font-size: var(--CoreX-Titrefont-size);
                 color: var(--CoreX-color);
             }
-            .Text{font-size: var(--CoreX-font-size);}
-            .FlexColumnCenterSpaceAround{
+            .CoreXAdminLogText{font-size: var(--CoreX-font-size);}
+            .CoreXAdminLogFlexColumnCenterSpaceAround{
                 display: flex;
                 flex-direction: column;
                 justify-content:space-around;
                 align-content:center;
                 align-items: center;
             }
-            .FlexRowCenterspacearound{
+            .CoreXAdminLogFlexRowCenterspacearound{
                 display: flex;
                 flex-direction: row;
                 justify-content:space-around;
@@ -136,14 +134,14 @@ class CoreXAdminLogApp{
                 align-items: center;
                 flex-wrap: wrap;
             }
-            .FlexRowStartCenter{
+            .CoreXAdminLogFlexRowStartCenter{
                 display: flex;
                 flex-direction: row;
                 justify-content: flex-start;
                 align-content: center;
                 align-items: center;
             }
-            .Button{
+            .CoreXAdminLogButton{
                 margin: 4vh 0vh 8vh 0vh;
                 padding: 1vh 2vh 1vh 2vh;
                 cursor: pointer;
@@ -157,32 +155,30 @@ class CoreXAdminLogApp{
                 background: white;
                 outline: none;
             }
-            .Button:hover{
+            .CoreXAdminLogButton:hover{
                 box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
             }
-            .LogDate{width:20%;}
-            .LogType{width:8%;}
-            .LogUser{width:20%;}
-            .LogValeur{width:50%; font-size: calc(var(--CoreX-font-size)*0.8);}
+            .CoreXAdminLogDate{width:20%;}
+            .CoreXAdminLogUser{width:24%;}
+            .CoreXAdminLogValeur{width:54%; font-size: calc(var(--CoreX-font-size)*0.8);}
 
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
             screen and (max-width: 700px)
             {
-                #Titre{font-size: var(--CoreX-TitreIphone-font-size);}
-                .Text{font-size: var(--CoreX-Iphone-font-size);}
-                .Button{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
-                .LogDate{width:20%;}
-                .LogType{width:8%;}
-                .LogUser{width:20%;}
-                .LogValeur{width:50%; font-size: calc(var(--CoreX-Iphone-font-size)*0.8);}
+                #CoreXAdminLogTitre{font-size: var(--CoreX-TitreIphone-font-size);}
+                .CoreXAdminLogText{font-size: var(--CoreX-Iphone-font-size);}
+                .CoreXAdminLogButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
+                .CoreXAdminLogDate{width:20%;}
+                .CoreXAdminLogUser{width:24%;}
+                .CoreXAdminLogValeur{width:50%; font-size: calc(var(--CoreX-Iphone-font-size)*0.8);}
             }
             @media screen and (min-width: 1200px)
             {
-                #Titre{font-size: var(--CoreX-TitreMax-font-size);}
-                .Text{font-size: var(--CoreX-Max-font-size);}
-                .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
-                .LogValeur{font-size: calc(var(--CoreX-Max-font-size)*0.8);}
+                #CoreXAdminLogTitre{font-size: var(--CoreX-TitreMax-font-size);}
+                .CoreXAdminLogText{font-size: var(--CoreX-Max-font-size);}
+                .CoreXAdminLogButton{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
+                .CoreXAdminLogValeur{font-size: calc(var(--CoreX-Max-font-size)*0.8);}
             }
         </style>`
     }
