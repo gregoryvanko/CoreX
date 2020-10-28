@@ -14,12 +14,12 @@ class ServeurTestCoreX{
         // Parametres de l'application CoreX
         const CSS= {
             FontSize:{
-                TexteNomrale:"1.5vw",               //--CoreX-font-size
-                TexteIphone:"3vw",                  //--CoreX-Iphone-font-size
-                TexteMax:"18px",                    //--CoreX-Max-font-size
-                TitreNormale:"4vw",                 //--CoreX-Titrefont-size
-                TitreIphone:"7vw",                  //--CoreX-TitreIphone-font-size
-                TitreMax:"50px"                     //--CoreX-TitreMax-font-size
+                TexteNomrale:"1.5vw",               //--TexteNomrale
+                TexteIphone:"3vw",                  //--TexteIphone
+                TexteMax:"18px",                    //--TexteMax
+                TitreNormale:"4vw",                 //--TitreNormale
+                TitreIphone:"7vw",                  //--TitreIphone
+                TitreMax:"50px"                     //--TitreMax
             },
             Color:{
                 Normale:"rgb(20, 163, 255)"         //--CoreX-color

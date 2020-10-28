@@ -43,16 +43,16 @@ class CoreXApp{
         let DivContent = CoreXBuild.DivFlexColumn()
         document.getElementById(this._ContentAppId).appendChild(DivContent)
         // Titre de la page
-        DivContent.appendChild(CoreXBuild.DivTexte(document.title,"", "Titre", ""))
+        DivContent.appendChild(CoreXBuild.DivTexte(document.title,"", "CoreXAppTitre", ""))
         // Container des pages
-        let DivContainerCommand = CoreXBuild.Div("","ContainerCommand","")
+        let DivContainerCommand = CoreXBuild.Div("","CoreXAppContainerCommand","")
         DivContent.appendChild(DivContainerCommand)
         // Flex container
         let DivFlexContainerCommand = CoreXBuild.DivFlexRowAr()
         DivContainerCommand.appendChild(DivFlexContainerCommand)
         // afficher toutes les pages
         if (this._ListApplications.length == 0){
-            DivFlexContainerCommand.appendChild(CoreXBuild.DivTexte("No Application defined","", "Text", ""))
+            DivFlexContainerCommand.appendChild(CoreXBuild.DivTexte("No Application defined","", "CoreXAppText", ""))
         } else {
             // si il y a une seule application, on la demarre
             if (this._ListApplications.length ==1){
@@ -70,10 +70,10 @@ class CoreXApp{
     BuildAppCard(Titre, Src, Start){
         if(!Titre){Titre = "No Name"}
         if(!Src){Src = this.GetNoImgSrc()}
-        let element = CoreXBuild.Div("", "ImageConteneur", "display: flex; flex-direction: column; justify-content:space-around; align-content:center; align-items: center;")
-        let Contentimg = CoreXBuild.Image64(Src,"","ImgAppCard","")
+        let element = CoreXBuild.Div("", "CoreXAppImageConteneur", "display: flex; flex-direction: column; justify-content:space-around; align-content:center; align-items: center;")
+        let Contentimg = CoreXBuild.Image64(Src,"","CoreXAppImgAppCard","")
         element.appendChild(Contentimg)
-        let ContentTxt = CoreXBuild.DivTexte(Titre, "", "Text", "")
+        let ContentTxt = CoreXBuild.DivTexte(Titre, "", "CoreXAppText", "")
         element.appendChild(ContentTxt)
         element.addEventListener("click", this.ClickAppCard.bind(this,Start))
         return element
@@ -102,14 +102,14 @@ class CoreXApp{
     GetCss(){
         return /*html*/`
         <style>
-        .Titre{
+        .CoreXAppTitre{
             margin: 1% 1% 4% 1%;
             font-size: var(--CoreX-Titrefont-size);
             color: var(--CoreX-color);
         }
-        .ContainerCommand{width: 100%;}
-        .Text{font-size: var(--CoreX-font-size);}
-        .ImageConteneur{
+        .CoreXAppContainerCommand{width: 100%;}
+        .CoreXAppText{font-size: var(--CoreX-font-size);}
+        .CoreXAppImageConteneur{
             border: 1px solid black;
             border-radius: 5px;
             width: 14vw;
@@ -118,10 +118,10 @@ class CoreXApp{
             padding: 3px;
             margin: 4px;
         }
-        .ImageConteneur:hover{
+        .CoreXAppImageConteneur:hover{
                 box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
             }
-        .ImgAppCard{
+        .CoreXAppImgAppCard{
             max-width: 100%;
             display: block;
             margin-left: auto;
@@ -136,25 +136,25 @@ class CoreXApp{
         only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
         screen and (max-width: 700px)
         {
-            .Titre{font-size: var(--CoreX-TitreIphone-font-size);}
-            .ContainerCommand{width: 90%;}
-            .Text{font-size: var(--CoreX-Iphone-font-size);}
-            .ImageConteneur{
+            .CoreXAppTitre{font-size: var(--CoreX-TitreIphone-font-size);}
+            .CoreXAppContainerCommand{width: 90%;}
+            .CoreXAppText{font-size: var(--CoreX-Iphone-font-size);}
+            .CoreXAppImageConteneur{
                 width: 25vw;
                 height: 25vw;
             }
-            .ImgAppCard{max-height: 20vw;}
+            .CoreXAppImgAppCard{max-height: 20vw;}
         }
 
         @media screen and (min-width: 1200px)
         {
-            .Titre{font-size: var(--CoreX-TitreMax-font-size);}
-            .Text{font-size: var(--CoreX-Max-font-size);}
-            .ImageConteneur{
+            .CoreXAppTitre{font-size: var(--CoreX-TitreMax-font-size);}
+            .CoreXAppText{font-size: var(--CoreX-Max-font-size);}
+            .CoreXAppImageConteneur{
                 width: 148px;
                 height: 148px;
             }
-            .ImgAppCard{max-height: 120px;}
+            .CoreXAppImgAppCard{max-height: 120px;}
         }
         </style>`
     }

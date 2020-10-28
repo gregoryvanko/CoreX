@@ -61,17 +61,17 @@ class MyAppCoreX{
         // Parametres de l'application CoreX
         const CSS= {
             FontSize:{
-                //--CoreX-font-size
+                //--TexteNomrale
                 TexteNomrale:"1.5vw",
-                //--CoreX-Iphone-font-size
+                //--TexteIphone
                 TexteIphone:"3vw",
-                //--CoreX-Max-font-size
+                //--TexteMax
                 TexteMax:"18px",
-                //--CoreX-Titrefont-size
+                //--TitreNormale
                 TitreNormale:"4vw",
-                //--CoreX-TitreIphone-font-size
+                //--TitreIphone
                 TitreIphone:"7vw",
-                //--CoreX-TitreMax-font-size
+                //--TitreMax
                 TitreMax:"50px"
             },
             Color:{

@@ -4,11 +4,11 @@
     margin-right: auto;
     margin-top: 10%;
     text-align: center;
-    font-size: var(--CoreX-font-size);
+    font-size: var(--TexteNomrale);
 }
 .Text{
     margin: 1%;
-    font-size: var(--CoreX-font-size);
+    font-size: var(--TexteNomrale);
 }
 
 .InputBox{
@@ -17,7 +17,7 @@
 .Input {
     border: solid 1px #dcdcdc;
     width: 100%;
-    font-size: var(--CoreX-font-size);
+    font-size: var(--TexteNomrale);
     padding: 2%;
 }
 .Input:focus,
@@ -32,15 +32,15 @@
 
 @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),screen and (max-width: 700px)
 {
-    #TestCSS{font-size: var(--CoreX-Iphone-font-size);}
-    .Text{font-size: var(--CoreX-Iphone-font-size);}
+    #TestCSS{font-size: var(--TexteIphone);}
+    .Text{font-size: var(--TexteIphone);}
     .InputBox{width: 90%;}
-    .Input {font-size: var(--CoreX-Iphone-font-size); padding: 3%;}
+    .Input {font-size: var(--TexteIphone); padding: 3%;}
 }
 
 @media screen and (min-width: 1200px)
 {
-    #TestCSS{font-size: var(--CoreX-Max-font-size);}
-    .Text{font-size: var(--CoreX-Max-font-size);}
-    .Input {font-size: var(--CoreX-Max-font-size);}
+    #TestCSS{font-size: var(--TexteMax);}
+    .Text{font-size: var(--TexteMax);}
+    .Input {font-size: var(--TexteMax);}
 }

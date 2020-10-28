@@ -1,6 +1,6 @@
 #Titre{
     margin: 1% 1% 4% 1%;
-    font-size: var(--CoreX-Titrefont-size);
+    font-size: var(--TitreNormale);
     color: var(--CoreX-color);
 }
 
@@ -8,9 +8,9 @@
 only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
 screen and (max-width: 700px)
 {
-    #Titre{font-size: var(--CoreX-TitreIphone-font-size);}
+    #Titre{font-size: var(--TitreIphone);}
 }
 @media screen and (min-width: 1200px)
 {
-    #Titre{font-size: var(--CoreX-TitreMax-font-size);}
+    #Titre{font-size: var(--TitreMax);}
 }

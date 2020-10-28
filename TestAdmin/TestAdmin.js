@@ -62,18 +62,18 @@ class TestCoreXAdminApp{
                 margin-right: auto;
             }
             
-            .Text{font-size: var(--CoreX-font-size);}
+            .Text{font-size: var(--TexteNomrale);}
 
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
             screen and (max-width: 700px)
             {
-                .Text{font-size: var(--CoreX-Iphone-font-size);}
+                .Text{font-size: var(--TexteIphone);}
             }
             @media screen and (min-width: 1200px)
             {
                 .DivContent{width: 1100px;}
-                .Text{font-size: var(--CoreX-Max-font-size);}
+                .Text{font-size: var(--TexteMax);}
             }
         </style>`
     }

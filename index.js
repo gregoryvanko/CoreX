@@ -11,7 +11,7 @@ class corex {
         this._Debug = true
         this._AppIsSecured = true
         this._CSS = {
-            FontSize:{TexteNomrale:"2vw", TexteIphone:"3vw", TexteMax:"20px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},
+            FontSize:{TexteNomrale:"1.5vw", TexteIphone:"3vw", TexteMax:"18px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},
             Color:{Normale:"rgb(20, 163, 255)"},
             AppContent:{WidthNormale:"96%",WidthIphone:"96%",WidthMax:"1100px"}
         }
@@ -572,6 +572,7 @@ class corex {
         let fs = require('fs')
         let os = require('os')
 
+        //{TexteNomrale:"1.5vw", TexteIphone:"3vw", TexteMax:"18px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"}
         let HTMLStart =`
 <!doctype html>
 <html>
@@ -586,12 +587,24 @@ class corex {
         <style>
             :root {
                 --CoreX-color: `+ this._CSS.Color.Normale +`;
-                --CoreX-font-size : `+ this._CSS.FontSize.TexteNomrale +`;
-                --CoreX-Iphone-font-size : `+ this._CSS.FontSize.TexteIphone +`;
-                --CoreX-Max-font-size : `+ this._CSS.FontSize.TexteMax +`;
-                --CoreX-Titrefont-size : `+ this._CSS.FontSize.TitreNormale +`;
-                --CoreX-TitreIphone-font-size : `+ this._CSS.FontSize.TitreIphone +`;
-                --CoreX-TitreMax-font-size : `+ this._CSS.FontSize.TitreMax +`;
+                
+                --CoreX-font-size : 1.5vw;
+                --TexteNomrale : `+ this._CSS.FontSize.TexteNomrale +`;
+
+                --CoreX-Iphone-font-size :3vw;
+                --TexteIphone : `+ this._CSS.FontSize.TexteIphone +`;
+
+                --CoreX-Max-font-size : 18px;
+                --TexteMax : `+ this._CSS.FontSize.TexteMax +`;
+
+                --CoreX-Titrefont-size : 4vw;
+                --TitreNormale : `+ this._CSS.FontSize.TitreNormale +`;
+
+                --CoreX-TitreIphone-font-size : 7vw;
+                --TitreIphone : `+ this._CSS.FontSize.TitreIphone +`;
+                
+                --CoreX-TitreMax-font-size : 50px;
+                --TitreMax : `+ this._CSS.FontSize.TitreMax +`;
             }
             body{
                 margin: 0;

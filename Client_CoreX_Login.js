@@ -112,12 +112,12 @@ class CoreXLogin {
         if(LocalStorageApp == "App"){
             reponse += `
             <div style="height:6vh;"></div>
-            <a href="/" id="GoToAdminApp" class="Text">Go to Admin application</a>
+            <a href="/" id="GoToAdminApp" class="LoginText">Go to Admin application</a>
             </div>`
         } else {
             reponse += `
             <div style="height:6vh;"></div>
-            <a href="/" id="GoToAdminApp" class="Text">Go to application</a>
+            <a href="/" id="GoToAdminApp" class="LoginText">Go to application</a>
             </div>`
         }
         return reponse
@@ -133,7 +133,7 @@ class CoreXLogin {
                 font-size: var(--CoreX-Titrefont-size);
                 color: var(--CoreX-color);
             }
-            .Text{font-size: var(--CoreX-font-size);}
+            .LoginText{font-size: var(--CoreX-font-size);}
 
             /*Box du login*/
             #LoginBox{
@@ -192,7 +192,7 @@ class CoreXLogin {
             screen and (max-width: 700px)
             {
                 #LoginTitre{font-size: var(--CoreX-TitreIphone-font-size);}
-                .Text{font-size: var(--CoreX-Iphone-font-size);}
+                .LoginText{font-size: var(--CoreX-Iphone-font-size);}
                 #LoginBox{width: 90%;}
                 .LoginInput {font-size: var(--CoreX-Iphone-font-size);}
                 .LoginError{font-size: var(--CoreX-Iphone-font-size);}
@@ -202,7 +202,7 @@ class CoreXLogin {
             @media screen and (min-width: 1200px)
             {
                 #LoginTitre{font-size: var(--CoreX-TitreMax-font-size);}
-                .Text{font-size: var(--CoreX-Max-font-size);}
+                .LoginText{font-size: var(--CoreX-Max-font-size);}
                 #LoginBox{max-width: 500px;}
                 .LoginInput {font-size: var(--CoreX-Max-font-size);}
                 .LoginError{font-size: var(--CoreX-Max-font-size);}

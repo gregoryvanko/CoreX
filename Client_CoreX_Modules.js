@@ -80,7 +80,7 @@ class CoreXActionButton{
             } else {
                 let Divtext = document.createElement("div")
                 Divtext.setAttribute("style", "text-align: center;")
-                Divtext.setAttribute("class", "Text")
+                Divtext.setAttribute("class", "CoreXActionText")
                 Divtext.innerHTML="No Action defined"
                 Div.appendChild(Divtext)
             }
@@ -162,7 +162,7 @@ class CoreXActionButton{
     GetCss(){
     return /*html*/`
         <style>
-        .Text{font-size: var(--CoreX-font-size);}
+        .CoreXActionText{font-size: var(--CoreX-font-size);}
         .CoreXActionButtonButton{
             margin: 2% 2% 2% 2%;
             padding: 1vh;
@@ -218,14 +218,14 @@ class CoreXActionButton{
         only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
         screen and (max-width: 700px)
         {
-            .Text{font-size: var(--CoreX-Iphone-font-size);}
+            .CoreXActionText{font-size: var(--CoreX-Iphone-font-size);}
             .CoreXActionButtonButton{font-size: calc(var(--CoreX-Iphone-font-size)*1.5); border-radius: 40px; height: 12VW;}
             .CoreXActionButtonImageButton{width:15%;}
             .CoreXActionMenuButton{font-size: calc(3vw * 1.5);height: 10VW; width: 10VW;}
         }
         @media screen and (min-width: 1200px)
         {
-            .Text{font-size: var(--CoreX-Max-font-size);}
+            .CoreXActionText{font-size: var(--CoreX-Max-font-size);}
             .CoreXActionButtonButton {font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
             .CoreXActionButtonImageButton{width:43px;}
             .CoreXActionMenuButton {font-size: 18px;}
@@ -380,7 +380,7 @@ class CoreXWindowUserConfig{
         var divInputScreenMaxHeight = winH - 2*(winH/10)  + "px"
         var CSS =/*html*/`
             <style>
-            .Text{font-size: var(--CoreX-font-size);}
+            .CoreXActionText{font-size: var(--CoreX-font-size);}
             #CoreXWindowScreen{
                 width:50%;
                 display: block;
@@ -445,14 +445,14 @@ class CoreXWindowUserConfig{
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
             screen and (max-width: 700px)
             {
-                .Text{font-size: var(--CoreX-Iphone-font-size);}
+                .CoreXActionText{font-size: var(--CoreX-Iphone-font-size);}
                 #CoreXWindowScreen{width: 90%;}
                 .CoreXWindowUserConfigButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
                 .CoreXWindowUserConfigInput {font-size: var(--CoreX-Iphone-font-size); padding: 3%;}
             }
             @media screen and (min-width: 1200px)
             {
-                .Text{font-size: var(--CoreX-Max-font-size);}
+                .CoreXActionText{font-size: var(--CoreX-Max-font-size);}
                 .CoreXWindowUserConfigButton {font-size: var(--CoreX-Max-font-size); border-radius: 40px; width: 200px;}
                 .CoreXWindowUserConfigInput {font-size: var(--CoreX-Max-font-size);}
             }
@@ -484,7 +484,7 @@ class CoreXWindowUserConfig{
 
         var DivErrorTxt = document.createElement("div")
         DivErrorTxt.setAttribute("id", "ErrorOfMyUserData")
-        DivErrorTxt.setAttribute("class", "Text")
+        DivErrorTxt.setAttribute("class", "CoreXActionText")
         DivErrorTxt.setAttribute("style", "color:red; text-align:center;")
         Div2.appendChild(DivErrorTxt)
 
@@ -525,7 +525,7 @@ class CoreXWindowUserConfig{
             CoreXWindowUserConfig.LoadUserData(reponse)
             document.getElementById("ButtonUpdateMyData").style.display = "inline"
         },(erreur)=>{
-            document.getElementById("CoreXWindowUserConfigWaitingText").innerHTML='<div class="Text" style="color:red;">' + erreur + '</div>'
+            document.getElementById("CoreXWindowUserConfigWaitingText").innerHTML='<div class="CoreXActionText" style="color:red;">' + erreur + '</div>'
         })
     }
     /** Suppression de la fenetre */
@@ -549,7 +549,7 @@ class CoreXWindowUserConfig{
     static BuildUserDataview(Key, Value){
         let element = document.createElement("div")
         element.setAttribute("Class", "CoreXWindowUserConfigInputBox")
-        element.appendChild(CoreXBuild.DivTexte(Key.replace("-", " "),"","Text","width: 100%;"))
+        element.appendChild(CoreXBuild.DivTexte(Key.replace("-", " "),"","CoreXActionText","width: 100%;"))
 
         let inputStyle="box-sizing: border-box; outline: none; margin: 0; background: #fafafa; -webkit-box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); -moz-box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #666; margin-bottom: 1vw;"
         let InputProgramName = null
@@ -580,13 +580,13 @@ class CoreXWindowUserConfig{
         // Sit tout les input son valide en envoie les data
         if (InputDataValide){
             // afficher le message d'update
-            document.getElementById("CoreXWindowUserConfigData").innerHTML='<div class="Text" style="text-align: center;">Update du user...</div>'
+            document.getElementById("CoreXWindowUserConfigData").innerHTML='<div class="CoreXActionText" style="text-align: center;">Update du user...</div>'
             document.getElementById("ButtonUpdateMyData").style.display = "none"
             // Call delete user
             GlobalCallApiPromise("UpdateMyUser", AllData).then((reponse)=>{
                 CoreXWindowUserConfig.DeleteWindow()
             },(erreur)=>{
-                document.getElementById("CoreXWindowUserConfigData").innerHTML='<div class="Text" style="color:red; text-align: center;">' + erreur + '</div>'
+                document.getElementById("CoreXWindowUserConfigData").innerHTML='<div class="CoreXActionText" style="color:red; text-align: center;">' + erreur + '</div>'
             })
         }
     }
