@@ -56,5 +56,5 @@ let App1 = new TestCoreXApp()
 GlobalCoreXAddApp(App1.GetTitre(), App1.GetImgSrc(),App1.Start.bind(App1))
 
 //*** Ajout de l'application 2
-//let App2 = new TestCoreXApp()
-//GlobalCoreXAddApp("", "",App2.Start.bind(App2))
+let App2 = new TestCoreXApp()
+GlobalCoreXAddApp("", "",App2.Start.bind(App2))

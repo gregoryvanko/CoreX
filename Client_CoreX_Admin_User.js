@@ -7,12 +7,12 @@ class CoreXAdminUserApp{
         // Clear view
         this.ClearView()
         // Titre
-        this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of Users", "Titre", "", "margin-top:4%"))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of Users", "CoreXAdminUserTitre", "", "margin-top:4%"))
         // Liste of User
-        let ListOfUser = CoreXBuild.Div("ListOfUser", "FlexRowCenterspacearound", "")
+        let ListOfUser = CoreXBuild.Div("ListOfUser", "CoreXAdminUserFlexRowCenterspacearound", "")
         this._DivApp.appendChild(ListOfUser)
         // Waiting text
-        ListOfUser.appendChild(CoreXBuild.DivTexte("Get list of Users...", "", "Text",""))
+        ListOfUser.appendChild(CoreXBuild.DivTexte("Get list of Users...", "", "CoreXAdminUserText",""))
         // Global action
         GlobalAddActionInList("Add User", this.LoadViewCallForNewUser.bind(this))
         // Get All user
@@ -23,7 +23,7 @@ class CoreXAdminUserApp{
             GlobalClearActionList()
             GlobalAddActionInList("Refresh", this.Start.bind(this))
             document.getElementById("ListOfUser").innerHTML=""
-            document.getElementById("ListOfUser").appendChild(CoreXBuild.DivTexte(erreur,"","Text","color:red;"))
+            document.getElementById("ListOfUser").appendChild(CoreXBuild.DivTexte(erreur,"","CoreXAdminUserText","color:red;"))
         })
     }
     GetTitre(){
@@ -53,13 +53,13 @@ class CoreXAdminUserApp{
     LoadUserList(Users){
         document.getElementById("ListOfUser").innerHTML =""
         if (Users == null) {
-            document.getElementById("ListOfUser").appendChild(CoreXBuild.DivTexte("Sorry, no User defined", "", "Text", ""))
+            document.getElementById("ListOfUser").appendChild(CoreXBuild.DivTexte("Sorry, no User defined", "", "CoreXAdminUserText", ""))
         } else {
             // Creation des box pour chaque User
             Users.forEach(User => {
-                let divuser = CoreXBuild.Div(User._id, "UserConteneur FlexColumnCenterSpaceAround", "")
+                let divuser = CoreXBuild.Div(User._id, "CoreXAdminUserUserConteneur CoreXAdminUserFlexColumnCenterSpaceAround", "")
                 divuser.onclick = this.LoadViewCallForUserData.bind(this,User._id)
-                divuser.appendChild(CoreXBuild.DivTexte(User.User,"","Text",""))
+                divuser.appendChild(CoreXBuild.DivTexte(User.User,"","CoreXAdminUserText",""))
                 document.getElementById("ListOfUser").appendChild(divuser)
             })
         }
@@ -70,16 +70,16 @@ class CoreXAdminUserApp{
         // Ajout des des action a ActionButton
         GlobalAddActionInList("Save User", this.SaveNewUser.bind(this))
         // Titre
-        this._DivApp.appendChild(CoreXBuild.DivTexte("New user", "Titre", "", "margin-top:4%"))
-        let divdatastruct = CoreXBuild.Div("ListOfUserDataStructure", "FlexColumnCenterSpaceAround DivListOfUserData")
-        divdatastruct.appendChild(CoreXBuild.DivTexte("Get data structure for user...", "", "Text",""))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("New user", "CoreXAdminUserTitre", "", "margin-top:4%"))
+        let divdatastruct = CoreXBuild.Div("ListOfUserDataStructure", "CoreXAdminUserFlexColumnCenterSpaceAround CoreXAdminUserDivListOfUserData")
+        divdatastruct.appendChild(CoreXBuild.DivTexte("Get data structure for user...", "", "CoreXAdminUserText",""))
         this._DivApp.appendChild(divdatastruct)
-        this._DivApp.appendChild(CoreXBuild.Div("ErrorOfUserDataStructure", "Text", "color:red; text-align:center;"))
-        let divButton = CoreXBuild.Div("", "DivListOfUserData", "display:flex; flex-direction:row; justify-content:space-around; align-content:center; align-items: center;")
-        let buttonsave = CoreXBuild.Button("Save",this.SaveNewUser.bind(this),"Button","ButtonSave")
+        this._DivApp.appendChild(CoreXBuild.Div("ErrorOfUserDataStructure", "CoreXAdminUserText", "color:red; text-align:center;"))
+        let divButton = CoreXBuild.Div("", "CoreXAdminUserDivListOfUserData", "display:flex; flex-direction:row; justify-content:space-around; align-content:center; align-items: center;")
+        let buttonsave = CoreXBuild.Button("Save",this.SaveNewUser.bind(this),"CoreXAdminUserButton","ButtonSave")
         buttonsave.setAttribute("Style", "display: none;")
         divButton.appendChild(buttonsave)
-        let buttoncancel = CoreXBuild.Button("Cancel",this.Start.bind(this),"Button","ButtonCancel")
+        let buttoncancel = CoreXBuild.Button("Cancel",this.Start.bind(this),"CoreXAdminUserButton","ButtonCancel")
         buttoncancel.setAttribute("Style", "display: none;")
         divButton.appendChild(buttoncancel)
         this._DivApp.appendChild(divButton)
@@ -112,16 +112,16 @@ class CoreXAdminUserApp{
         GlobalAddActionInList("Save User", this.UpdateUser.bind(this,UserId))
         GlobalAddActionInList("Delete User", this.DeleteUser.bind(this,UserId))
 
-        this._DivApp.appendChild(CoreXBuild.DivTexte("User information", "Titre", "", "margin-top:4%"))
-        let divdatastruct = CoreXBuild.Div("ListOfUserData", "FlexColumnCenterSpaceAround DivListOfUserData")
-        divdatastruct.appendChild(CoreXBuild.DivTexte("Get data of user...", "", "Text",""))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("User information", "CoreXAdminUserTitre", "", "margin-top:4%"))
+        let divdatastruct = CoreXBuild.Div("ListOfUserData", "CoreXAdminUserFlexColumnCenterSpaceAround CoreXAdminUserDivListOfUserData")
+        divdatastruct.appendChild(CoreXBuild.DivTexte("Get data of user...", "", "CoreXAdminUserText",""))
         this._DivApp.appendChild(divdatastruct)
-        this._DivApp.appendChild(CoreXBuild.Div("ErrorOfUserData", "Text", "color:red; text-align:center;"))
-        let divButton = CoreXBuild.Div("", "DivListOfUserData", "display:flex; flex-direction:row; justify-content:space-around; align-content:center; align-items: center;")
-        let buttonsave = CoreXBuild.Button("Save",this.UpdateUser.bind(this, UserId),"Button","ButtonSave")
+        this._DivApp.appendChild(CoreXBuild.Div("ErrorOfUserData", "CoreXAdminUserText", "color:red; text-align:center;"))
+        let divButton = CoreXBuild.Div("", "CoreXAdminUserDivListOfUserData", "display:flex; flex-direction:row; justify-content:space-around; align-content:center; align-items: center;")
+        let buttonsave = CoreXBuild.Button("Save",this.UpdateUser.bind(this, UserId),"CoreXAdminUserButton","ButtonSave")
         buttonsave.setAttribute("Style", "display: none;")
         divButton.appendChild(buttonsave)
-        let buttoncancel = CoreXBuild.Button("Cancel",this.Start.bind(this),"Button","ButtonCancel")
+        let buttoncancel = CoreXBuild.Button("Cancel",this.Start.bind(this),"CoreXAdminUserButton","ButtonCancel")
         buttoncancel.setAttribute("Style", "display: none;")
         divButton.appendChild(buttoncancel)
         this._DivApp.appendChild(divButton)
@@ -156,19 +156,19 @@ class CoreXAdminUserApp{
     }
     /** Construcuteur d'un element html pour une Key et une valeur */
     UserDataBuilder(Key, Value){
-        let reponse = CoreXBuild.Div("", "FlexRowLeftCenter", "width:90%;")
-        reponse.appendChild(CoreXBuild.DivTexte(Key.replace("-", " ") + " :","", "Text InputKey"))
+        let reponse = CoreXBuild.Div("", "CoreXAdminUserFlexRowLeftCenter", "width:90%;")
+        reponse.appendChild(CoreXBuild.DivTexte(Key.replace("-", " ") + " :","", "CoreXAdminUserText CoreXAdminUserInputKey"))
         let input = ""
         switch (Key) {
             case "Password":
                 // input de type Password
-                input = CoreXBuild.Input(Key,Value,"Input","","password",Key,"")
+                input = CoreXBuild.Input(Key,Value,"CoreXAdminUserInput","","password",Key,"")
                 input.setAttribute("data-Input", "CoreXInput")
                 reponse.appendChild(input)
                 break
             case "Confirm-Password":
                 // input de type Password
-                input = CoreXBuild.Input(Key,Value,"Input","","password",Key,"")
+                input = CoreXBuild.Input(Key,Value,"CoreXAdminUserInput","","password",Key,"")
                 input.setAttribute("data-Input", "CoreXInput")
                 reponse.appendChild(input)
                 break;
@@ -179,7 +179,7 @@ class CoreXAdminUserApp{
                 break
             default:
                 // input de type texte
-                input = CoreXBuild.Input(Key,Value,"Input","","text",Key,"")
+                input = CoreXBuild.Input(Key,Value,"CoreXAdminUserInput","","text",Key,"")
                 input.setAttribute("data-Input", "CoreXInput")
                 reponse.appendChild(input)
                 break
@@ -219,7 +219,7 @@ class CoreXAdminUserApp{
         if (InputDataValide){ 
             // afficher le message d'update
             document.getElementById("ListOfUserDataStructure").innerHTML=""
-            document.getElementById("ListOfUserDataStructure").appendChild(CoreXBuild.DivTexte("Saving user...", "", "Text", ""))
+            document.getElementById("ListOfUserDataStructure").appendChild(CoreXBuild.DivTexte("Saving user...", "", "CoreXAdminUserText", ""))
             document.getElementById("ButtonSave").style.display = "none"
             document.getElementById("ButtonCancel").style.display = "none"
             // Call delete user
@@ -239,7 +239,7 @@ class CoreXAdminUserApp{
         if (confirm('Are you sure you want to Dete this User?')){
             document.getElementById("ErrorOfUserData").innerHTML = ""
             document.getElementById("ListOfUserData").innerHTML=""
-            document.getElementById("ListOfUserData").appendChild(CoreXBuild.DivTexte("Delete user...", "", "Text", ""))
+            document.getElementById("ListOfUserData").appendChild(CoreXBuild.DivTexte("Delete user...", "", "CoreXAdminUserText", ""))
             document.getElementById("ButtonSave").style.display = "none"
             document.getElementById("ButtonCancel").style.display = "none"
             // Data for the api Call
@@ -286,7 +286,7 @@ class CoreXAdminUserApp{
         if (InputDataValide){
             // afficher le message d'update
             document.getElementById("ListOfUserData").innerHTML=""
-            document.getElementById("ListOfUserData").appendChild(CoreXBuild.DivTexte("Update user...", "", "Text", ""))
+            document.getElementById("ListOfUserData").appendChild(CoreXBuild.DivTexte("Update user...", "", "CoreXAdminUserText", ""))
             document.getElementById("ButtonSave").style.display = "none"
             document.getElementById("ButtonCancel").style.display = "none"
             // Call delete user
@@ -305,13 +305,13 @@ class CoreXAdminUserApp{
     GetCss(){
         return /*html*/`
         <style>
-            #Titre{
+            #CoreXAdminUserTitre{
                 margin: 1% 1% 4% 1%;
                 font-size: var(--CoreX-Titrefont-size);
                 color: var(--CoreX-color);
             }
-            .Text{font-size: var(--CoreX-font-size);}
-            .UserConteneur{
+            .CoreXAdminUserText{font-size: var(--CoreX-font-size);}
+            .CoreXAdminUserUserConteneur{
                 border: 1px solid black;
                 border-radius: 5px;
                 width: 35vw;
@@ -319,11 +319,11 @@ class CoreXAdminUserApp{
                 margin: 0.5%;
                 cursor: pointer;
             }
-            .DivListOfUserData {
+            .CoreXAdminUserDivListOfUserData {
                 width: 70%;
                 margin: auto;
             }
-            .Input {
+            .CoreXAdminUserInput {
                 width: 75%;
                 font-size: var(--CoreX-font-size);
                 padding: 1vh;
@@ -331,31 +331,31 @@ class CoreXAdminUserApp{
                 border-bottom: solid 1px transparent;
                 margin: 1% 0px 1% 0px;
             }
-            .Input:focus,
-            .Input.focus {
+            .CoreXAdminUserInput:focus,
+            .CoreXAdminUserInput.focus {
                 outline: none;
                 border: solid 0px #707070;
                 border-bottom-width: 1px;
                 border-color: var(--CoreX-color);
             }
-            .Input:hover{
+            .CoreXAdminUserInput:hover{
                 border-bottom-width: 1px;
                 border-color: var(--CoreX-color);
             }
-            .InputKey{
+            .CoreXAdminUserInputKey{
                 color: gray; 
                 width:25%; 
                 margin:1%; 
                 text-align:right;
             }
-            .FlexColumnCenterSpaceAround{
+            .CoreXAdminUserFlexColumnCenterSpaceAround{
                 display: flex;
                 flex-direction: column;
                 justify-content:space-around;
                 align-content:center;
                 align-items: center;
             }
-            .FlexRowCenterspacearound{
+            .CoreXAdminUserFlexRowCenterspacearound{
                 display: flex;
                 flex-direction: row;
                 justify-content:space-around;
@@ -363,14 +363,14 @@ class CoreXAdminUserApp{
                 align-items: center;
                 flex-wrap: wrap;
             }
-            .FlexRowLeftCenter{
+            .CoreXAdminUserFlexRowLeftCenter{
                 display: flex;
                 flex-direction: row;
                 justify-content : left;
                 align-items: center;
                 align-content:center;
             }
-            .Button{
+            .CoreXAdminUserButton{
                 margin: 4vh 0vh 1vh 0vh;
                 padding: 1vh 2vh 1vh 2vh;
                 cursor: pointer;
@@ -384,40 +384,40 @@ class CoreXAdminUserApp{
                 background: white;
                 outline: none;
             }
-            .Button:hover{
+            .CoreXAdminUserButton:hover{
                 box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
             }
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
             screen and (max-width: 700px)
             {
-                #Titre{font-size: var(--CoreX-TitreIphone-font-size);}
-                .Text{font-size: var(--CoreX-Iphone-font-size);}
-                .UserConteneur{
+                #CoreXAdminUserTitre{font-size: var(--CoreX-TitreIphone-font-size);}
+                .CoreXAdminUserText{font-size: var(--CoreX-Iphone-font-size);}
+                .CoreXAdminUserUserConteneur{
                     width: 55vw;
                     height: 15vw;
                     margin: 2%;
                 }
-                .DivListOfUserData{width: 100%;}
-                .Input {
+                .CoreXAdminUserDivListOfUserData{width: 100%;}
+                .CoreXAdminUserInput {
                     width: 60%;
                     font-size: var(--CoreX-Iphone-font-size);
                     border-bottom: solid 1px #dcdcdc;
                 }
-                .InputKey {width:35%;}
-                .Button{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
+                .CoreXAdminUserInputKey {width:35%;}
+                .CoreXAdminUserButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
             }
             @media screen and (min-width: 1200px)
             {
-                #Titre{font-size: var(--CoreX-TitreMax-font-size);}
-                .Text{font-size: var(--CoreX-Max-font-size);}
-                .UserConteneur{
+                #CoreXAdminUserTitre{font-size: var(--CoreX-TitreMax-font-size);}
+                .CoreXAdminUserText{font-size: var(--CoreX-Max-font-size);}
+                .CoreXAdminUserUserConteneur{
                     width: 350px;
                     height: 50px;
                 }
-                .DivListOfUserData{width: 800px;}
-                .Input {font-size: var(--CoreX-Max-font-size);}
-                .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
+                .CoreXAdminUserDivListOfUserData{width: 800px;}
+                .CoreXAdminUserInput {font-size: var(--CoreX-Max-font-size);}
+                .CoreXAdminUserButton{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
             }
         </style>`
     }

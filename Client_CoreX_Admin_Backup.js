@@ -14,7 +14,7 @@ class CoreXAdminBackupApp{
         GlobalClearActionList()
         GlobalAddActionInList("Refresh", this.Start.bind(this))
         // Titre
-        this._DivApp.appendChild(CoreXBuild.DivTexte("Backup of DB", "Titre", "", "margin-top:4%"))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Backup of DB", "CoreXAdminBackupTitre", "", "margin-top:4%"))
         // on ajoute un espace vide
         this._DivApp.appendChild(CoreXBuild.Div("","","height:2vh;"))
         // Content des controles du backup
@@ -23,9 +23,9 @@ class CoreXAdminBackupApp{
         // on ajoute un espace vide
         this._DivApp.appendChild(CoreXBuild.Div("","","height:2vh;"))
         // on construit le texte du message d'info
-        this._DivApp.appendChild(CoreXBuild.DivTexte("Waiting for scheduler data...","InfoStart","Text","text-align: center; color: grey;"))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Waiting for scheduler data...","InfoStart","CoreXAdminBackupText","text-align: center; color: grey;"))
         // on construit le texte du message d'erreur
-        this._DivApp.appendChild(CoreXBuild.DivTexte("","ErrorStart","Text","color:red; text-align: center;"))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("","ErrorStart","CoreXAdminBackupText","color:red; text-align: center;"))
         // on ajoute un espace vide en fin de page
         this._DivApp.appendChild(CoreXBuild.Div("","","height:2vh;"))
         // Get scheduler data
@@ -66,26 +66,26 @@ class CoreXAdminBackupApp{
         // Backup now
         let DivBackupNowSection = CoreXBuild.DivFlexRowStart()
         DivBackupNowSection.style.margin = "2vh 0px 2vh 0px"
-        let txtBackupNow = CoreXBuild.DivTexte("Backup now the DB :", "", "Text", "margin:1%;")
-        txtBackupNow.classList.add("WidthInfoText")
+        let txtBackupNow = CoreXBuild.DivTexte("Backup now the DB :", "", "CoreXAdminBackupText", "margin:1%;")
+        txtBackupNow.classList.add("CoreXAdminBackupWidthInfoText")
         DivBackupNowSection.appendChild(txtBackupNow)
-        DivBackupNowSection.appendChild(CoreXBuild.Button("Backup",this.BackupNow.bind(this),"Button"))
+        DivBackupNowSection.appendChild(CoreXBuild.Button("Backup",this.BackupNow.bind(this),"CoreXAdminBackupButton"))
         DivContent.appendChild(DivBackupNowSection)
         // Restore now
         let DivRstoreNowSection = CoreXBuild.DivFlexRowStart()
         DivRstoreNowSection.style.margin = "2vh 0px 2vh 0px"
-        let txtRestoreNow = CoreXBuild.DivTexte("Restore now the DB :", "", "Text", "margin:1%;")
-        txtRestoreNow.classList.add("WidthInfoText")
+        let txtRestoreNow = CoreXBuild.DivTexte("Restore now the DB :", "", "CoreXAdminBackupText", "margin:1%;")
+        txtRestoreNow.classList.add("CoreXAdminBackupWidthInfoText")
         DivRstoreNowSection.appendChild(txtRestoreNow)
-        DivRstoreNowSection.appendChild(CoreXBuild.Button("Restore",this.RestoreNow.bind(this),"Button"))
+        DivRstoreNowSection.appendChild(CoreXBuild.Button("Restore",this.RestoreNow.bind(this),"CoreXAdminBackupButton"))
         DivContent.appendChild(DivRstoreNowSection)
         // on ajoute un espace vide
         DivContent.appendChild(CoreXBuild.Div("","","height:2vh;"))
         // Scheduler status
         let DivSchedulerStartedSection = CoreXBuild.DivFlexRowStart()
         DivSchedulerStartedSection.style.margin = "2vh 0px 2vh 0px"
-        let txtSchedulerStarted = CoreXBuild.DivTexte("Scheduler status :", "", "Text", "margin:1%;")
-        txtSchedulerStarted.classList.add("WidthInfoText")
+        let txtSchedulerStarted = CoreXBuild.DivTexte("Scheduler status :", "", "CoreXAdminBackupText", "margin:1%;")
+        txtSchedulerStarted.classList.add("CoreXAdminBackupWidthInfoText")
         DivSchedulerStartedSection.appendChild(txtSchedulerStarted)
         let ToogleScheduler = CoreXBuild.ToggleSwitch("SchedulerStarted",Data.JobScheduleStarted,30)
         DivSchedulerStartedSection.appendChild(ToogleScheduler)
@@ -101,44 +101,44 @@ class CoreXAdminBackupApp{
         // Scheduler next 
         let DivSchedulerNextSection = CoreXBuild.DivFlexRowStart()
         DivSchedulerNextSection.style.margin = "2vh 0px 2vh 0px"
-        let txtSchedulerNext = CoreXBuild.DivTexte("Scheduler next time :", "", "Text", "margin:1%;")
-        txtSchedulerNext.classList.add("WidthInfoText")
+        let txtSchedulerNext = CoreXBuild.DivTexte("Scheduler next time :", "", "CoreXAdminBackupText", "margin:1%;")
+        txtSchedulerNext.classList.add("CoreXAdminBackupWidthInfoText")
         DivSchedulerNextSection.appendChild(txtSchedulerNext)
-        DivSchedulerNextSection.appendChild(CoreXBuild.DivTexte(Data.JobScheduleNext,"SchedulerConfigNext","Text","margin:1%;"))
+        DivSchedulerNextSection.appendChild(CoreXBuild.DivTexte(Data.JobScheduleNext,"SchedulerConfigNext","CoreXAdminBackupText","margin:1%;"))
         DivContent.appendChild(DivSchedulerNextSection)
         // Scheduler configuration
         let DivSchedulerConfigSection = CoreXBuild.DivFlexRowStart()
         DivSchedulerConfigSection.style.margin = "2vh 0px 2vh 0px"
-        let txtSchedulerConfig = CoreXBuild.DivTexte("Scheduler time :", "", "Text", "margin:1%;")
-        txtSchedulerConfig.classList.add("WidthInfoText")
+        let txtSchedulerConfig = CoreXBuild.DivTexte("Scheduler time :", "", "CoreXAdminBackupText", "margin:1%;")
+        txtSchedulerConfig.classList.add("CoreXAdminBackupWidthInfoText")
         DivSchedulerConfigSection.appendChild(txtSchedulerConfig)
-        DivSchedulerConfigSection.appendChild(CoreXBuild.DivTexte(this._JobScheduleHour +"H" + this._JobScheduleMinute,"SchedulerConfigTxt","Text","margin:1%;"))
+        DivSchedulerConfigSection.appendChild(CoreXBuild.DivTexte(this._JobScheduleHour +"H" + this._JobScheduleMinute,"SchedulerConfigTxt","CoreXAdminBackupText","margin:1%;"))
         DivContent.appendChild(DivSchedulerConfigSection)
         // Scheduler change config
         let DivSchedulerChangeConfSection = CoreXBuild.DivFlexRowStart()
         DivSchedulerChangeConfSection.style.margin = "2vh 0px 2vh 0px"
-        let txtSchedulerChangeConf = CoreXBuild.DivTexte("Change Scheduler time:", "", "Text", "margin:1%;")
-        txtSchedulerChangeConf.classList.add("WidthInfoText")
+        let txtSchedulerChangeConf = CoreXBuild.DivTexte("Change Scheduler time:", "", "CoreXAdminBackupText", "margin:1%;")
+        txtSchedulerChangeConf.classList.add("CoreXAdminBackupWidthInfoText")
         DivSchedulerChangeConfSection.appendChild(txtSchedulerChangeConf)
-        DivSchedulerChangeConfSection.appendChild(CoreXBuild.Button("Change",this.SchedulerChangeConfig.bind(this),"Button"))
+        DivSchedulerChangeConfSection.appendChild(CoreXBuild.Button("Change",this.SchedulerChangeConfig.bind(this),"CoreXAdminBackupButton"))
         DivContent.appendChild(DivSchedulerChangeConfSection)
         // on ajoute un espace vide
         DivContent.appendChild(CoreXBuild.Div("","","height:2vh;"))
         // Update Google Key
         let DivGoogleKeySection = CoreXBuild.DivFlexRowStart()
         DivGoogleKeySection.style.margin = "2vh 0px 2vh 0px"
-        let txtGoogleKeyNow = CoreXBuild.DivTexte("Update Google Key :", "", "Text", "margin:1%;")
-        txtGoogleKeyNow.classList.add("WidthInfoText")
+        let txtGoogleKeyNow = CoreXBuild.DivTexte("Update Google Key :", "", "CoreXAdminBackupText", "margin:1%;")
+        txtGoogleKeyNow.classList.add("CoreXAdminBackupWidthInfoText")
         DivGoogleKeySection.appendChild(txtGoogleKeyNow)
-        DivGoogleKeySection.appendChild(CoreXBuild.Button("Update Key",this.SetGoogleKeyView.bind(this, document.getElementById("ContentControle")),"Button"))
+        DivGoogleKeySection.appendChild(CoreXBuild.Button("Update Key",this.SetGoogleKeyView.bind(this, document.getElementById("ContentControle")),"CoreXAdminBackupButton"))
         DivContent.appendChild(DivGoogleKeySection)
         // Clean log
         let DivCleanLogSection = CoreXBuild.DivFlexRowStart()
         DivCleanLogSection.style.margin = "2vh 0px 2vh 0px"
-        let txtCleanLogNow = CoreXBuild.DivTexte("Clean Log :", "", "Text", "margin:1%;")
-        txtCleanLogNow.classList.add("WidthInfoText")
+        let txtCleanLogNow = CoreXBuild.DivTexte("Clean Log :", "", "CoreXAdminBackupText", "margin:1%;")
+        txtCleanLogNow.classList.add("CoreXAdminBackupWidthInfoText")
         DivCleanLogSection.appendChild(txtCleanLogNow)
-        DivCleanLogSection.appendChild(CoreXBuild.Button("Clean Log",this.CleanLog.bind(this),"Button"))
+        DivCleanLogSection.appendChild(CoreXBuild.Button("Clean Log",this.CleanLog.bind(this),"CoreXAdminBackupButton"))
         DivContent.appendChild(DivCleanLogSection)
     }
     /**
@@ -152,15 +152,15 @@ class CoreXAdminBackupApp{
         document.getElementById("ErrorStart").innerHTML=""
         let DivFlexContent = CoreXBuild.DivFlexColumn("DivFlexContent")
         DivContent.appendChild(DivFlexContent)
-        let Textareafolder = CoreXBuild.Textarea("Googlefolder", "Insert folder key", "TextArea")
+        let Textareafolder = CoreXBuild.Textarea("Googlefolder", "Insert folder key", "CoreXAdminBackupTextArea")
         Textareafolder.setAttribute("rows", "1")
         DivFlexContent.appendChild(Textareafolder)
         DivFlexContent.appendChild(CoreXBuild.Div("","","height:2vh;"))
-        DivFlexContent.appendChild(CoreXBuild.Textarea("GoogleKey", "Insert google key", "TextAreaBig"))
-        let DivButton = CoreXBuild.Div("", "FlexRowCenterspacearound", "width:90%; margin-top:1%;")
+        DivFlexContent.appendChild(CoreXBuild.Textarea("GoogleKey", "Insert google key", "CoreXAdminBackupTextAreaBig"))
+        let DivButton = CoreXBuild.Div("", "CoreXAdminBackupFlexRowCenterspacearound", "width:90%; margin-top:1%;")
         DivFlexContent.appendChild(DivButton)
-        DivButton.appendChild(CoreXBuild.Button("Save google key",this.SaveGoogleKey.bind(this),"Button"))
-        DivButton.appendChild(CoreXBuild.Button("Cancel",this.Start.bind(this),"Button"))
+        DivButton.appendChild(CoreXBuild.Button("Save google key",this.SaveGoogleKey.bind(this),"CoreXAdminBackupButton"))
+        DivButton.appendChild(CoreXBuild.Button("Cancel",this.Start.bind(this),"CoreXAdminBackupButton"))
         // on ajoute un espace vide
         DivFlexContent.appendChild(CoreXBuild.Div("","","height:2vh;"))
     }
@@ -227,33 +227,33 @@ class CoreXAdminBackupApp{
     SchedulerChangeConfig(){
         let ContentConfig = CoreXBuild.Div("ContentControle","","")
         // Titre
-        ContentConfig.appendChild(CoreXBuild.DivTexte("Scheduler timer configuration:", "", "Text", "margin:1%; color: var(--CoreX-color);"))
+        ContentConfig.appendChild(CoreXBuild.DivTexte("Scheduler timer configuration:", "", "CoreXAdminBackupText", "margin:1%; color: var(--CoreX-color);"))
         // on ajoute un espace vide
         ContentConfig.appendChild(CoreXBuild.Div("","","height:2vh;"))
         // Hour
         let DivHourSection = CoreXBuild.DivFlexRowStart()
-        let txtHour = CoreXBuild.DivTexte("Scheduler Hour:", "", "Text", "margin:1%; width:50%;")
+        let txtHour = CoreXBuild.DivTexte("Scheduler Hour:", "", "CoreXAdminBackupText", "margin:1%; width:50%;")
         DivHourSection.appendChild(txtHour)
-        let InputHour = CoreXBuild.Input("Schedulerhour",this._JobScheduleHour,"Input","","number","Schedulerhour","")
+        let InputHour = CoreXBuild.Input("Schedulerhour",this._JobScheduleHour,"CoreXAdminBackupInput","","number","Schedulerhour","")
         InputHour.setAttribute("min", 0)
         InputHour.setAttribute("max", 23)
         DivHourSection.appendChild(InputHour)
         ContentConfig.appendChild(DivHourSection)
         // Minute
         let DivMinuteSection = CoreXBuild.DivFlexRowStart()
-        let txtMinute = CoreXBuild.DivTexte("Scheduler Minute:", "", "Text", "margin:1%; width:50%;")
+        let txtMinute = CoreXBuild.DivTexte("Scheduler Minute:", "", "CoreXAdminBackupText", "margin:1%; width:50%;")
         DivMinuteSection.appendChild(txtMinute)
-        let inputMinute = CoreXBuild.Input("SchedulerMinute",this._JobScheduleMinute,"Input","","number","SchedulerMinute","")
+        let inputMinute = CoreXBuild.Input("SchedulerMinute",this._JobScheduleMinute,"CoreXAdminBackupInput","","number","SchedulerMinute","")
         inputMinute.setAttribute("min", 0)
         inputMinute.setAttribute("max", 59)
         DivMinuteSection.appendChild(inputMinute)
         ContentConfig.appendChild(DivMinuteSection)
         // Error text
-        ContentConfig.appendChild(CoreXBuild.DivTexte("","ErrorConfig","Text","color:red; text-align: center;"))
+        ContentConfig.appendChild(CoreXBuild.DivTexte("","ErrorConfig","CoreXAdminBackupText","color:red; text-align: center;"))
         // Save button
-        let DivButton = CoreXBuild.Div("", "FlexRowCenterspacearound", "margin-top:1%;")
+        let DivButton = CoreXBuild.Div("", "CoreXAdminBackupFlexRowCenterspacearound", "margin-top:1%;")
         ContentConfig.appendChild(DivButton)
-        DivButton.appendChild(CoreXBuild.Button("Save",this.SchedulerSaveConfig.bind(this),"Button", "ButtonSave"))
+        DivButton.appendChild(CoreXBuild.Button("Save",this.SchedulerSaveConfig.bind(this),"CoreXAdminBackupButton", "ButtonSave"))
         // Create window
         CoreXWindow.BuildWindow(ContentConfig)
     }
@@ -341,13 +341,13 @@ class CoreXAdminBackupApp{
     GetCss(){
         return /*html*/`
         <style>
-            #Titre{
+            #CoreXAdminBackupTitre{
                 margin: 1% 1% 4% 1%;
                 font-size: var(--CoreX-Titrefont-size);
                 color: var(--CoreX-color);
             }
-            .Text{font-size: var(--CoreX-font-size);}
-            .Button{
+            .CoreXAdminBackupText{font-size: var(--CoreX-font-size);}
+            .CoreXAdminBackupButton{
                 margin: 0%;
                 padding: 1vh 2vh 1vh 2vh;
                 cursor: pointer;
@@ -361,10 +361,10 @@ class CoreXAdminBackupApp{
                 background: white;
                 outline: none;
             }
-            .Button:hover{
+            .CoreXAdminBackupButton:hover{
                 box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
             }
-            .Input {
+            .CoreXAdminBackupInput {
                 width: 20%;
                 font-size: var(--CoreX-font-size);
                 padding: 1vh;
@@ -372,19 +372,19 @@ class CoreXAdminBackupApp{
                 border-bottom: solid 1px transparent;
                 margin: 1% 0px 1% 0px;
             }
-            .Input:focus,
-            .Input.focus {
+            .CoreXAdminBackupInput:focus,
+            .CoreXAdminBackupInput.focus {
                 outline: none;
                 border: solid 0px #707070;
                 border-bottom-width: 1px;
                 border-color: var(--CoreX-color);
             }
-            .Input:hover{
+            .CoreXAdminBackupInput:hover{
                 border-bottom-width: 1px;
                 border-color: var(--CoreX-color);
             }
-            .WidthInfoText{width:25%;}
-            .FlexRowCenterspacearound{
+            .CoreXAdminBackupWidthInfoText{width:25%;}
+            .CoreXAdminBackupFlexRowCenterspacearound{
                 display: flex;
                 flex-direction: row;
                 justify-content:space-around;
@@ -392,7 +392,7 @@ class CoreXAdminBackupApp{
                 align-items: center;
                 flex-wrap: wrap;
             }
-            .TextArea{
+            .CoreXAdminBackupTextArea{
                 outline: none;
                 resize: none;
                 overflow: auto;
@@ -400,7 +400,7 @@ class CoreXAdminBackupApp{
                 font-size: var(--CoreX-font-size);
                 width:70%;
             }
-            .TextAreaBig{
+            .CoreXAdminBackupTextAreaBig{
                 outline: none;
                 resize: none;
                 overflow: auto;
@@ -414,31 +414,31 @@ class CoreXAdminBackupApp{
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
             screen and (max-width: 700px)
             {
-                #Titre{font-size: var(--CoreX-TitreIphone-font-size);}
-                .Text{font-size: var(--CoreX-Iphone-font-size);}
-                .Button{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
-                .Input {
+                #CoreXAdminBackupTitre{font-size: var(--CoreX-TitreIphone-font-size);}
+                .CoreXAdminBackupText{font-size: var(--CoreX-Iphone-font-size);}
+                .CoreXAdminBackupButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
+                .CoreXAdminBackupInput {
                     font-size: var(--CoreX-Iphone-font-size);
                     border-bottom: solid 1px #dcdcdc;
                 }
-                .WidthInfoText{width:50%;}
-                .TextArea{
+                .CoreXAdminBackupWidthInfoText{width:50%;}
+                .CoreXAdminBackupTextArea{
                     font-size: var(--CoreX-Iphone-font-size);
                     width:90%;
                 }
-                .TextAreaBig{
+                .CoreXAdminBackupTextAreaBig{
                     font-size: var(--CoreX-Iphone-font-size);
                     width:90%;
                 }
             }
             @media screen and (min-width: 1200px)
             {
-                #Titre{font-size: var(--CoreX-TitreMax-font-size);}
-                .Text{font-size: var(--CoreX-Max-font-size);}
-                .Button{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
-                .Input {font-size: var(--CoreX-Max-font-size);}
-                .TextArea{font-size: var(--CoreX-Max-font-size);}
-                .TextAreaBig{font-size: var(--CoreX-Max-font-size);}
+                #CoreXAdminBackupTitre{font-size: var(--CoreX-TitreMax-font-size);}
+                .CoreXAdminBackupText{font-size: var(--CoreX-Max-font-size);}
+                .CoreXAdminBackupButton{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
+                .CoreXAdminBackupInput {font-size: var(--CoreX-Max-font-size);}
+                .CoreXAdminBackupTextArea{font-size: var(--CoreX-Max-font-size);}
+                .CoreXAdminBackupTextAreaBig{font-size: var(--CoreX-Max-font-size);}
             }
         </style>`
     }
