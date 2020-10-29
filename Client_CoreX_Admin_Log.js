@@ -21,18 +21,20 @@ class CoreXAdminLogApp{
         // Liste of log
         let ListOflog = CoreXBuild.Div("ListOfLog", "CoreXAdminLogFlexColumnCenterSpaceAround", "")
         this._DivApp.appendChild(ListOflog)
+        
+        
         // Waiting text
-        ListOflog.appendChild(CoreXBuild.DivTexte("Get list of Log...", "", "CoreXAdminLogText",""))
+        //ListOflog.appendChild(CoreXBuild.DivTexte("Get list of Log...", "", "CoreXAdminLogText",""))
         // Get All Log
-        GlobalCallApiPromise("GetLog", this._LogCursor).then((reponse)=>{
-            this.LoadLog(reponse)
-        },(erreur)=>{
-            // Ajout des des action a ActionButton
-            GlobalClearActionList()
-            GlobalAddActionInList("Refresh", this.Start.bind(this))
-            document.getElementById("ListOfLog").innerHTML=""
-            document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte(erreur,"","CoreXAdminLogText","color:red;"))
-        })
+        // GlobalCallApiPromise("GetLog", this._LogCursor).then((reponse)=>{
+        //     this.LoadLog(reponse)
+        // },(erreur)=>{
+        //     // Ajout des des action a ActionButton
+        //     GlobalClearActionList()
+        //     GlobalAddActionInList("Refresh", this.Start.bind(this))
+        //     document.getElementById("ListOfLog").innerHTML=""
+        //     document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte(erreur,"","CoreXAdminLogText","color:red;"))
+        // })
     }
     GetTitre(){
         return "Log"
