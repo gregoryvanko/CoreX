@@ -3,12 +3,22 @@ class CoreXAdminLogApp{
         this._DivApp = document.getElementById(HtmlId)
         this._LogCursor = 0
         this._LogIdListe = []
+        this._LogInfoType = ""
+        this._LogUser = ""
+        this._LogMessage = ""
+        this._LogDate = ""
+        this._LogHeure = ""
     }
     /** Start de l'application */
     Start(){
         // Initialisation des variables de type Log
         this._LogCursor = 0
         this._LogIdListe = []
+        this._LogInfoType = ""
+        this._LogUser = ""
+        this._LogMessage = ""
+        this._LogDate = ""
+        this._LogHeure = ""
         // Clear view
         this._DivApp.innerHTML=""
         // Add CSS
@@ -75,11 +85,26 @@ class CoreXAdminLogApp{
     }
 
     CliclOnSearch(){
+        // Search data
+        this._LogInfoType = document.getElementById("InfoType").value
+        this._LogUser = document.getElementById("CoreXAdminLogInputUser").value
+        this._LogMessage = document.getElementById("CoreXAdminLogInputMsg").value
+        this._LogDate = document.getElementById("CoreXAdminLogInputDate").value
+        this._LogHeure = document.getElementById("CoreXAdminLogInputHeure").value
+        // Clear ListOflog
         const ListOflog = document.getElementById("ListOfLog")
         ListOflog.innerHTML =""
         ListOflog.appendChild(CoreXBuild.DivTexte("Get list of Log...", "", "CoreXAdminLogText",""))
+        // Apidata
+        let Data = new Object()
+        Data.LogInfoType = this._LogInfoType
+        Data.LogUser = this._LogUser
+        Data.LogMessage = this._LogMessage
+        Data.LogDate = this._LogDate
+        Data.LogHeure = this._LogHeure
+        Data.LogCursor = this._LogCursor
         //Get All Log
-        GlobalCallApiPromise("GetLog", this._LogCursor).then((reponse)=>{
+        GlobalCallApiPromise("GetLog", Data).then((reponse)=>{
             this.LoadLog(reponse)
         },(erreur)=>{
             // Ajout des des action a ActionButton

@@ -144,12 +144,12 @@ class ApiAdmin{
 
     /** Get des log de l'application */
     GetLog(Data, res, User, UserId){
-        this.LogAppliInfo("Call ApiAdmin GetLog, Skip data value: " + Data, User, UserId)
+        this.LogAppliInfo("Call ApiAdmin GetLog, Skip data value: " + JSON.stringify(Data), User, UserId)
         let mongocollection = this._MongoVar.LogAppliCollection
         const Query = {}
         const Projection = {}
         const Sort = {[this._MongoVar.LogAppliNow]: -1}
-        this._Mongo.FindSortLimitSkipPromise(Query,Projection, Sort, 20, parseInt(Data), mongocollection).then((reponse)=>{
+        this._Mongo.FindSortLimitSkipPromise(Query,Projection, Sort, 20, parseInt(Data.LogCursor), mongocollection).then((reponse)=>{
             if(reponse.length == 0){
                 res.json({Error: false, ErrorMsg: "No Log in BD", Data: null})
             } else {
