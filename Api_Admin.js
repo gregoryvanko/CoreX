@@ -156,14 +156,27 @@ class ApiAdmin{
         if ((Data.LogDate == "") && (Data.LogHeure == "")){
             Query = {$and:[{[this._MongoVar.LogAppliType]:{$regex:".*" + LogfInfoType + ".*"}},{[this._MongoVar.LogAppliUser]:{$regex:".*" + LogUser + ".*"}},{[this._MongoVar.LogAppliValeur]:{$regex:".*" + LogMessage + ".*"}}]}
         } else {
+            let jour = "01"
+            let mois = "01"
+            let annee = "1999"
+            let heure = "00"
+            let minute = "00"
             if(Data.LogDate != ""){
-                const jour = Data.LogDate.substring(0, 2)
-                const mois = Data.LogDate.substring(3,5)
-                const annee = Data.LogDate.substring(6)
-                let date = { $gte:new Date(annee+'-' + mois + '-' + jour +'T13:56:05.000Z'), $lt:new Date(annee+'-' + mois + '-' + jour +'T13:56:06.000Z') }
+                jour = Data.LogDate.substring(0, 2)
+                mois = Data.LogDate.substring(3,5)
+                annee = Data.LogDate.substring(6)
+                let date = ""
+                if (Data.LogHeure == ""){
+                    date = { $gte:new Date(annee+'-' + mois + '-' + jour +'T00:00:00.000Z'), $lt:new Date(annee+'-' + mois + '-' + jour +'T23:59:59.999Z') }
+                } else {
+                    heure = Data.LogHeure.substring(0, 2)
+                    minute = Data.LogHeure.substring(3)
+                    date = { $gte:new Date(annee+'-' + mois + '-' + jour +'T' + heure +':' + minute +':00.000Z'), $lt:new Date(annee+'-' + mois + '-' + jour +'T' + heure +':' + minute +':59.999Z') }
+                }
                 console.log(date);
                 Query = {$and:[{[this._MongoVar.LogAppliType]:{$regex:".*" + LogfInfoType + ".*"}},{[this._MongoVar.LogAppliUser]:{$regex:".*" + LogUser + ".*"}},{[this._MongoVar.LogAppliValeur]:{$regex:".*" + LogMessage + ".*"}},{[this._MongoVar.LogAppliNow]:date}]}
-        
+            } else {
+                Query = {$and:[{[this._MongoVar.LogAppliType]:{$regex:".*" + LogfInfoType + ".*"}},{[this._MongoVar.LogAppliUser]:{$regex:".*" + LogUser + ".*"}},{[this._MongoVar.LogAppliValeur]:{$regex:".*" + LogMessage + ".*"}}]}
             }
         }
 
