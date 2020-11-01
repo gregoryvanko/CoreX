@@ -74,6 +74,8 @@ class CoreXAdminLogApp{
         DivFlex.appendChild(CoreXBuild.InputWithLabel("CoreXAdminLogInputBoxSmall", "Date", "CoreXAdminLogText CoreXAdminLogMarginTxt", "CoreXAdminLogInputDate","", "CoreXAdminLogInput", "text", "jj/mm/aaaa"))
         // Heure
         DivFlex.appendChild(CoreXBuild.InputWithLabel("CoreXAdminLogInputBoxSmall", "Heure", "CoreXAdminLogText CoreXAdminLogMarginTxt", "CoreXAdminLogInputHeure","", "CoreXAdminLogInput", "text", "hh:mm"))
+        // Error Msg
+        ListOflog.appendChild(CoreXBuild.DivTexte("","ErrorSearchLog","CoreXAdminLogText","color:red;"))
         // Boutton
         ListOflog.appendChild(CoreXBuild.Button("Search",this.CliclOnSearch.bind(this),"CoreXAdminLogButton", "ButtonSearch"))
     }
@@ -85,34 +87,78 @@ class CoreXAdminLogApp{
     }
 
     CliclOnSearch(){
-        // Search data
-        this._LogInfoType = document.getElementById("InfoType").value
-        this._LogUser = document.getElementById("CoreXAdminLogInputUser").value
-        this._LogMessage = document.getElementById("CoreXAdminLogInputMsg").value
-        this._LogDate = document.getElementById("CoreXAdminLogInputDate").value
-        this._LogHeure = document.getElementById("CoreXAdminLogInputHeure").value
-        // Clear ListOflog
-        const ListOflog = document.getElementById("ListOfLog")
-        ListOflog.innerHTML =""
-        ListOflog.appendChild(CoreXBuild.DivTexte("Get list of Log...", "", "CoreXAdminLogText",""))
-        // Apidata
-        let Data = new Object()
-        Data.LogInfoType = this._LogInfoType
-        Data.LogUser = this._LogUser
-        Data.LogMessage = this._LogMessage
-        Data.LogDate = this._LogDate
-        Data.LogHeure = this._LogHeure
-        Data.LogCursor = this._LogCursor
-        //Get All Log
-        GlobalCallApiPromise("GetLog", Data).then((reponse)=>{
-            this.LoadLog(reponse)
-        },(erreur)=>{
-            // Ajout des des action a ActionButton
-            GlobalClearActionList()
-            GlobalAddActionInList("Refresh", this.Start.bind(this))
-            document.getElementById("ListOfLog").innerHTML=""
-            document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte(erreur,"","CoreXAdminLogText","color:red;"))
-        })
+        if (this.InputSearchDataIsValide()){
+            // Search data
+            this._LogInfoType = document.getElementById("InfoType").value
+            this._LogUser = document.getElementById("CoreXAdminLogInputUser").value
+            this._LogMessage = document.getElementById("CoreXAdminLogInputMsg").value
+            this._LogDate = document.getElementById("CoreXAdminLogInputDate").value
+            this._LogHeure = document.getElementById("CoreXAdminLogInputHeure").value
+            // Clear ListOflog
+            const ListOflog = document.getElementById("ListOfLog")
+            ListOflog.innerHTML =""
+            ListOflog.appendChild(CoreXBuild.DivTexte("Get list of Log...", "", "CoreXAdminLogText",""))
+            // Apidata
+            let Data = new Object()
+            Data.LogInfoType = this._LogInfoType
+            Data.LogUser = this._LogUser
+            Data.LogMessage = this._LogMessage
+            Data.LogDate = this._LogDate
+            Data.LogHeure = this._LogHeure
+            Data.LogCursor = this._LogCursor
+            //Get All Log
+            GlobalCallApiPromise("GetLog", Data).then((reponse)=>{
+                this.LoadLog(reponse)
+            },(erreur)=>{
+                // Ajout des des action a ActionButton
+                GlobalClearActionList()
+                GlobalAddActionInList("Refresh", this.Start.bind(this))
+                document.getElementById("ListOfLog").innerHTML=""
+                document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte(erreur,"","CoreXAdminLogText","color:red;"))
+            })
+        }
+    }
+
+    InputSearchDataIsValide(){
+        let IsValide = true
+        // vérifier le format de la date
+        let date = document.getElementById("CoreXAdminLogInputDate").value
+        if (date != ""){
+            if (date.length != 10){
+                IsValide = false
+                document.getElementById("ErrorSearchLog").innerHTML = "Date length error"
+                return IsValide
+            }
+            if (date.substring(2, 3) != "/"){
+                IsValide = false
+                document.getElementById("ErrorSearchLog").innerHTML = "Date format error"
+                return IsValide
+            }
+            if (date.substring(5, 6) != "/"){
+                IsValide = false
+                document.getElementById("ErrorSearchLog").innerHTML = "Date format error"
+                return IsValide
+            }
+            let jour = date.substring(0, 2)
+            let mois = date.substring(3,5)
+            let annee = date.substring(6,9)
+            if (isNaN(jour)){
+                IsValide = false
+                document.getElementById("ErrorSearchLog").innerHTML = "Day not a number"
+                return IsValide
+            }
+            if (isNaN(mois)){
+                IsValide = false
+                document.getElementById("ErrorSearchLog").innerHTML = "Month not a number"
+                return IsValide
+            }
+            if (isNaN(annee)){
+                IsValide = false
+                document.getElementById("ErrorSearchLog").innerHTML = "Year not a number"
+                return IsValide
+            }
+        }
+        return IsValide
     }
 
     /* CallBAck du Load Log */
@@ -252,6 +298,7 @@ class CoreXAdminLogApp{
                 border-radius: 15px;
                 width: 45%;
                 padding: 2% 1%;
+                margin-bottom: 3vh;
             }
 
             .CoreXAdminLogMarginTxt{

@@ -84,7 +84,7 @@ class corex {
         var fs = require('fs')
         var me = this
         // Message de demarrage
-        console.log("Application started")
+        console.log(this.GetDateString(new Date()) + " Application started")
         this.LogAppliInfo("Application started", "Server", "Server")
         // Initiation de la DB
         this.InitMongoDb()
@@ -361,7 +361,7 @@ class corex {
                 throw error;
             }
             if (error.code == "EADDRINUSE"){
-                console.error('Port is already in use')
+                console.error(this.GetDateString(new Date()) + ' Port is already in use')
                 process.exit(1)
             }
         })
