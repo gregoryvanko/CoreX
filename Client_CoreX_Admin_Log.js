@@ -71,7 +71,7 @@ class CoreXAdminLogApp{
         DivFlex.style.marginRight = "auto"
         DivBox.appendChild(DivFlex)
         // Date
-        DivFlex.appendChild(CoreXBuild.InputWithLabel("CoreXAdminLogInputBoxSmall", "Date", "CoreXAdminLogText CoreXAdminLogMarginTxt", "CoreXAdminLogInputDate","", "CoreXAdminLogInput", "text", "jj/mm"))
+        DivFlex.appendChild(CoreXBuild.InputWithLabel("CoreXAdminLogInputBoxSmall", "Date", "CoreXAdminLogText CoreXAdminLogMarginTxt", "CoreXAdminLogInputDate","", "CoreXAdminLogInput", "text", "jj/mm/aaaa"))
         // Heure
         DivFlex.appendChild(CoreXBuild.InputWithLabel("CoreXAdminLogInputBoxSmall", "Heure", "CoreXAdminLogText CoreXAdminLogMarginTxt", "CoreXAdminLogInputHeure","", "CoreXAdminLogInput", "text", "hh:mm"))
         // Boutton
@@ -147,7 +147,15 @@ class CoreXAdminLogApp{
     GetNextLog(){
         this._LogCursor += 20
         document.getElementById("ButtonNext").innerHTML = "Waiting..."
-        GlobalCallApiPromise("GetLog", this._LogCursor).then((reponse)=>{
+        // Apidata
+        let Data = new Object()
+        Data.LogInfoType = this._LogInfoType
+        Data.LogUser = this._LogUser
+        Data.LogMessage = this._LogMessage
+        Data.LogDate = this._LogDate
+        Data.LogHeure = this._LogHeure
+        Data.LogCursor = this._LogCursor
+        GlobalCallApiPromise("GetLog", Data).then((reponse)=>{
             this.LoadNextLog(reponse)
         },(erreur)=>{
             // Ajout des des action a ActionButton

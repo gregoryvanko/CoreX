@@ -145,8 +145,29 @@ class ApiAdmin{
     /** Get des log de l'application */
     GetLog(Data, res, User, UserId){
         this.LogAppliInfo("Call ApiAdmin GetLog, Skip data value: " + JSON.stringify(Data), User, UserId)
+        // Si Data.LogInfoType = All alors tous les type
+        const LogfInfoType = (Data.LogInfoType == "All") ? '.*' : Data.LogInfoType
+        // Data.LogUser value
+        const LogUser = Data.LogUser
+        // Data.LogMessage value
+        const LogMessage = Data.LogMessage
+        let Query = {}
+        // Si les date et heure sont vide
+        if ((Data.LogDate == "") && (Data.LogHeure == "")){
+            Query = {$and:[{[this._MongoVar.LogAppliType]:{$regex:".*" + LogfInfoType + ".*"}},{[this._MongoVar.LogAppliUser]:{$regex:".*" + LogUser + ".*"}},{[this._MongoVar.LogAppliValeur]:{$regex:".*" + LogMessage + ".*"}}]}
+        } else {
+            if(Data.LogDate != ""){
+                const jour = Data.LogDate.substring(0, 2)
+                const mois = Data.LogDate.substring(3,5)
+                const annee = Data.LogDate.substring(6)
+                let date = { $gte:new Date(annee+'-' + mois + '-' + jour +'T13:56:05.000Z'), $lt:new Date(annee+'-' + mois + '-' + jour +'T13:56:06.000Z') }
+                console.log(date);
+                Query = {$and:[{[this._MongoVar.LogAppliType]:{$regex:".*" + LogfInfoType + ".*"}},{[this._MongoVar.LogAppliUser]:{$regex:".*" + LogUser + ".*"}},{[this._MongoVar.LogAppliValeur]:{$regex:".*" + LogMessage + ".*"}},{[this._MongoVar.LogAppliNow]:date}]}
+        
+            }
+        }
+
         let mongocollection = this._MongoVar.LogAppliCollection
-        const Query = {}
         const Projection = {}
         const Sort = {[this._MongoVar.LogAppliNow]: -1}
         this._Mongo.FindSortLimitSkipPromise(Query,Projection, Sort, 20, parseInt(Data.LogCursor), mongocollection).then((reponse)=>{
