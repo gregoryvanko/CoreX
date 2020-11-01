@@ -156,22 +156,24 @@ class ApiAdmin{
         if ((Data.LogDate == "") && (Data.LogHeure == "")){
             Query = {$and:[{[this._MongoVar.LogAppliType]:{$regex:".*" + LogfInfoType + ".*"}},{[this._MongoVar.LogAppliUser]:{$regex:".*" + LogUser + ".*"}},{[this._MongoVar.LogAppliValeur]:{$regex:".*" + LogMessage + ".*"}}]}
         } else {
-            let jour = "01"
-            let mois = "01"
-            let annee = "1999"
-            let heure = "00"
-            let minute = "00"
             if(Data.LogDate != ""){
-                jour = Data.LogDate.substring(0, 2)
-                mois = Data.LogDate.substring(3,5)
-                annee = Data.LogDate.substring(6)
+                let jour = Data.LogDate.substring(0, 2)
+                let mois = Data.LogDate.substring(3,5)
+                let annee = Data.LogDate.substring(6)
                 let date = ""
                 if (Data.LogHeure == ""){
                     date = { $gte:new Date(annee+'-' + mois + '-' + jour +'T00:00:00.000Z'), $lt:new Date(annee+'-' + mois + '-' + jour +'T23:59:59.999Z') }
                 } else {
-                    heure = Data.LogHeure.substring(0, 2)
-                    minute = Data.LogHeure.substring(3)
-                    date = { $gte:new Date(annee+'-' + mois + '-' + jour +'T' + heure +':' + minute +':00.000Z'), $lt:new Date(annee+'-' + mois + '-' + jour +'T' + heure +':' + minute +':59.999Z') }
+                    console.log(Data.LogHeure);
+                    let Ijour = parseInt(Data.LogDate.substring(0, 2))
+                    let Imois = parseInt(Data.LogDate.substring(3,5))-1
+                    let Iannee = parseInt(Data.LogDate.substring(6))
+                    let Iheure = parseInt(Data.LogHeure.substring(0, 2))
+                    let Iminute = parseInt(Data.LogHeure.substring(3))
+                    var isoDate1 = new Date(Iannee, Imois, Ijour, Iheure, Iminute, 0, 0).toISOString()
+                    var isoDate2 = new Date(Iannee, Imois, Ijour, Iheure, Iminute, 59, 999).toISOString()
+                    date = { $gte:new Date(isoDate1), $lt:new Date(isoDate2) }
+                    //date = { $gte:new Date(annee+'-' + mois + '-' + jour +'T' + heure +':' + minute +':00.000Z'), $lt:new Date(annee+'-' + mois + '-' + jour +'T' + heure +':' + minute +':59.999Z') }
                 }
                 console.log(date);
                 Query = {$and:[{[this._MongoVar.LogAppliType]:{$regex:".*" + LogfInfoType + ".*"}},{[this._MongoVar.LogAppliUser]:{$regex:".*" + LogUser + ".*"}},{[this._MongoVar.LogAppliValeur]:{$regex:".*" + LogMessage + ".*"}},{[this._MongoVar.LogAppliNow]:date}]}

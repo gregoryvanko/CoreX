@@ -172,6 +172,8 @@ class CoreXAdminLogApp{
             document.getElementById("Liste").appendChild(CoreXBuild.DivTexte("End of log", "", "CoreXAdminLogFlexRowCenterspacearound", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;"))
             document.getElementById("ButtonNext").style.visibility = 'hidden'
         } else {
+            let x=window.scrollX
+            let y=window.scrollY
             Data.forEach(element => {
                 if (!this._LogIdListe.includes(element._id)){
                     this._LogIdListe.push(element._id)
@@ -188,6 +190,7 @@ class CoreXAdminLogApp{
                     flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "CoreXAdminLogText CoreXAdminLogValeur", "overflow-wrap:break-word"))
                 }
             })
+            window.scrollTo(x, y)
         }
     }
 
@@ -240,9 +243,9 @@ class CoreXAdminLogApp{
             .CoreXAdminLogButton:hover{
                 box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
             }
-            .CoreXAdminLogDate{width:20%;}
-            .CoreXAdminLogUser{width:24%;}
-            .CoreXAdminLogValeur{width:54%; font-size: calc(var(--CoreX-font-size)*0.8);}
+            .CoreXAdminLogDate{width:18%;}
+            .CoreXAdminLogUser{width:16%;}
+            .CoreXAdminLogValeur{width:64%; font-size: calc(var(--CoreX-font-size)*0.8);}
 
             .CoreXAdminLogBox{
                 border: 1px solid var(--CoreX-color);
@@ -325,9 +328,9 @@ class CoreXAdminLogApp{
                 #CoreXAdminLogTitre{font-size: var(--CoreX-TitreIphone-font-size);}
                 .CoreXAdminLogText{font-size: var(--CoreX-Iphone-font-size);}
                 .CoreXAdminLogButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
-                .CoreXAdminLogDate{width:20%;}
-                .CoreXAdminLogUser{width:24%;}
-                .CoreXAdminLogValeur{width:50%; font-size: calc(var(--CoreX-Iphone-font-size)*0.8);}
+                .CoreXAdminLogDate{width:22%;}
+                .CoreXAdminLogUser{width:16%;}
+                .CoreXAdminLogValeur{width:60%; font-size: calc(var(--CoreX-Iphone-font-size)*0.8);}
                 .CoreXAdminLogBox{width: 90%;}
                 .CoreXAdminLogInput{font-size: var(--CoreX-Iphone-font-size);}
             }
