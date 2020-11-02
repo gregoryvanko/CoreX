@@ -111,16 +111,19 @@ class corex {
                 let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
                 if (DecryptTokenReponse.TokenValide) {
                     // vérification que le UserId du Token existe en DB et envoie de l'app
-                    me.CheckTokenUserIdAndSendApp(req.body.Site, DecryptTokenReponse.TokenData.data.UserData._id, res)
+                    me.CheckTokenUserIdAndSendApp(req.body.Site, req.body.Version, DecryptTokenReponse.TokenData.data.UserData._id, res)
                 } else {
                     me.LogAppliError("Token non valide", "Server", "Server")
                     res.json({Error: true, ErrorMsg:"Token non valide"})
                 }
             } else {
-                let MyApp = me.GetAppCode(req.body.Site, "anonymous","anonymous")
-                res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
+                if ((req.body.Version == me.GetAppVersion()) && (req.body.Site == "App")){
+                    res.json({Error: false, ErrorMsg:"", CodeAppJS: "", CodeAppCSS: "", Version: req.body.Version})
+                } else {
+                    let MyApp = me.GetAppCode(req.body.Site, "anonymous","anonymous")
+                    res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS, Version: me.GetAppVersion()})
+                }
             }
-            
         })
         // Creation d'une route pour API l'application
 		this._Express.post('/api', function(req, res, next){
@@ -373,6 +376,12 @@ class corex {
 		this._http.listen(this._Port, function(){
 			console.log('listening on *:' + me._Port)
         })
+    }
+    /** Get Application Version */
+    GetAppVersion(){
+        let packagepath = process.cwd() + "/package.json"
+        let packagejson = require(packagepath)
+        return packagejson.version
     }
     /** Get Icon file */
     GetIconFile(val){
@@ -807,7 +816,7 @@ class corex {
         return reponse
     }
     /* Check la validation du UserId contenu dans un Token et envoie de l'app */
-    CheckTokenUserIdAndSendApp(Site, Id, res){
+    CheckTokenUserIdAndSendApp(Site, Version, Id, res){
         let MongoObjectId = require('./Mongo.js').MongoObjectId
         const Query = {'_id': new MongoObjectId(Id)}
         this._Mongo.CountPromise(Query, this._MongoVar.UserCollection).then((reponse)=>{
@@ -819,15 +828,20 @@ class corex {
                         if (reponse[0].Admin){
                             this.LogAppliInfo("TokenUserId validé user:" + reponse[0].User, "Server", "Server")
                             let MyApp = this.GetAppCode(Site, reponse[0].User, Id)
-                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
+                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS, Version: this.GetAppVersion()})
                         } else {
                             this.LogAppliError("TokenUserId non validé. User not Admin for site Admin", "Server", "Server")
                             res.json({Error: true, ErrorMsg:"Token non valide"})
                         }
                     } else {
                         this.LogAppliInfo("TokenUserId validé user:" + reponse[0].User, "Server", "Server")
-                        let MyApp = this.GetAppCode(Site, reponse[0].User, Id)
-                        res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS})
+                        if ((Version == this.GetAppVersion()) && (Site == "App")){
+                            res.json({Error: false, ErrorMsg:"", CodeAppJS: "", CodeAppCSS: "", Version: Version})
+                            this.LogAppliInfo("App loaded from browser", reponse[0].User, Id)
+                        } else {
+                            let MyApp = this.GetAppCode(Site, reponse[0].User, Id)
+                            res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS, Version: this.GetAppVersion()})
+                        }
                     }
                 },(erreur)=>{
                     this.LogAppliError("CheckTokenUserIdAndSendApp DB error : " + erreur, "Server", "Server")
@@ -901,7 +915,7 @@ class corex {
             `
         switch (Site) {
             case "Admin":
-                this.LogAppliInfo("Start loading App Admin", User, UserId)
+                this.LogAppliInfo("Start loading Admin App", User, UserId)
                 MyApp = this.LoadAppFilesFromAdminFolder(MyApp)
                 break
             default:

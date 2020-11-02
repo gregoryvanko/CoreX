@@ -9,6 +9,9 @@ class CoreXLoader {
 
         // Variable interne de la class
         this._DbKeyLogin = "CoreXLoginToken"
+        this._DBKeyVersion = "CoreXVersion"
+        this._DBKeyCodeAppCSS = "CoreXAppCss"
+        this._DBKeyCodeAppJS = "CoreXAppJs"
     }
     
     set Site(val){this._Site = val}
@@ -34,6 +37,11 @@ class CoreXLoader {
         return Token
     }
 
+    /* Recuperer la version de la BD du browser */
+    GetVersion(){
+        return localStorage.getItem(this._DBKeyVersion) // Recuperer la version de la DB du browser
+    }
+
     /* Enregistrement du token login */
     LoginDone(Token){
         this._LoginToken = Token // Enregistrer le token dans la class
@@ -46,6 +54,9 @@ class CoreXLoader {
         document.body.innerHTML = ""
         this._LoginToken = null
         localStorage.removeItem(this._DbKeyLogin)
+        localStorage.removeItem(this._DBKeyVersion)
+        localStorage.removeItem(this._DBKeyCodeAppCSS)
+        localStorage.removeItem(this._DBKeyCodeAppJS)
         // Effacer l'anienne application
         if (document.getElementById("CodeJs")) {
             var CodeJs = document.getElementById("CodeJs")
@@ -107,25 +118,62 @@ class CoreXLoader {
                     me._LoginToken = null
                     localStorage.removeItem(me._DbKeyLogin)
                 } else {
-                    //console.log('App Loaded')
-                    // Load de l'application CSS
-                    var CSS = document.createElement('style')
-                    CSS.type = 'text/css'
-                    CSS.id = 'CodeCSS'
-                    CSS.innerHTML = reponse.CodeAppCSS
-                    document.getElementsByTagName('head')[0].appendChild(CSS)
-                    // Load de l'application JS
-                    var JS = document.createElement('script')
-                    JS.type = 'text/javascript'
-                    JS.id = 'CodeJs'
-                    JS.innerHTML = reponse.CodeAppJS
-                    // Timeout de 500 milisec entre la fin de la progressbar et le load de l'application
-                    setTimeout(function() {
-                        // effacer le contenu du body
-                        document.body.innerHTML = ""
-                        // Lancement du javascript de l'application
-                        document.getElementsByTagName('head')[0].appendChild(JS)
-                    }, 100)
+                    if ((reponse.Version != me.GetVersion()) || (me._Site != "App")){
+                        console.log("From server");
+                        // Save Version number 
+                        if (me._Site == "App"){
+                            localStorage.setItem(me._DBKeyVersion, reponse.Version)
+                        } else {
+                            localStorage.removeItem(me._DBKeyVersion)
+                            localStorage.removeItem(me._DBKeyCodeAppCSS)
+                            localStorage.removeItem(me._DBKeyCodeAppJS)
+                        }
+                        // Load de l'application CSS
+                        var CSS = document.createElement('style')
+                        CSS.type = 'text/css'
+                        CSS.id = 'CodeCSS'
+                        CSS.innerHTML = reponse.CodeAppCSS
+                        document.getElementsByTagName('head')[0].appendChild(CSS)
+                        if (me._Site == "App"){
+                            localStorage.setItem(me._DBKeyCodeAppCSS, reponse.CodeAppCSS)
+                        }
+                        // Load de l'application JS
+                        var JS = document.createElement('script')
+                        JS.type = 'text/javascript'
+                        JS.id = 'CodeJs'
+                        JS.innerHTML = reponse.CodeAppJS
+                        if (me._Site == "App"){
+                            localStorage.setItem(me._DBKeyCodeAppJS, reponse.CodeAppJS)
+                        }
+                        // Timeout de 500 milisec entre la fin de la progressbar et le load de l'application
+                        setTimeout(function() {
+                            // effacer le contenu du body
+                            document.body.innerHTML = ""
+                            // Lancement du javascript de l'application
+                            document.getElementsByTagName('head')[0].appendChild(JS)
+                        }, 100)
+                    } else {
+                        console.log("From Browser");
+                        // Load de l'application CSS
+                        var CSS = document.createElement('style')
+                        CSS.type = 'text/css'
+                        CSS.id = 'CodeCSS'
+                        CSS.innerHTML = localStorage.getItem(me._DBKeyCodeAppCSS)
+                        document.getElementsByTagName('head')[0].appendChild(CSS)
+                        // Load de l'application JS
+                        var JS = document.createElement('script')
+                        JS.type = 'text/javascript'
+                        JS.id = 'CodeJs'
+                        JS.innerHTML = localStorage.getItem(me._DBKeyCodeAppJS)
+                        // Timeout de 500 milisec entre la fin de la progressbar et le load de l'application
+                        setTimeout(function() {
+                            // effacer le contenu du body
+                            document.body.innerHTML = ""
+                            // Lancement du javascript de l'application
+                            document.getElementsByTagName('head')[0].appendChild(JS)
+                        }, 100)
+                    }
+                    
                 }
             } else if (this.readyState == 4 && this.status != 200) {
                 document.getElementById("LoadingErrorMsg").innerHTML = this.response;
@@ -137,6 +185,6 @@ class CoreXLoader {
         }
         xhttp.open("POST", "loadApp", true)
         xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-        xhttp.send(JSON.stringify({Site:me._Site, Token:me.GetTokenLogin()})) 
+        xhttp.send(JSON.stringify({Site:me._Site, Token:me.GetTokenLogin(), Version:me.GetVersion()})) 
     }
 }
