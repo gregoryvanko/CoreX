@@ -26,6 +26,7 @@ class CoreXAdminLogApp{
         // Global action
         GlobalClearActionList()
         GlobalAddActionInList("Refresh", this.Start.bind(this))
+        GlobalAddActionInList("Clean Log", this.CleanLog.bind(this))
         // Titre
         this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of logs", "CoreXAdminLogTitre", "", "margin-top:4%"))
         // Liste of log
@@ -158,6 +159,32 @@ class CoreXAdminLogApp{
                 return IsValide
             }
         }
+        // vérifier le format de la heure
+        let time = document.getElementById("CoreXAdminLogInputHeure").value
+        if (time != ""){
+            if (time.length != 5){
+                IsValide = false
+                document.getElementById("ErrorSearchLog").innerHTML = "Time length error"
+                return IsValide
+            }
+            if (time.substring(2, 3) != ":"){
+                IsValide = false
+                document.getElementById("ErrorSearchLog").innerHTML = "Date format error"
+                return IsValide
+            }
+            let heure = time.substring(0, 2)
+            let minute = time.substring(3,5)
+            if (isNaN(heure)){
+                IsValide = false
+                document.getElementById("ErrorSearchLog").innerHTML = "Hour not a number"
+                return IsValide
+            }
+            if (isNaN(minute)){
+                IsValide = false
+                document.getElementById("ErrorSearchLog").innerHTML = "Minute not a number"
+                return IsValide
+            }
+        }
         return IsValide
     }
 
@@ -238,6 +265,15 @@ class CoreXAdminLogApp{
             })
             window.scrollTo(x, y)
         }
+    }
+
+    /** Efface le log en db */
+    CleanLog(){
+        GlobalCallApiPromise("CleanLog", "").then((reponse)=>{
+            alert("Log cleaned")
+        },(erreur)=>{
+            alert(erreur)
+        })
     }
 
     /** Css de l'application */

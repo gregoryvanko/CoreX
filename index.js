@@ -176,6 +176,10 @@ class corex {
                         //Api Admin
                         me.ApiAdminCheckUser(me._ApiAdmin.GetLog.bind(me), DecryptTokenReponse, req, res, User, UserId)
                         break
+                    case "CleanLog":
+                        //Api Admin
+                        me.ApiAdminCheckUser(me._ApiAdmin.CleanLog.bind(me), DecryptTokenReponse, req, res, User, UserId)
+                        break
                     case "Backup":
                         //Api Admin
                         if (DecryptTokenReponse != null) {

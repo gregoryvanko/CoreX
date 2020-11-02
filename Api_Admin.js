@@ -195,6 +195,17 @@ class ApiAdmin{
         })
     }
 
+    CleanLog(Data, res, User, UserId){
+        this.LogAppliInfo("Call ApiAdmin CleanLog", User, UserId)
+        const Query = {}
+        this._Mongo.DeleteByQueryPromise(Query, this._MongoVar.LogAppliCollection).then((reponse)=>{
+            res.json({Error: false, ErrorMsg: "CleanLog Data", Data: null})
+        },(erreur)=>{
+            this.LogAppliError("CleanLog error : " + erreur, User, UserId)
+            res.json({Error: true, ErrorMsg: "Error during CleanLog: "+ erreur, Data: ""})
+        })
+    }
+
     /** Get des log de l'application */
     Backup(ApiData, res, GetJobSchedule, SetJobSchedule, User, UserId){
         if (ApiData.Fct == "BackupNow"){
@@ -407,15 +418,7 @@ class ApiAdmin{
                 this.LogAppliError("SaveGoogleKey error : " + erreur, User, UserId)
                 res.json({Error: true, ErrorMsg: "Error during SaveGoogleKey: "+ erreur, Data: ""})
             })
-        } else if (ApiData.Fct == "CleanLog") {
-            this.LogAppliInfo("Call ApiAdmin CleanLog", User, UserId)
-            const Query = {}
-            this._Mongo.DeleteByQueryPromise(Query, this._MongoVar.LogAppliCollection).then((reponse)=>{
-                res.json({Error: false, ErrorMsg: "CleanLog Data", Data: null})
-            },(erreur)=>{
-                this.LogAppliError("CleanLog error : " + erreur, User, UserId)
-                res.json({Error: true, ErrorMsg: "Error during CleanLog: "+ erreur, Data: ""})
-            })
+
         } else {
             this.LogAppliError("Backup: ApiData.Fct not found= "+ ApiData.Fct, User, UserId)
             res.json({Error: true, ErrorMsg: "Error during Backup: ApiData.Fct not found= "+ ApiData.Fct, Data: ""})
