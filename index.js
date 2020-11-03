@@ -379,9 +379,17 @@ class corex {
     }
     /** Get Application Version */
     GetAppVersion(){
-        let packagepath = process.cwd() + "/package.json"
-        let packagejson = require(packagepath)
-        return packagejson.version
+        let version = ""
+        // Si on est en debug on fait un random de la version
+        if(this._Debug){
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+            version = "Debug" + characters.charAt(Math.floor(Math.random() * characters.length))
+        } else {
+            let packagepath = process.cwd() + "/package.json"
+            let packagejson = require(packagepath)
+            version = packagejson.version
+        }
+        return version
     }
     /** Get Icon file */
     GetIconFile(val){
