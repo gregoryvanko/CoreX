@@ -368,7 +368,7 @@ class corex {
                 throw error;
             }
             if (error.code == "EADDRINUSE"){
-                console.error(this.GetDateString(new Date()) + ' Port is already in use')
+                console.error(me.GetDateString(new Date()) + ' Port is already in use')
                 process.exit(1)
             }
         })
