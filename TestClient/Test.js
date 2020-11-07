@@ -10,18 +10,16 @@ class TestCoreXApp{
         //*** Test CoreXBuild
         this._DivApp.appendChild(CoreXBuild.DivTexte("Titre Page", "Titre", "", "margin-top:4%"))
         //this._DivApp.appendChild(CoreXBuild.DivTexte("Hi all", "TestCSS", "", ""))
+
         let Conteneur = CoreXBuild.DivFlexColumn("Conteneur")
         this._DivApp.appendChild(Conteneur)
+
         //*** Test CoreXBuild InputWithLabel
-        
         //Conteneur.appendChild(CoreXBuild.InputWithLabel("InputBox", "Label Test", "Text", "MyInputTest","", "Input", "text", "placehoder",this.InputOnBlur.bind(this)))
         
         //*** Test Video
-        let Video = document.createElement("video")
-        Video.style.height = "50vh"
-        Video.controls = true
-        Video.src = "/video?name=test.mov"
-        Conteneur.appendChild(Video)
+        Conteneur.appendChild(CoreXBuild.Video("/video?name=test.mov","","","height:50vh"))
+        
 
         //*** Test ActionList
         GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
