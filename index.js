@@ -269,6 +269,8 @@ class corex {
                 res.status(404).send("Sorry, the route Icon not found");
             }
         })
+        // Creation d'un route pour le stream video server
+        // ToDo
         // Creation de la route 404
         this._Express.use(function(req, res, next) {
             me.LogAppliError('Mauvaise route: ' + req.originalUrl, "Server", "Server")
