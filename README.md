@@ -100,6 +100,10 @@ class MyAppCoreX{
         this._MyServeurApp.CommonAppFolder = __dirname + "/TestCommon"
         // Chemin relatif de l'icone
         this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
+        // Chemin relatif du dossier video
+        this._MyServeurApp.VideoFolder = __dirname + "/Video"
+        // Set Tag name du serveur video
+        this._MyServeurApp.VideoTagName = "name"
         // Add serveur api for FctName = Test
         this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this), false)
         // Add serveur api Admin for FctName = TestAdmin
