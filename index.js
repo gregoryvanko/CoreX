@@ -96,7 +96,7 @@ class corex {
         this.InitMongoDb()
         // Initiation de Video Stream
         let VideoStream = require('./VideoStream').VideoStream
-        this._VideoStream = new VideoStream(this._VideoFolder,this._VideoTagName)
+        this._VideoStream = new VideoStream(this._VideoFolder,this._VideoTagName,me.LogAppliInfo.bind(me),me.LogAppliError.bind(me))
         // utilistaion de body-parser
 		var bodyParser = require("body-parser")
 		this._Express.use(bodyParser.urlencoded({ limit: '200mb', extended: true }))
