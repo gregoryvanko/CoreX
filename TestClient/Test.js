@@ -20,7 +20,6 @@ class TestCoreXApp{
         //*** Test Video
         Conteneur.appendChild(CoreXBuild.Video("/video?name=test.mov","","","height:50vh"))
         
-
         //*** Test ActionList
         GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
 
