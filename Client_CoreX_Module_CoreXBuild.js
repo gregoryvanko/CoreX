@@ -216,7 +216,6 @@ class CoreXBuild{
         video.controls = true
         video.setAttribute("playsinline", "")
         var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)
-        console.log(isChrome)
         if (!isChrome){
             video.setAttribute("autoplay", "false")
         }
