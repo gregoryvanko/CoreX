@@ -18,7 +18,7 @@ class TestCoreXApp{
         //Conteneur.appendChild(CoreXBuild.InputWithLabel("InputBox", "Label Test", "Text", "MyInputTest","", "Input", "text", "placehoder",this.InputOnBlur.bind(this)))
         
         //*** Test Video
-        Conteneur.appendChild(CoreXBuild.Video("/video?name=test.mov","","","height:50vh"))
+        Conteneur.appendChild(CoreXBuild.Video("/video?name=test.mov","","Video",""))
         
         //*** Test ActionList
         GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))

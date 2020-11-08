@@ -24,6 +24,10 @@
 .Input.focus {
     border-color: var(--CoreX-color);
 }
+
+.Video{
+    width: 70%;
+}
 @media (hover: hover) {
     .Input:hover{
         border-color: var(--CoreX-color);

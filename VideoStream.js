@@ -4,14 +4,14 @@ class VideoStream{
         this._TagName = TagName
         this._LogInfo = LogInfo
         this._LogError = LogError
+        this._fs = require("fs");
     }
 
     Exectue(req, res ){
-        const fs = require("fs");
         const filePath = this._VideoFolder + "/" + req.query[this._TagName]
 
         if (req.query[this._TagName].match(/^[a-z0-9-_ ]+\.(pm4|mov)$/i)){
-            if(fs.existsSync(filePath)){
+            if(this._fs.existsSync(filePath)){
                 const options = {};
                 let start;
                 let end;
@@ -33,48 +33,38 @@ class VideoStream{
                         }
                     }
                 }
-            
                 res.setHeader("content-type", "video/mp4");
-            
-                fs.stat(filePath, (err, stat) => {
-                    if (err) {
-                        res.sendStatus(500);
-                        this._LogError(`Video file stat error for ${filePath}. Error: ${err}`, "Server", "Server")
-                        return;
+                var stats = this._fs.statSync(filePath)
+                var contentLength = stats["size"]
+                if (req.method === "HEAD") {
+                    res.statusCode = 200;
+                    res.setHeader("accept-ranges", "bytes");
+                    res.setHeader("content-length", contentLength);
+                    res.end();
+                }else {       
+                    let retrievedLength;
+                    if (start !== undefined && end !== undefined) {
+                        retrievedLength = (end+1) - start;
+                    }else if (start !== undefined) {
+                        retrievedLength = contentLength - start;
+                    }else if (end !== undefined) {
+                        retrievedLength = (end+1);
+                    }else {
+                        retrievedLength = contentLength;
                     }
-            
-                    let contentLength = stat.size;
-                    if (req.method === "HEAD") {
-                        res.statusCode = 200;
+                    res.statusCode = start !== undefined || end !== undefined ? 206 : 200;
+                    res.setHeader("content-length", retrievedLength);
+                    if (range !== undefined) {  
+                        res.setHeader("content-range", `bytes ${start || 0}-${end || (contentLength-1)}/${contentLength}`);
                         res.setHeader("accept-ranges", "bytes");
-                        res.setHeader("content-length", contentLength);
-                        res.end();
-                    }else {       
-                        let retrievedLength;
-                        if (start !== undefined && end !== undefined) {
-                            retrievedLength = (end+1) - start;
-                        }else if (start !== undefined) {
-                            retrievedLength = contentLength - start;
-                        }else if (end !== undefined) {
-                            retrievedLength = (end+1);
-                        }else {
-                            retrievedLength = contentLength;
-                        }
-                        res.statusCode = start !== undefined || end !== undefined ? 206 : 200;
-                        res.setHeader("content-length", retrievedLength);
-                        if (range !== undefined) {  
-                            res.setHeader("content-range", `bytes ${start || 0}-${end || (contentLength-1)}/${contentLength}`);
-                            res.setHeader("accept-ranges", "bytes");
-                        }
-                        const fileStream = fs.createReadStream(filePath, options);
-                        fileStream.on("error", error => {
-                            res.sendStatus(500);
-                            this._LogError(`Video error reading file ${filePath}. Error: ${error}`, "Server", "Server")
-                        });
-                        fileStream.pipe(res);
                     }
-                });
-                
+                    const fileStream = this._fs.createReadStream(filePath, options);
+                    fileStream.on("error", error => {
+                        res.sendStatus(500);
+                        this._LogError(`Video error reading file ${filePath}. Error: ${error}`, "Server", "Server")
+                    });
+                    fileStream.pipe(res);
+                }
             }else {
                 res.status(404).send(`Video file not foud: ${filePath}`)
                 this._LogError(`Video file not foud: ${filePath}`, "Server", "Server")

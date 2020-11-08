@@ -206,7 +206,8 @@ class CoreXBuild{
     }
 
     static Video (Src,Id, Class,Style){
-        let element = CoreXBuild.DivFlexColumn("")
+        let element = document.createElement("div")
+        element.setAttribute("style","display: -webkit-flex; display: flex; flex-direction: column; justify-content:space-around; align-content:center; align-items: center; flex-wrap: wrap;")
         if (Style){element.setAttribute("Style", Style)}
         if (Class){element.setAttribute("Class", Class)}
         let video = document.createElement("video")
@@ -214,7 +215,10 @@ class CoreXBuild{
         video.style.width = "100%"
         video.controls = true
         video.setAttribute("playsinline", "")
-        video.setAttribute("autoplay", "false")
+        var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)
+        if (!isChrome){
+            video.setAttribute("autoplay", "false")
+        }
         video.onerror = ()=>{element.innerHTML = `Video Error: ErrorCode= ${video.error.code} details= ${video.error.message}`}
         video.src = Src
         element.appendChild(video)
