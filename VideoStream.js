@@ -10,7 +10,7 @@ class VideoStream{
     Exectue(req, res ){
         const filePath = this._VideoFolder + "/" + req.query[this._TagName]
 
-        if (req.query[this._TagName].match(/^[a-z0-9-_ ]+\.(pm4|mov)$/i)){
+        if (req.query[this._TagName].match(/^[a-z0-9-_ ]+\.(mp4|mov)$/i)){
             if(this._fs.existsSync(filePath)){
                 const options = {};
                 let start;
