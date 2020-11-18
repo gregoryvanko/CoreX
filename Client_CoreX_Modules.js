@@ -14,7 +14,7 @@ class CoreXActionButton{
 
         let Button = document.createElement("button")
         Button.setAttribute("id", this._HtmlId)
-        Button.setAttribute("style", "right: 0px; display: inline; z-index: 20")
+        Button.setAttribute("style", "right: 0px; display: inline; z-index: 999")
         Button.setAttribute("class", "CoreXActionMenuButton")
         Button.innerHTML = "&#9733"
         Button.addEventListener("click", this.OnClickCoreXActionButton.bind(this))
@@ -305,7 +305,7 @@ class CoreXWindow{
                 margin-right: auto;
                 left: 0;
                 right: 0;
-                z-index: 10;
+                z-index: 998;
                 background-color: white;
                 padding: 10px;
                 border-radius: 10px;
@@ -342,7 +342,7 @@ class CoreXWindow{
         el.innerHTML = CSS
 
         var Div1 = document.createElement("div")
-        Div1.setAttribute("style", "display: block; position: fixed; top: 0px; left: 0px; background-color: rgb(230,230,230, 0.8); width: 100%; height: 100%; z-index: 10;")
+        Div1.setAttribute("style", "display: block; position: fixed; top: 0px; left: 0px; background-color: rgb(230,230,230, 0.8); width: 100%; height: 100%; z-index: 998;")
         el.appendChild(Div1)
 
         var Div2 = document.createElement("div")
@@ -389,7 +389,7 @@ class CoreXWindowUserConfig{
                 margin-right: auto;
                 left: 0;
                 right: 0;
-                z-index: 10;
+                z-index: 998;
                 background-color: white;
                 padding: 10px;
                 border-radius: 10px;
@@ -463,7 +463,7 @@ class CoreXWindowUserConfig{
         el.innerHTML = CSS
 
         var Div1 = document.createElement("div")
-        Div1.setAttribute("style", "display: block; position: fixed; top: 0px; left: 0px; background-color: rgb(230,230,230, 0.8); width: 100%; height: 100%; z-index: 10;")
+        Div1.setAttribute("style", "display: block; position: fixed; top: 0px; left: 0px; background-color: rgb(230,230,230, 0.8); width: 100%; height: 100%; z-index: 998;")
         el.appendChild(Div1)
 
         var Div2 = document.createElement("div")
