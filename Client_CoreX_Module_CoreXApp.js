@@ -63,8 +63,6 @@ class CoreXApp{
                 })
             }
         }
-        // Set Display Action to Toggle
-        this.SetDisplayAction("Toggle")
     }
     /** Build AppCard */
     BuildAppCard(Titre, Src, Start){
