@@ -90,7 +90,7 @@ class CoreXBuild{
         return element
     }
 
-    static ButtonLeftAction(Div, OnClick, Id){
+    static ButtonLeftAction(OnClick, Id){
         let divconent = document.createElement("div")
         if (Id){divconent.setAttribute("id", this._Id)}
         divconent.innerHTML = `
@@ -128,7 +128,6 @@ class CoreXBuild{
         }
         </style>
         `
-
         let Button = document.createElement("button")
         Button.setAttribute("id", this._HtmlId)
         Button.setAttribute("style", "left: 0px; display: inline; z-index: 999")
@@ -136,7 +135,7 @@ class CoreXBuild{
         Button.innerHTML = "&#9733"
         Button.addEventListener("click", OnClick)
         divconent.appendChild(Button)
-        Div.appendChild(divconent)
+        return divconent
     }
 
     static ProgressBar(Id,Class, Style){
