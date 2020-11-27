@@ -29,7 +29,7 @@ class TestCoreXApp{
         //GlobalDisplayAction("Toggle")
 
         //*** Test du boutton action de gauche */
-        CoreXBuild.ButtonLeftAction(this._DivApp, this.ClickTestButton.bind(this))
+        Conteneur.appendChild(CoreXBuild.ButtonLeftAction(this.ClickTestButton.bind(this), "ButtonLeft"))
 
         //*** Test de SocketIO
         this.SocketIo = GlobalGetSocketIo()

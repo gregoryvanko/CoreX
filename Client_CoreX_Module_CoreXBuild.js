@@ -92,7 +92,8 @@ class CoreXBuild{
 
     static ButtonLeftAction(OnClick, Id){
         let divconent = document.createElement("div")
-        if (Id){divconent.setAttribute("id", this._Id)}
+        if (Id){divconent.setAttribute("id", Id)}
+        divconent.setAttribute("style", "display: bloc; z-index: 999")
         divconent.innerHTML = `
         <style>
         .CoreXActionMenuButton{
@@ -129,7 +130,6 @@ class CoreXBuild{
         </style>
         `
         let Button = document.createElement("button")
-        Button.setAttribute("id", this._HtmlId)
         Button.setAttribute("style", "left: 0px; display: inline; z-index: 999")
         Button.setAttribute("class", "CoreXActionMenuButton")
         Button.innerHTML = "&#9733"
