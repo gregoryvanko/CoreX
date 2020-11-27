@@ -267,7 +267,7 @@ GlobalCoreXGetAppContentId()
 // Value: est la valeur associée à une action
 GlobalSendSocketIo(ModuleName, Action, Value)
 
-/** Affichage du bouton action */
+/** Affichage du bouton action de droite */
 // Type: le type (string: 'On', 'Off', 'Toggle') d'affichage du bouton action
 GlobalDisplayAction(Type)
 

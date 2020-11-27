@@ -16,7 +16,8 @@ class CoreXActionButton{
         Button.setAttribute("id", this._HtmlId)
         Button.setAttribute("style", "right: 0px; display: inline; z-index: 999")
         Button.setAttribute("class", "CoreXActionMenuButton")
-        Button.innerHTML = "&#9733"
+        //Button.innerHTML = "&#9733"
+        Button.innerHTML = "&#x2630"
         Button.addEventListener("click", this.OnClickCoreXActionButton.bind(this))
         Button.addEventListener("mouseover", this.OnMouseOverCoreXActionButton.bind(this))
         Button.addEventListener("mouseout", this.OnMouseOutCoreXActionButton.bind(this))
@@ -55,39 +56,45 @@ class CoreXActionButton{
     }
     /** Click on CoreXActionButton */
     OnClickCoreXActionButton(){
-        var Div = document.createElement("div")
-        Div.setAttribute("style","width: 70%; margin: 0px auto 0px auto; display: -webkit-flex; -webkit-flex-flow: column wrap; display: flex; flex-flow: column wrap; justify-content: center; padding: 1%;")
-        // Ajout de tous les boutons
-        if (this._ActionList.length != 0){
-            this._ActionList.forEach(element => {
-                Div.appendChild(this.GetTemplateActionBoutton(element.Titre, element.Fct))
-            })
-            var DivLine = document.createElement("div")
-            DivLine.setAttribute("style","height: 20px;")
-            Div.appendChild(DivLine)
-            if (this._AppIsSecured){
-                Div.appendChild(this.GetTemplateActionImagesButton())
-            }
+        if (document.getElementById("CoreXWindow")){
+            // Si la fenetre existe deja on supprime la fenetre
+            CoreXWindow.DeleteWindow()
         } else {
-            if (this._AppIsSecured){
-                Div.appendChild(this.GetTemplateActionBoutton("Logout", GlobalLogout))
-                Div.appendChild(this.GetTemplateActionBoutton("User Configuration",  CoreXWindowUserConfig.BuildWindow))
-                if(window.location.pathname == "/"){
-                    Div.appendChild(this.GetTemplateActionBoutton("Go to Admin App",  this.GoToApp.bind(this, false)))
-                } else {
-                    Div.appendChild(this.GetTemplateActionBoutton("Go to App",  this.GoToApp.bind(this, true)))
+            // On construit le div de la fenetre
+            var Div = document.createElement("div")
+            Div.setAttribute("style","width: 70%; margin: 0px auto 0px auto; display: -webkit-flex; -webkit-flex-flow: column wrap; display: flex; flex-flow: column wrap; justify-content: center; padding: 1%;")
+            // Ajout de tous les boutons
+            if (this._ActionList.length != 0){
+                this._ActionList.forEach(element => {
+                    Div.appendChild(this.GetTemplateActionBoutton(element.Titre, element.Fct))
+                })
+                var DivLine = document.createElement("div")
+                DivLine.setAttribute("style","height: 20px;")
+                Div.appendChild(DivLine)
+                if (this._AppIsSecured){
+                    Div.appendChild(this.GetTemplateActionImagesButton())
                 }
             } else {
-                let Divtext = document.createElement("div")
-                Divtext.setAttribute("style", "text-align: center;")
-                Divtext.setAttribute("class", "CoreXActionText")
-                Divtext.innerHTML="No Action defined"
-                Div.appendChild(Divtext)
+                if (this._AppIsSecured){
+                    Div.appendChild(this.GetTemplateActionBoutton("Logout", GlobalLogout))
+                    Div.appendChild(this.GetTemplateActionBoutton("User Configuration",  CoreXWindowUserConfig.BuildWindow))
+                    if(window.location.pathname == "/"){
+                        Div.appendChild(this.GetTemplateActionBoutton("Go to Admin App",  this.GoToApp.bind(this, false)))
+                    } else {
+                        Div.appendChild(this.GetTemplateActionBoutton("Go to App",  this.GoToApp.bind(this, true)))
+                    }
+                } else {
+                    let Divtext = document.createElement("div")
+                    Divtext.setAttribute("style", "text-align: center;")
+                    Divtext.setAttribute("class", "CoreXActionText")
+                    Divtext.innerHTML="No Action defined"
+                    Div.appendChild(Divtext)
+                }
             }
+            // on construit la fenetre
+            CoreXWindow.BuildWindow(Div)
+            this.HideActionButton()
         }
-        
-        CoreXWindow.BuildWindow(Div)
-        this.HideActionButton()
     }
     /** On Mouse Hover */
     OnMouseOverCoreXActionButton(){
@@ -189,6 +196,7 @@ class CoreXActionButton{
             padding:2px;
             border-radius: 10px;
             background-color: white;
+            outline: none;
         }
         .CoreXActionButtonImageButton:hover{
             border-color: black;
@@ -212,6 +220,7 @@ class CoreXActionButton{
             height: 50px;
             width: 50px;
             text-align: center;
+            outline: none;
         }
         
         @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
@@ -305,7 +314,7 @@ class CoreXWindow{
                 margin-right: auto;
                 left: 0;
                 right: 0;
-                z-index: 998;
+                z-index: 1000;
                 background-color: white;
                 padding: 10px;
                 border-radius: 10px;
@@ -322,6 +331,7 @@ class CoreXWindow{
                 right: 0px;
                 position:absolute;
                 margin: 1%;
+                outline: none;
             }
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
@@ -339,10 +349,11 @@ class CoreXWindow{
 
         var el = document.createElement("div")
         el.setAttribute("id", "CoreXWindow")
+        el.setAttribute("style", "z-index: 1000;")
         el.innerHTML = CSS
 
         var Div1 = document.createElement("div")
-        Div1.setAttribute("style", "display: block; position: fixed; top: 0px; left: 0px; background-color: rgb(230,230,230, 0.8); width: 100%; height: 100%; z-index: 998;")
+        Div1.setAttribute("style", "display: block; position: fixed; top: 0px; left: 0px; background-color: rgb(230,230,230, 0.8); width: 100%; height: 100%; z-index: 1000;")
         el.appendChild(Div1)
 
         var Div2 = document.createElement("div")
@@ -389,7 +400,7 @@ class CoreXWindowUserConfig{
                 margin-right: auto;
                 left: 0;
                 right: 0;
-                z-index: 998;
+                z-index: 1000;
                 background-color: white;
                 padding: 10px;
                 border-radius: 10px;

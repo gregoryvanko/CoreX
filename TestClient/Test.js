@@ -1,8 +1,8 @@
 class TestCoreXApp{
-    constructor(HtmlId){
+    constructor(){
         this._DivApp = document.getElementById(GlobalCoreXGetAppContentId())
 
-        this._test = "test"
+        this._test = "test-Value"
         this.SocketIo = null
     }
     /** Start de l'application */
@@ -18,15 +18,18 @@ class TestCoreXApp{
         //Conteneur.appendChild(CoreXBuild.InputWithLabel("InputBox", "Label Test", "Text", "MyInputTest","", "Input", "text", "placehoder",this.InputOnBlur.bind(this)))
         
         //*** Test Video
-        Conteneur.appendChild(CoreXBuild.Video("/video?name=test.mov","","Video",""))
+        //Conteneur.appendChild(CoreXBuild.Video("/video?name=test.mov","","Video",""))
         
         //*** Test ActionList
-        GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
+        //GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
 
         //*** Test affichage action button
         //GlobalDisplayAction("On")
         //GlobalDisplayAction("Off")
         //GlobalDisplayAction("Toggle")
+
+        //*** Test du boutton action de gauche */
+        CoreXBuild.ButtonLeftAction(this._DivApp, this.ClickTestButton.bind(this))
 
         //*** Test de SocketIO
         this.SocketIo = GlobalGetSocketIo()
@@ -41,7 +44,7 @@ class TestCoreXApp{
     }
 
     ClickTestButton(){
-        GlobalSendSocketIo("Test", "IO-ActionX", "IO-ValueX")
+        GlobalSendSocketIo("Test", "IO-ActionX", this._test)
         // GlobalCallApiPromise("Test", "TestDataGreg").then((reponse)=>{
         //     alert(reponse)
         // },(erreur)=>{
