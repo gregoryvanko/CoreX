@@ -100,10 +100,7 @@ class MyAppCoreX{
         this._MyServeurApp.CommonAppFolder = __dirname + "/TestCommon"
         // Chemin relatif de l'icone
         this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
-        // Chemin relatif du dossier video
-        this._MyServeurApp.VideoFolder = __dirname + "/Video"
-        // Set Tag name du serveur video
-        this._MyServeurApp.VideoTagName = "name"
+
         // Add serveur api for FctName = Test
         this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this), false)
         // Add serveur api Admin for FctName = TestAdmin
@@ -408,4 +405,31 @@ this.SocketIo = GlobalGetSocketIo()
 this.SocketIo.on('Ping', function(message) {
     console.log('Le serveur a un message Ping pour vous : ' + message)
 })
+```
+
+## Lecture de video MP4
+La lecture d'un video MP4 se fait via un alias dans la configuration Nginx
+```bash
+location /video/ {
+    alias /var/www/NodeJs/Development/MementoDev/Video/;
+}
+```
+Pour securiser la lecture video avec le token du user, il faut addapter la configuration de Nginx comme suite:
+```bash
+location /video/ {
+    auth_request /auth;
+    alias /var/www/NodeJs/Development/MementoDev/Video/;
+}
+
+location = /auth {
+    internal;
+    proxy_pass              http://localhost:5000$request_uri;
+    proxy_pass_request_body off;
+    proxy_set_header        Content-Length "";
+}
+```
+
+Lorsque les video sont sécurisée, pour lire une video "testsmall.mov" il faut ajouter dans l'application FrontEnd de CoreX le lien suivant:
+```js
+"/video/testsmall.mov?token=" + GlobalGetToken()
 ```

@@ -22,9 +22,6 @@ class corex {
         this._Usesocketio = false
         this._ApiFctList = []
         this._SocketIoFctList = []
-        this._VideoStream = null
-        this._VideoFolder = "./"
-        this._VideoTagName = "name"
 
         // Varaible interne MongoDB
         let MongoR = require('./Mongo.js').Mongo
@@ -77,8 +74,6 @@ class corex {
     set ClientAppFolder(val){this._ClientAppFolder = val}
     set AdminAppFolder(val){this._AdminAppFolder = val}
     set CommonAppFolder(val){this._CommonAppFolder = val}
-    set VideoFolder(val){this._VideoFolder = val}
-    set VideoTagName(val){this._VideoTagName = val}
 
     get AppName(){return this._AppName}
     get MongoUrl(){return this._MongoUrl}
@@ -94,9 +89,6 @@ class corex {
         this.LogAppliInfo("Application started", "Server", "Server")
         // Initiation de la DB
         this.InitMongoDb()
-        // Initiation de Video Stream
-        let VideoStream = require('./VideoStream').VideoStream
-        this._VideoStream = new VideoStream(this._VideoFolder,this._VideoTagName,me.LogAppliInfo.bind(me),me.LogAppliError.bind(me))
         // utilistaion de body-parser
 		var bodyParser = require("body-parser")
 		this._Express.use(bodyParser.urlencoded({ limit: '200mb', extended: true }))
@@ -279,8 +271,18 @@ class corex {
             }
         })
         // Creation d'un route pour le stream video server
-        this._Express.get('/video', function (req, res) {
-            me._VideoStream.Exectue(req, res)
+        this._Express.get('/video*', function (req, res) {
+            if (me._AppIsSecured){
+                let DecryptTokenReponse = me.DecryptDataToken(req.query["token"])
+                if (DecryptTokenReponse.TokenValide){
+                    res.status(200).send(``)
+                } else {
+                    res.status(401).send(``)
+                    me.LogAppliError("Token non valide in video link", "Server", "Server")
+                }
+            } else {
+                res.status(200).send(``)
+            }
         })
         // Creation de la route 404
         this._Express.use(function(req, res, next) {

@@ -18,7 +18,8 @@ class TestCoreXApp{
         //Conteneur.appendChild(CoreXBuild.InputWithLabel("InputBox", "Label Test", "Text", "MyInputTest","", "Input", "text", "placehoder",this.InputOnBlur.bind(this)))
         
         //*** Test Video
-        //Conteneur.appendChild(CoreXBuild.Video("/video?name=test.mov","","Video",""))
+        //Conteneur.appendChild(CoreXBuild.Video("/video?name=testsmall.mov","","Video",""))
+        Conteneur.appendChild(CoreXBuild.Video("/video/testsmall.mov?token=" + GlobalGetToken(),"","Video",""))
         
         //*** Test ActionList
         //GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
@@ -29,7 +30,7 @@ class TestCoreXApp{
         //GlobalDisplayAction("Toggle")
 
         //*** Test du boutton action de gauche */
-        Conteneur.appendChild(CoreXBuild.ButtonLeftAction(this.ClickTestButton.bind(this), "ButtonLeft"))
+        //Conteneur.appendChild(CoreXBuild.ButtonLeftAction(this.ClickTestButton.bind(this), "ButtonLeft"))
 
         //*** Test de SocketIO
         this.SocketIo = GlobalGetSocketIo()
