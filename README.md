@@ -408,17 +408,17 @@ this.SocketIo.on('Ping', function(message) {
 ```
 
 ## Lecture de video MP4
-La lecture d'un video MP4 se fait via un alias dans la configuration Nginx
+La lecture d'un video MP4 se fait via un alias dans la configuration Nginx. Les fichiers video doivent se trouver sous /var/www pour que nginx puisse y avoir accès.
 ```bash
 location /video/ {
-    alias /var/www/NodeJs/Development/MementoDev/Video/;
+    alias /var/www/Video/Memorx/;
 }
 ```
 Pour securiser la lecture video avec le token du user, il faut addapter la configuration de Nginx comme suite:
 ```bash
 location /video/ {
     auth_request /auth;
-    alias /var/www/NodeJs/Development/MementoDev/Video/;
+    alias /var/www/Video/Memorx/;
 }
 
 location = /auth {
