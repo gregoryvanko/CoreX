@@ -105,6 +105,13 @@ class MyAppCoreX{
         this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this), false)
         // Add serveur api Admin for FctName = TestAdmin
         this._MyServeurApp.AddApiFct("TestAdmin", this.TestApiAdminCallForFctTest.bind(this), true)
+
+        // Add SocketIo api
+        this._MyServeurApp.AddSocketIoFct("Test", this.Test.bind(this))
+
+        // Add route
+        this._MyServeurApp.AddRouteGet("test", this.TestRouteGet.bind(this))
+
         // Lancement du module corex
         this._MyServeurApp.Start()
     }
@@ -115,6 +122,14 @@ class MyAppCoreX{
     TestApiAdminCallForFctTest(Data, Res, User, UserId){
         this._MyServeurApp.LogAppliInfo("Call de l API Admin, fonction Test", User, UserId)
         Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct Test=" + Data})
+    }
+    Test(Data, Socket,User, UserId){
+        this._MyServeurApp.LogAppliInfo("Call SocketIo ModuleName: Test, Data.Action: " + Data.Action + " ,Data.Value: " + Data.Value, User, UserId)
+        let Io = this._MyServeurApp.Io
+        Io.emit("Ping", "Io: Send ping from server")
+    }
+    TestRouteGet(req, res){
+        res.send("OK, coucou")
     }
 }
 
@@ -308,6 +323,17 @@ Pour ajouter une fonction dans l'API du serveur il faut utiliser la fonction ser
 ```js
 this._MyServeurApp.AddApiFct("Test", this.Test.bind(this), false)
 Test(Data, Res, User, UserId){
+}
+```
+Pour ajouter une route GET dans le backend de l'application il faut utiliser la fonction serveur AddRouteGet(RouteName, FctBinded). Cette route n'est pas sécurisée.
+Elle est ouverte a tous les utiliateurs.
+- RouteName: le nom de la route (exemple "test")
+- FctBinded: est la référence à la fonction a executer sur le serveur lorsque l'on recoit une commande API pour FctName
+- La fonction FctBinded possède les paramètres (req, res)
+```js
+this._MyServeurApp.AddRouteGet("test", this.TestRouteGet.bind(this))
+TestRouteGet(req, res){
+    res.send("Page OK")
 }
 ```
 ### Exemple d'application Client

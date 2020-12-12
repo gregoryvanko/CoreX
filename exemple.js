@@ -47,15 +47,22 @@ class ServeurTestCoreX{
         // Chemin relatif de l'icone
         this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
 
-        // Add serveur api for FctName = test
+        // Add api for FctName = test
         this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this), false)
-        // Add serveur api Admin for FctName = TestAdmin
+        // Add api Admin for FctName = TestAdmin and only for admin
         this._MyServeurApp.AddApiFct("TestAdmin", this.TestApiAdminCallForFctTest.bind(this), true)
+
         // Add SocketIo api
         this._MyServeurApp.AddSocketIoFct("Test", this.Test.bind(this))
+
+        // Add route
+        this._MyServeurApp.AddRouteGet("test", this.TestRouteGet.bind(this))
+
         // Lancement du module corex
         this._MyServeurApp.Start()
     }
+
+    // Fonction de test
     TestApiCallForFctTest(Data, Res, User, UserId){
         this._MyServeurApp.LogAppliInfo("Call de l API User, fonction Test + Data= " + Data, User, UserId)
         Res.json({Error: false, ErrorMsg: "API OK", Data: "Data for Fct Test=" + Data})
@@ -68,6 +75,9 @@ class ServeurTestCoreX{
         this._MyServeurApp.LogAppliInfo("Call SocketIo ModuleName: Test, Data.Action: " + Data.Action + " ,Data.Value: " + Data.Value, User, UserId)
         let Io = this._MyServeurApp.Io
         Io.emit("Ping", "Io: Send ping from server")
+    }
+    TestRouteGet(req, res){
+        res.send("OK, coucou")
     }
 }
 

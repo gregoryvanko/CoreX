@@ -22,6 +22,7 @@ class corex {
         this._Usesocketio = false
         this._ApiFctList = []
         this._SocketIoFctList = []
+        this._RouteGetList = []
 
         // Varaible interne MongoDB
         let MongoR = require('./Mongo.js').Mongo
@@ -284,6 +285,17 @@ class corex {
                 res.status(200).send(``)
             }
         })
+        // Add Route Get
+        if (this._RouteGetList.length > 0){
+            this._RouteGetList.forEach(element => {
+                this._Express.get('/' + element.RouteName + "*", function (req, res) {
+                    var url = require("url")
+                    var parsed = url.parse(req.url)
+                    me.LogDebug("Get request for route: " + parsed.path)
+                    element.Fct(req, res)
+                })
+            })
+        }
         // Creation de la route 404
         this._Express.use(function(req, res, next) {
             me.LogAppliError('Mauvaise route: ' + req.originalUrl, "Server", "Server")
@@ -603,6 +615,14 @@ class corex {
         apiobject.Fct = Fct
         this._SocketIoFctList.push(apiobject)
     }
+
+    AddRouteGet(RouteName, Fct){
+        let object = new Object()
+        object.RouteName = RouteName
+        object.Fct = Fct
+        this._RouteGetList.push(object)
+    }
+
     /* Generation du fichier HTML de base */
 	GetInitialHTML(AppIsSecured){
         let fs = require('fs')

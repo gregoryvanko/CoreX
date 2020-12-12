@@ -19,7 +19,7 @@ class TestCoreXApp{
         
         //*** Test Video
         //Conteneur.appendChild(CoreXBuild.Video("/video?name=testsmall.mov","","Video",""))
-        Conteneur.appendChild(CoreXBuild.Video("/video/testsmall.mov?token=" + GlobalGetToken(),"","Video",""))
+        //Conteneur.appendChild(CoreXBuild.Video("/video/testsmall.mov?token=" + GlobalGetToken(),"","Video",""))
         
         //*** Test ActionList
         //GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
