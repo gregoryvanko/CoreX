@@ -291,7 +291,7 @@ class corex {
                 this._Express.get('/' + element.RouteName + "*", function (req, res) {
                     var url = require("url")
                     var parsed = url.parse(req.url)
-                    me.LogDebug("Get request for route: " + parsed.path)
+                    me.LogAppliInfo("Get request for route: " + parsed.path, "Server", "Server")
                     element.Fct(req, res)
                 })
             })
