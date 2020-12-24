@@ -27,9 +27,11 @@ class CoreXSocketIo{
         // Init des messages error socket io
         this._SocketIo.on('error', function(err) {
             console.log(me.GetTime() + ' SocketIo.on error, err: ' + err.type)
-            document.body.innerHTML =`
+            if (err.type != "TransportError"){
+                document.body.innerHTML =`
                 <div style='font-size: 3vh; color: red; text-align: center; margin-top: 10%;'>SocketIo.on error: ` + err.type +`</div>
                 `
+            }
         })
         
         // Init des messages connect socket io
