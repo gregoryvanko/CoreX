@@ -62,7 +62,7 @@ class CoreXBuild{
         if (Id){element.setAttribute("id", Id)}
         if (Class){element.setAttribute("Class", Class)}
         if (Style){element.setAttribute("Style", Style)}
-        element.innerHTML = Texte
+        element.innerText = Texte
         return element
     }
 

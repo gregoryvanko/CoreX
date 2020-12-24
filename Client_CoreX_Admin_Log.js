@@ -208,8 +208,8 @@ class CoreXAdminLogApp{
                 Liste.appendChild(flex)
 
                 flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "CoreXAdminLogText CoreXAdminLogDate", ""))
-                flex.appendChild(CoreXBuild.DivTexte(element.User,"", "CoreXAdminLogText CoreXAdminLogUser", ""))
-                flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "CoreXAdminLogText CoreXAdminLogValeur", "overflow-wrap:break-word"))
+                flex.appendChild(CoreXBuild.DivTexte(element.User,"", "CoreXAdminLogText CoreXAdminLogUser CoreXAdminLogTextSelect", ""))
+                flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "CoreXAdminLogText CoreXAdminLogValeur CoreXAdminLogTextSelect", "overflow-wrap:break-word"))
             })
             let DivButton = CoreXBuild.Div("", "CoreXAdminLogFlexRowCenterspacearound", "width:90%; border-top: 1px solid black; margin-top:1%;")
             document.getElementById("ListOfLog").appendChild(DivButton)
@@ -259,8 +259,8 @@ class CoreXAdminLogApp{
                     document.getElementById("Liste").appendChild(flex)
 
                     flex.appendChild(CoreXBuild.DivTexte(CoreXBuild.GetDateTimeString(element.Now),"", "CoreXAdminLogText CoreXAdminLogDate", ""))
-                    flex.appendChild(CoreXBuild.DivTexte(element.User,"", "CoreXAdminLogText CoreXAdminLogUser", ""))
-                    flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "CoreXAdminLogText CoreXAdminLogValeur", "overflow-wrap:break-word"))
+                    flex.appendChild(CoreXBuild.DivTexte(element.User,"", "CoreXAdminLogText CoreXAdminLogUser CoreXAdminLogTextSelect", ""))
+                    flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "CoreXAdminLogText CoreXAdminLogValeur CoreXAdminLogTextSelect", "overflow-wrap:break-word"))
                 }
             })
             window.scrollTo(x, y)
@@ -286,6 +286,12 @@ class CoreXAdminLogApp{
                 color: var(--CoreX-color);
             }
             .CoreXAdminLogText{font-size: var(--CoreX-font-size);}
+            .CoreXAdminLogTextSelect{
+                -webkit-user-select: text;
+                -moz-user-select: text;
+                -ms-user-select: text;
+                user-select: text; 
+            }
             .CoreXAdminLogFlexColumnCenterSpaceAround{
                 display: flex;
                 flex-direction: column;
