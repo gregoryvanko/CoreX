@@ -246,7 +246,7 @@ class corex {
                 res.send(IconFile)
             } else {
                 me.LogAppliError('Icon not found', "Server", "Server")
-                res.status(404).send("Sorry, the route Icon not found");
+                res.status(404).send("Sorry, Icon not found");
             }
         })
         // Creation d'un route pour l'icone
@@ -257,7 +257,18 @@ class corex {
                 res.send(IconFile)
             } else {
                 me.LogAppliError('Icon not found', "Server", "Server")
-                res.status(404).send("Sorry, the route Icon not found");
+                res.status(404).send("Sorry, Icon not found");
+            }
+        })
+        // Creation d'un route pour l'icone
+        this._Express.get('/apple-touch-icon-precomposed.png', function (req, res) {
+            me.LogDebug("Get apple-touch-icon-precomposed.png: " + me._Icon)
+            let IconFile = me.GetIconFile(me._Icon)
+            if (IconFile!=null){
+                res.send(IconFile)
+            } else {
+                me.LogAppliError('Icon not found', "Server", "Server")
+                res.status(404).send("Sorry, Icon not found");
             }
         })
         // Creation d'un route pour favicon.ico
@@ -268,7 +279,7 @@ class corex {
                 res.send(IconFile)
             } else {
                 me.LogAppliError('Icon not found', "Server", "Server")
-                res.status(404).send("Sorry, the route Icon not found");
+                res.status(404).send("Sorry, Icon not found");
             }
         })
         // Creation d'un route pour le stream video server
@@ -1084,7 +1095,6 @@ class corex {
         this._JobSchedule = JobSchedule
     }
 }
-
 
 module.exports.corex = corex
 module.exports.Mongo = require('./Mongo.js').Mongo
