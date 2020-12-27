@@ -33,7 +33,7 @@ class TestCoreXApp{
         //Conteneur.appendChild(CoreXBuild.ButtonLeftAction(this.ClickTestButton.bind(this), "ButtonLeft"))
 
         //*** Test du boutton action de bas gauche */
-        //Conteneur.appendChild(CoreXBuild.ButtonLeftBottomAction(this.ClickTestButton.bind(this), "Bottom" , "C"))
+        Conteneur.appendChild(CoreXBuild.ButtonLeftBottomAction(this.ClickTestButton.bind(this), "Bottom" , "C"))
 
         //*** Test de SocketIO
         this.SocketIo = GlobalGetSocketIo()

@@ -96,9 +96,12 @@ class CoreXBuild{
         divconent.setAttribute("style", "display: bloc; z-index: 999")
         divconent.innerHTML = `
         <style>
-        .CoreXActionMenuButton{
-            position: fixed;
+        .CoreXActionMenuLeftButton{
+            left: 0px; 
             top: 0px;
+            position: fixed;
+            display: inline;
+            z-index: 999
             font-size: 1.5vw;
             float: left;
             border-style: solid;
@@ -121,17 +124,16 @@ class CoreXBuild{
         only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
         screen and (max-width: 700px)
         {
-            .CoreXActionMenuButton{font-size: calc(3vw * 1.5);height: 10VW; width: 10VW;}
+            .CoreXActionMenuLeftButton{font-size: calc(3vw * 1.5);height: 10VW; width: 10VW;}
         }
         @media screen and (min-width: 1200px)
         {
-            .CoreXActionMenuButton {font-size: 18px;}
+            .CoreXActionMenuLeftButton {font-size: 18px;}
         }
         </style>
         `
         let Button = document.createElement("button")
-        Button.setAttribute("style", "left: 0px; display: inline; z-index: 999")
-        Button.setAttribute("class", "CoreXActionMenuButton")
+        Button.setAttribute("class", "CoreXActionMenuLeftButton")
         Button.innerHTML = "&#9733"
         Button.addEventListener("click", OnClick)
         divconent.appendChild(Button)
@@ -143,7 +145,8 @@ class CoreXBuild{
         divconent.setAttribute("style", "display: bloc; z-index: 999")
         divconent.innerHTML = `
         <style>
-        .CoreXActionMenuButton{
+        .CoreXActionMenuLeftBottomButton{
+            z-index: 999;
             left: 0px; 
             display: inline; 
             position: fixed;
@@ -170,18 +173,17 @@ class CoreXBuild{
         only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
         screen and (max-width: 700px)
         {
-            .CoreXActionMenuButton{font-size: calc(3vw * 1.5);height: 10VW; width: 10VW;}
+            .CoreXActionMenuLeftBottomButton{font-size: calc(3vw * 1.5);height: 10VW; width: 10VW;}
         }
         @media screen and (min-width: 1200px)
         {
-            .CoreXActionMenuButton {font-size: 18px;}
+            .CoreXActionMenuLeftBottomButton {font-size: 18px;}
         }
         </style>
         `
         let Button = document.createElement("button")
         if (Id){Button.setAttribute("id", Id)}
-        Button.setAttribute("style", "z-index: 999")
-        Button.setAttribute("class", "CoreXActionMenuButton")
+        Button.setAttribute("class", "CoreXActionMenuLeftBottomButton")
         if (innerHTML){
             Button.innerHTML = innerHTML
         } else {
