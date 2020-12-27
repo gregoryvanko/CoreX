@@ -32,6 +32,9 @@ class TestCoreXApp{
         //*** Test du boutton action de gauche */
         //Conteneur.appendChild(CoreXBuild.ButtonLeftAction(this.ClickTestButton.bind(this), "ButtonLeft"))
 
+        //*** Test du boutton action de bas gauche */
+        Conteneur.appendChild(CoreXBuild.ButtonLeftBottomAction(this.ClickTestButton.bind(this), "Bottom" , "C"))
+
         //*** Test de SocketIO
         this.SocketIo = GlobalGetSocketIo()
         this.SocketIo.on('Ping', function(message) {

@@ -138,6 +138,60 @@ class CoreXBuild{
         return divconent
     }
 
+    static ButtonLeftBottomAction(OnClick, Id, innerHTML){
+        let divconent = document.createElement("div")
+        divconent.setAttribute("style", "display: bloc; z-index: 999")
+        divconent.innerHTML = `
+        <style>
+        .CoreXActionMenuButton{
+            left: 0px; 
+            display: inline; 
+            position: fixed;
+            top: 92vh;
+            font-size: 1.5vw;
+            float: left;
+            border-style: solid;
+            border-width: 2px;
+            border-radius: 10px;
+            border-color: var(--CoreX-color);
+            background-color: white;
+            padding: 4px;
+            margin: 4px;
+            opacity: 1;
+            transition: opacity 0.5s linear;
+            cursor: pointer;
+            height: 50px;
+            width: 50px;
+            text-align: center;
+            outline: none;
+        }
+        
+        @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
+        only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
+        screen and (max-width: 700px)
+        {
+            .CoreXActionMenuButton{font-size: calc(3vw * 1.5);height: 10VW; width: 10VW;}
+        }
+        @media screen and (min-width: 1200px)
+        {
+            .CoreXActionMenuButton {font-size: 18px;}
+        }
+        </style>
+        `
+        let Button = document.createElement("button")
+        if (Id){Button.setAttribute("id", Id)}
+        Button.setAttribute("style", "z-index: 999")
+        Button.setAttribute("class", "CoreXActionMenuButton")
+        if (innerHTML){
+            Button.innerHTML = innerHTML
+        } else {
+            Button.innerHTML = "&#9733"
+        }
+        Button.addEventListener("click", OnClick)
+        divconent.appendChild(Button)
+        return divconent
+    }
+
     static ProgressBar(Id,Class, Style){
         let elementdiv = document.createElement("div")
         elementdiv.setAttribute("style","width: 100%; display: -webkit-flex; display: flex; flex-direction: column; justify-content:space-around; align-content:center; align-items: center; flex-wrap: wrap;")
