@@ -101,7 +101,7 @@ class CoreXBuild{
             top: 0px;
             position: fixed;
             display: inline;
-            z-index: 999
+            z-index: 999;
             font-size: 1.5vw;
             float: left;
             border-style: solid;
