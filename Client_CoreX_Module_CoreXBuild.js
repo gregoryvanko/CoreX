@@ -328,4 +328,87 @@ class CoreXBuild{
         element.appendChild(video)
         return element
     }
+
+    static ProgressRing({Id="", Stroke=null, StrokeColor= "#51c5cf", Fill = "black", Radius = "80", Progress = 0, TextColor = "#51c5cf", TextFontSize = null }={}){
+        if (Radius.indexOf('px') >= 0){
+            Radius = parseInt(Radius.slice(0, -2))
+        } else if (Radius.indexOf('%') >= 0) {
+            Radius = parseInt(Radius.slice(0, -1))
+        } else {
+            Radius = Radius
+        }
+        if (Stroke == null){Stroke = Radius / 10}
+        if (TextFontSize == null){
+            TextFontSize = Radius / 1.5
+            TextFontSize = TextFontSize.toString() + "px"
+        }
+        let element = document.createElement("div")
+        element.innerHTML = `<progress-ring id="${Id}" stroke="${Stroke}" strokeColor="${StrokeColor}" fill="${Fill}" radius="${Radius}" progress="${Progress}" textcolor="${TextColor}" textfontsize="${TextFontSize}"></progress-ring>`
+        return element
+    }
 }
+
+class ProgressRing extends HTMLElement {
+    constructor() {
+        super();
+      
+        // get config from attributes
+        const textcolor = this.getAttribute('textcolor');
+        const textfontsize = this.getAttribute('textfontsize');
+        const strokeColor = this.getAttribute('strokeColor');
+        const fill = this.getAttribute('fill');
+        const stroke = this.getAttribute('stroke');
+        const radius = this.getAttribute('radius');
+        const normalizedRadius = radius - stroke * 2;
+        this._circumference = normalizedRadius * 2 * Math.PI;
+        // create shadow dom root
+        this._root = this.attachShadow({mode: 'open'});
+        this._root.innerHTML = `
+          <svg
+            height="${radius * 2}"
+            width="${radius * 2}"
+           >
+             <circle
+               stroke="${strokeColor}"
+               stroke-dasharray="${this._circumference} ${this._circumference}"
+               style="stroke-dashoffset:${this._circumference}"
+               stroke-width="${stroke}"
+               fill="${fill}"
+               r="${normalizedRadius}"
+               cx="${radius}"
+               cy="${radius}"
+            />
+            <text text-anchor="middle" dominant-baseline="middle" x="52%" y="50%" fill="${textcolor}" font-size="${textfontsize}">
+                <tspan id="number">99</tspan><tspan dy="-0.25em" font-size="0.6em">%</tspan>
+            </text>
+          </svg>
+      
+          <style>
+            circle {
+              transition: stroke-dashoffset 0.35s;
+              transform: rotate(-90deg);
+              transform-origin: 50% 50%;
+            }
+          </style>
+        `;
+    }
+    //<text x="50%" y="50%" text-anchor="middle" alignment-baseline="middle" fill="${textcolor}" font-size="30px">0%</text>
+    setProgress(percent) {
+        const offset = this._circumference - (percent / 100 * this._circumference);
+        const circle = this._root.querySelector('circle');
+        circle.style.strokeDashoffset = offset; 
+        const Txt = this._root.getElementById('number');
+        Txt.innerHTML = percent
+    }
+      
+    static get observedAttributes() {
+        return [ 'progress' ];
+    }
+      
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (name === 'progress') {
+          this.setProgress(newValue);
+        }
+    }
+}
+window.customElements.define('progress-ring', ProgressRing);

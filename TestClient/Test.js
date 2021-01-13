@@ -14,6 +14,10 @@ class TestCoreXApp{
         let Conteneur = CoreXBuild.DivFlexColumn("Conteneur")
         this._DivApp.appendChild(Conteneur)
 
+        //*** Test RingProgress
+        Conteneur.appendChild(CoreXBuild.ProgressRing({Id:"MyProgressRing", Radius:"50"}))
+        GlobalAddActionInList("TestProgressRing", this.TestProgressRing.bind(this))
+
         //*** Test CoreXBuild InputWithLabel
         //Conteneur.appendChild(CoreXBuild.InputWithLabel("InputBox", "Label Test", "Text", "MyInputTest","", "Input", "text", "placehoder",this.InputOnBlur.bind(this)))
         
@@ -41,6 +45,11 @@ class TestCoreXApp{
             console.log('Le serveur a un message Ping pour vous : ' + message)
         })
         //GlobalSendSocketIo("Test", "ActionX", "ValueX")
+    }
+
+    TestProgressRing(){
+        let el = document.getElementById("MyProgressRing")
+        el.setAttribute('progress', 80);
     }
 
     InputOnBlur(){
