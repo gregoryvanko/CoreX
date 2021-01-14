@@ -329,19 +329,15 @@ class CoreXBuild{
         return element
     }
 
-    static ProgressRing({Id="", Stroke=null, StrokeColor= "#51c5cf", Fill = "black", Radius = "80", Progress = 0, TextColor = "#51c5cf", TextFontSize = null }={}){
-        if (Radius.indexOf('px') >= 0){
-            Radius = parseInt(Radius.slice(0, -2))
-        } else if (Radius.indexOf('%') >= 0) {
-            Radius = parseInt(Radius.slice(0, -1))
-        } else {
-            Radius = Radius
+    static ProgressRing({Id="", StrokeColor= "#51c5cf", Fill = "black", TextColor = "#51c5cf",Progress = 0, Radius = 80, RadiusMobile = null, ScaleRing = 1, ScaleText = 1 }={}){
+        if(RadiusMobile == null){RadiusMobile = Radius}
+        if(window.innerWidth < 700){
+            // Mobile device
+            Radius = RadiusMobile
         }
-        if (Stroke == null){Stroke = Radius / 10}
-        if (TextFontSize == null){
-            TextFontSize = Radius / 1.5
-            TextFontSize = TextFontSize.toString() + "px"
-        }
+        const Stroke = (Radius / 10) * ScaleRing
+        let TextFontSize = (Radius / 1.5) * ScaleText
+        TextFontSize = TextFontSize.toString() + "px"
         let element = document.createElement("div")
         element.innerHTML = `<progress-ring id="${Id}" stroke="${Stroke}" strokeColor="${StrokeColor}" fill="${Fill}" radius="${Radius}" progress="${Progress}" textcolor="${TextColor}" textfontsize="${TextFontSize}"></progress-ring>`
         return element
