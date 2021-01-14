@@ -344,6 +344,7 @@ class CoreXBuild{
     }
 }
 
+/**Custome element */
 class ProgressRing extends HTMLElement {
     constructor() {
         super();
