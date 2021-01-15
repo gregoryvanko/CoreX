@@ -1,9 +1,10 @@
 class CoreXLoader {
-    constructor({Color = "rgb(20, 163, 255)", AppIsSecured=true} = {}){
+    constructor({Color = "rgb(20, 163, 255)", AppIsSecured=true, AllowSignIn=false} = {}){
         // Variable externe indispensable de la class
         this._LoginToken = null
         this._Color = Color
         this._AppIsSecured = AppIsSecured
+        this._AllowSignIn = AllowSignIn
         // Variable externe secondaire
         this._Site = null
 
@@ -25,7 +26,7 @@ class CoreXLoader {
         if(this._LoginToken != null){
             this.LoadApp()
         } else {
-            const OptionCoreXLogin = {Site:this._Site, CallBackLogedIn:this.LoginDone.bind(this), Color: this._Color}
+            const OptionCoreXLogin = {Site:this._Site, CallBackLogedIn:this.LoginDone.bind(this), Color: this._Color, AllowSignIn: this._AllowSignIn}
             let MyLogin = new CoreXLogin(OptionCoreXLogin) // afficher le UI de login
             MyLogin.Render()
         }
@@ -86,6 +87,17 @@ class CoreXLoader {
                     width: 50%;
                     margin:2%;
                 }
+                .LoadingButton {
+                    padding: 1vh; 
+                    cursor: pointer; 
+                    border: 1px solid rgb(44,1,21); 
+                    border-radius: 20px; 
+                    text-align: center; 
+                    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7); 
+                    background: white; 
+                    display: none;
+                    margin: 1vh;
+                }
                 @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
                 only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
                 screen and (max-width: 700px)
@@ -101,9 +113,10 @@ class CoreXLoader {
                 }
             </style>
             <div style="height: 50vh; display: flex; flex-direction: column; justify-content:center; align-content:center; align-items: center;">
-                <div style="margin: 1%;" class="Loadingtext">Loading App...</div>
+                <div id="DivText" style="margin: 1%;" class="Loadingtext">Loading App...</div>
                 <progress id="ProgressBar" value="0" max="100" class="AppProgressBar"></progress>
                 <div id="LoadingErrorMsg" class="LoadingError"></div>
+                <button id="LoadingButton" class="LoadingButton Loadingtext" onclick="location.reload();">Reload</button>
             </div>`
         document.body.innerHTML = LoadingText
         // appeler le serveur
@@ -115,6 +128,9 @@ class CoreXLoader {
                 if (reponse.Error) {
                     console.log('Loading App Error : ' + reponse.ErrorMsg)
                     document.getElementById("LoadingErrorMsg").innerHTML=reponse.ErrorMsg
+                    document.getElementById("LoadingButton").style.display= "block"
+                    document.getElementById("DivText").style.display= "none"
+                    document.getElementById("ProgressBar").style.display= "none"
                     me._LoginToken = null
                     localStorage.removeItem(me._DbKeyLogin)
                 } else {
@@ -173,10 +189,12 @@ class CoreXLoader {
                             document.getElementsByTagName('head')[0].appendChild(JS)
                         }, 100)
                     }
-                    
                 }
             } else if (this.readyState == 4 && this.status != 200) {
                 document.getElementById("LoadingErrorMsg").innerHTML = this.response;
+                document.getElementById("LoadingButton").style.display= "block"
+                document.getElementById("DivText").style.display= "none"
+                document.getElementById("ProgressBar").style.display= "none"
             }
         } 
         xhttp.onprogress = function (event) {

@@ -1,8 +1,9 @@
 class CoreXLogin {
-    constructor({Site = null, CallBackLogedIn = null, Color = "rgb(20, 163, 255)"} = {}){
+    constructor({Site = null, CallBackLogedIn = null, Color = "rgb(20, 163, 255)", AllowSignIn = false} = {}){
         this._CallBackLogedIn = CallBackLogedIn
         this._Color = Color
         this._Site= Site
+        this._AllowSignIn = AllowSignIn
     }
 
     /* Analyse du KeyUp effectué, si c'est la touche enter alors executer la fonction login */
@@ -18,7 +19,12 @@ class CoreXLogin {
         document.getElementById("LoginLoginValue").addEventListener("keyup", ()=>{self.InputKeyUp(event)})
         document.getElementById("LoginPswValue").addEventListener("keyup", ()=>{self.InputKeyUp(event)})
         document.getElementById("LoginButtonLogin").addEventListener("click", ()=>{self.Login()})
-        document.getElementById("GoToAdminApp").addEventListener("click", ()=>{self.GoToAdminApp()})
+        //document.getElementById("GoToAdminApp").addEventListener("click", ()=>{self.GoToAdminApp()})
+        if (this._AllowSignIn){
+            if(localStorage.getItem("CoreXApp") == "App"){
+                document.getElementById("SignUp").addEventListener("click", ()=>{self.RenderSignUpForm()})
+            }
+        }
     }
 
     /* Execution du login */
@@ -95,6 +101,38 @@ class CoreXLogin {
         }
     }
 
+    /* Load Sign Up form */
+    RenderSignUpForm(){
+        document.body.innerHTML=""
+        // Css
+        let MyCSS = this.TemplateCSS()
+        document.body.innerHTML = MyCSS
+        // ConteneurForm
+        let ConteneurForm = document.createElement("div")
+        document.body.appendChild(ConteneurForm)
+        ConteneurForm.setAttribute("id", "Conteneur")
+        ConteneurForm.setAttribute("Class", "ConteneurForm")
+        // Titre
+        let Titre = document.createElement("div")
+        ConteneurForm.appendChild(Titre)
+        Titre.setAttribute("id", "LoginTitre")
+        Titre.innerText = document.title
+        // SignUpBox
+        let SignUpBox = document.createElement("div")
+        ConteneurForm.appendChild(SignUpBox)
+        SignUpBox.setAttribute("id", "LoginBox")
+        // space
+        let Space = document.createElement("div")
+        SignUpBox.appendChild(Space)
+        Space.setAttribute("style", "height: 5vh;")
+        // Sous titre Sign Up
+        let SousTitre = document.createElement("div")
+        SignUpBox.appendChild(SousTitre)
+        SousTitre.setAttribute("class", "LoginTextBig")
+        SousTitre.setAttribute("style", "text-align:left;")
+        SousTitre.innerText = "Sign Up"
+    }
+
     /* Le template du screen login */
     TemplateHTML(Titre){
         let reponse = `
@@ -108,18 +146,28 @@ class CoreXLogin {
                 <button id="LoginButtonLogin" class="LoginButton" tabindex="3">Send</button>
             </div>
             `
-        let LocalStorageApp = localStorage.getItem("CoreXApp")
-        if(LocalStorageApp == "App"){
-            reponse += `
-            <div style="height:6vh;"></div>
-            <a href="/" id="GoToAdminApp" class="LoginText">Go to Admin application</a>
-            </div>`
-        } else {
-            reponse += `
-            <div style="height:6vh;"></div>
-            <a href="/" id="GoToAdminApp" class="LoginText">Go to application</a>
-            </div>`
+        // Ajout du lien Sign Up
+        if (this._AllowSignIn){
+            if(localStorage.getItem("CoreXApp") == "App"){
+                reponse += `
+                <div style="height:4vh;"></div>
+                <button id="SignUp" style="background:none;border:none; color:blue; cursor: pointer; outline: none;" class="LoginText"><U>Sign Up</U></button>
+                `
+            }
         }
+        
+        // let LocalStorageApp = localStorage.getItem("CoreXApp")
+        // if(LocalStorageApp == "App"){
+        //     reponse += `
+        //     <div style="height:2vh;"></div>
+        //     <a href="/" id="GoToAdminApp" class="LoginText NoVisited">Go to Admin application</a>
+        //     </div>`
+        // } else {
+        //     reponse += `
+        //     <div style="height:2vh;"></div>
+        //     <a href="/" id="GoToAdminApp" class="LoginText NoVisited">Go to application</a>
+        //     </div>`
+        // }
         return reponse
     }
 
@@ -134,6 +182,7 @@ class CoreXLogin {
                 color: var(--CoreX-color);
             }
             .LoginText{font-size: var(--CoreX-font-size);}
+            .LoginTextBig{font-size: calc(var(--CoreX-font-size)*1.5);}
 
             /*Box du login*/
             #LoginBox{
@@ -187,12 +236,31 @@ class CoreXLogin {
                 border-color: var(--CoreX-color);
             }
 
+            .NoVisited:{
+                color: blue;
+            }
+            .NoVisited:visited{
+                color: blue;
+            }
+            .NoVisited:hover{
+                color: blue;
+            }
+
+            .ConteneurForm{
+                display: flex;
+                flex-direction: column;
+                justify-content:space-between;
+                align-content:center;
+                align-items: center;
+            }
+
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
             screen and (max-width: 700px)
             {
                 #LoginTitre{font-size: var(--CoreX-TitreIphone-font-size);}
                 .LoginText{font-size: var(--CoreX-Iphone-font-size);}
+                .LoginTextBig{font-size: calc(var(--CoreX-Iphone-font-size)*1.5);}
                 #LoginBox{width: 90%;}
                 .LoginInput {font-size: var(--CoreX-Iphone-font-size);}
                 .LoginError{font-size: var(--CoreX-Iphone-font-size);}
@@ -203,6 +271,7 @@ class CoreXLogin {
             {
                 #LoginTitre{font-size: var(--CoreX-TitreMax-font-size);}
                 .LoginText{font-size: var(--CoreX-Max-font-size);}
+                .LoginTextBig{font-size: calc(var(--CoreX-Max-font-size)*1.5);}
                 #LoginBox{max-width: 500px;}
                 .LoginInput {font-size: var(--CoreX-Max-font-size);}
                 .LoginError{font-size: var(--CoreX-Max-font-size);}

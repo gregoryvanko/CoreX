@@ -10,6 +10,7 @@ class corex {
         // Variable externe secondaire
         this._Debug = true
         this._AppIsSecured = true
+        this._AllowSignIn = false
         this._CSS = {
             FontSize:{TexteNomrale:"1.5vw", TexteIphone:"3vw", TexteMax:"18px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},
             Color:{Normale:"rgb(20, 163, 255)"},
@@ -69,6 +70,7 @@ class corex {
     
     set Debug(val){this._Debug = val}
     set AppIsSecured(val){this._AppIsSecured = val}
+    set AllowSignIn(val){this._AllowSignIn = val}
     set CSS(val){this._CSS = val}
     set Usesocketio(val){this._Usesocketio = val}
     set IconRelPath(val){this._Icon = val}
@@ -758,7 +760,7 @@ class corex {
 
         let LoadScript = ` 
         <script>
-            let OptionCoreXLoader = {Color: "`+ this._CSS.Color.Normale +`", AppIsSecured: "`+ AppIsSecured +`"}
+            let OptionCoreXLoader = {Color: "`+ this._CSS.Color.Normale +`", AppIsSecured: "`+ AppIsSecured +`", AllowSignIn:`+ this._AllowSignIn +`}
             var MyCoreXLoader = new CoreXLoader(OptionCoreXLoader)
             function GlobalLogout(){MyCoreXLoader.LogOut()}
             function GlobalGetToken(){return MyCoreXLoader.GetTokenLogin()}

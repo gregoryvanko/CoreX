@@ -88,6 +88,8 @@ class MyAppCoreX{
         this._MyServeurApp.Debug = true
         // L'application est elle securisee par un login
         this._MyServeurApp.AppIsSecured = true
+        // L'application permet elle au user de creer son compte
+        this._MyServeurApp.AllowSignIn = false
         // Css de base de l'application
         this._MyServeurApp.CSS = CSS
         // L'application utilise SocketIo
