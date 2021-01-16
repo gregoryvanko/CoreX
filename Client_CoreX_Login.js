@@ -1,9 +1,9 @@
 class CoreXLogin {
-    constructor({Site = null, CallBackLogedIn = null, Color = "rgb(20, 163, 255)", AllowSignIn = false} = {}){
+    constructor({Site = null, CallBackLogedIn = null, Color = "rgb(20, 163, 255)", AllowSignUp = false} = {}){
         this._CallBackLogedIn = CallBackLogedIn
         this._Color = Color
         this._Site= Site
-        this._AllowSignIn = AllowSignIn
+        this._AllowSignUp = AllowSignUp
     }
 
     /* Analyse du KeyUp effectué, si c'est la touche enter alors executer la fonction login */
@@ -20,7 +20,7 @@ class CoreXLogin {
         document.getElementById("LoginPswValue").addEventListener("keyup", ()=>{self.InputKeyUp(event)})
         document.getElementById("LoginButtonLogin").addEventListener("click", ()=>{self.Login()})
         //document.getElementById("GoToAdminApp").addEventListener("click", ()=>{self.GoToAdminApp()})
-        if (this._AllowSignIn){
+        if (this._AllowSignUp){
             if(localStorage.getItem("CoreXApp") == "App"){
                 document.getElementById("SignUp").addEventListener("click", ()=>{self.RenderSignUpForm()})
             }
@@ -226,9 +226,30 @@ class CoreXLogin {
         document.getElementById("AccountErrorMsg").innerHTML =" "
         let ErrorMessage = ""
         let IsValide = true
-        if (document.getElementById('LoginLoginValue').value.length < 1){
-            ErrorMessage += "Enter Login ";
+        if (document.getElementById('Email').value.length > 1){
+            const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if(! re.test(String(document.getElementById('Email').value).toLowerCase())){
+                ErrorMessage += "Enter a valid Email<br>";
+                IsValide = false;
+            }
+        } else {
+            ErrorMessage += "Enter Email<br>";
             IsValide = false;
+        }
+        if (document.getElementById('First-Name').value.length < 3){
+            ErrorMessage += "Enter a longer First Name<br>";
+            IsValide = false;
+        }
+        if (document.getElementById('Last-Name').value.length < 3){
+            ErrorMessage += "Enter a longer Last Name<br>";
+            IsValide = false;
+        }
+        if (document.getElementById('Password').value.length < 7){
+            ErrorMessage += "Enter a longer Password<br>";
+            IsValide = false;
+        }
+        if(!IsValide){
+            document.getElementById("AccountErrorMsg").innerHTML = ErrorMessage;
         }
         return IsValide
     }
@@ -248,7 +269,7 @@ class CoreXLogin {
             </div>
             `
         // Ajout du lien Sign Up
-        if (this._AllowSignIn){
+        if (this._AllowSignUp){
             if(localStorage.getItem("CoreXApp") == "App"){
                 reponse += `
                 <div style="height:4vh;"></div>

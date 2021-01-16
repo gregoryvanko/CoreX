@@ -1,10 +1,10 @@
 class CoreXLoader {
-    constructor({Color = "rgb(20, 163, 255)", AppIsSecured=true, AllowSignIn=false} = {}){
+    constructor({Color = "rgb(20, 163, 255)", AppIsSecured=true, AllowSignUp=false} = {}){
         // Variable externe indispensable de la class
         this._LoginToken = null
         this._Color = Color
         this._AppIsSecured = AppIsSecured
-        this._AllowSignIn = AllowSignIn
+        this._AllowSignUp = AllowSignUp
         // Variable externe secondaire
         this._Site = null
 
@@ -26,7 +26,7 @@ class CoreXLoader {
         if(this._LoginToken != null){
             this.LoadApp()
         } else {
-            const OptionCoreXLogin = {Site:this._Site, CallBackLogedIn:this.LoginDone.bind(this), Color: this._Color, AllowSignIn: this._AllowSignIn}
+            const OptionCoreXLogin = {Site:this._Site, CallBackLogedIn:this.LoginDone.bind(this), Color: this._Color, AllowSignUp: this._AllowSignUp}
             let MyLogin = new CoreXLogin(OptionCoreXLogin) // afficher le UI de login
             MyLogin.Render()
         }

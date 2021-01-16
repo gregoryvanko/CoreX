@@ -10,7 +10,7 @@ class corex {
         // Variable externe secondaire
         this._Debug = true
         this._AppIsSecured = true
-        this._AllowSignIn = false
+        this._AllowSignUp = false
         this._CSS = {
             FontSize:{TexteNomrale:"1.5vw", TexteIphone:"3vw", TexteMax:"18px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},
             Color:{Normale:"rgb(20, 163, 255)"},
@@ -70,7 +70,7 @@ class corex {
     
     set Debug(val){this._Debug = val}
     set AppIsSecured(val){this._AppIsSecured = val}
-    set AllowSignIn(val){this._AllowSignIn = val}
+    set AllowSignUp(val){this._AllowSignUp = val}
     set CSS(val){this._CSS = val}
     set Usesocketio(val){this._Usesocketio = val}
     set IconRelPath(val){this._Icon = val}
@@ -106,6 +106,12 @@ class corex {
             me.LogAppliInfo("Receive Post Login: " + JSON.stringify(req.body), "Server", "Server")
             // analyse du login en fonction du site
             me.VerifyLogin(res, req.body.Site, req.body.Login, req.body.Pass)
+        })
+        // Creation d'un route pour creer un account via Post
+		this._Express.post('/CreateAccount', function (req, res){
+            me.LogAppliInfo("Receive Post CreateAccount: " + JSON.stringify(req.body), "Server", "Server")
+            // analyse du login en fonction du site
+            me.CreateAccount(res, req.body.Email, req.body.FirstName, req.body.LastName, req.body.Password)
         })
         // Creation d'une route pour loader l'application
 		this._Express.post('/loadApp', function(req, res, next){
@@ -760,7 +766,7 @@ class corex {
 
         let LoadScript = ` 
         <script>
-            let OptionCoreXLoader = {Color: "`+ this._CSS.Color.Normale +`", AppIsSecured: "`+ AppIsSecured +`", AllowSignIn:`+ this._AllowSignIn +`}
+            let OptionCoreXLoader = {Color: "`+ this._CSS.Color.Normale +`", AppIsSecured: "`+ AppIsSecured +`", AllowSignUp:`+ this._AllowSignUp +`}
             var MyCoreXLoader = new CoreXLoader(OptionCoreXLoader)
             function GlobalLogout(){MyCoreXLoader.LogOut()}
             function GlobalGetToken(){return MyCoreXLoader.GetTokenLogin()}
@@ -982,6 +988,21 @@ class corex {
         MyApp.JS += " MyApp.Start()"
 
         return MyApp
+    }
+    CreateAccount(res, Email, FirstName, LastName, Password){
+        if (this._AllowSignUp){
+            let DataToDb = { [this._MongoVar.LoginUserItem]: Email, [this._MongoVar.LoginFirstNameItem]: FirstName, [this._MongoVar.LoginLastNameItem]: LastName, [this._MongoVar.LoginPassItem]: Password, [this._MongoVar.LoginConfirmPassItem]: Password, [this._MongoVar.LoginAdminItem]: false}
+            // Insert de type Promise de Mongo
+            this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.UserCollection).then((reponse)=>{
+                // ToDo get Toket
+                res.json({Error: false, ErrorMsg: "User added in DB", Token: null})
+            },(erreur)=>{
+                this.LogAppliError("CreateAccount DB error : " + erreur, "Server", "Server")
+                res.json({Error: true, ErrorMsg:"CreateAccount Db Error", Token: ""})
+            })
+        } else {
+            res.json({Error: true, ErrorMsg:"CreateAccount Error: not allow to sign up", Token: ""})
+        }
     }
 
     /**
