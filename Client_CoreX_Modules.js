@@ -78,10 +78,12 @@ class CoreXActionButton{
                 if (this._AppIsSecured){
                     Div.appendChild(this.GetTemplateActionBoutton("Logout", GlobalLogout))
                     Div.appendChild(this.GetTemplateActionBoutton("User Configuration",  CoreXWindowUserConfig.BuildWindow))
-                    if(window.location.pathname == "/"){
-                        Div.appendChild(this.GetTemplateActionBoutton("Go to Admin App",  this.GoToApp.bind(this, false)))
-                    } else {
-                        Div.appendChild(this.GetTemplateActionBoutton("Go to App",  this.GoToApp.bind(this, true)))
+                    if(GlobalIsAdminUser()){
+                        if(localStorage.getItem("CoreXApp") == "App"){
+                            Div.appendChild(this.GetTemplateActionBoutton("Go to Admin App",  this.GoToApp.bind(this, false)))
+                        } else {
+                            Div.appendChild(this.GetTemplateActionBoutton("Go to App",  this.GoToApp.bind(this, true)))
+                        }
                     }
                 } else {
                     let Divtext = document.createElement("div")
@@ -143,26 +145,27 @@ class CoreXActionButton{
         ButtonLogout.setAttribute("class", "CoreXActionButtonImageButton")
         ButtonLogout.addEventListener("click", ()=>{CoreXWindow.DeleteWindow(); GlobalLogout()})
         ButtonLogout.innerHTML = '<img src="data:image/svg+xml;base64,' + LogoutSvg + '" height="100%" width="100%">'
+        Div.appendChild(ButtonLogout)
 
         var ButtonUserConfig = document.createElement("button")
         ButtonUserConfig.setAttribute("class", "CoreXActionButtonImageButton")
         ButtonUserConfig.addEventListener("click", ()=>{CoreXWindow.DeleteWindow(); CoreXWindowUserConfig.BuildWindow()})
         ButtonUserConfig.innerHTML = '<img src="data:image/svg+xml;base64,' + UserConfigSvg + '" height="100%" width="100%">'
-
-        var ButtonGoToApp = document.createElement("button")
-        ButtonGoToApp.setAttribute("class", "CoreXActionButtonImageButton")
-        let LocalStorageApp = localStorage.getItem("CoreXApp")
-        if(LocalStorageApp == "App"){
-            ButtonGoToApp.addEventListener("click", ()=>{this.GoToApp.bind(this, false)()})
-            ButtonGoToApp.innerHTML = '<img src="data:image/svg+xml;base64,' + GoToAppAdminSvg + '" height="100%" width="100%">'
-        } else {
-            ButtonGoToApp.addEventListener("click", ()=>{this.GoToApp.bind(this, true)()})
-            ButtonGoToApp.innerHTML = '<img src="data:image/svg+xml;base64,' + GoToAppSvg + '" height="100%" width="100%">'
-        }
-
-        Div.appendChild(ButtonLogout)
         Div.appendChild(ButtonUserConfig)
-        Div.appendChild(ButtonGoToApp)
+
+        if(GlobalIsAdminUser()){
+            var ButtonGoToApp = document.createElement("button")
+            ButtonGoToApp.setAttribute("class", "CoreXActionButtonImageButton")
+            let LocalStorageApp = localStorage.getItem("CoreXApp")
+            if(LocalStorageApp == "App"){
+                ButtonGoToApp.addEventListener("click", ()=>{this.GoToApp.bind(this, false)()})
+                ButtonGoToApp.innerHTML = '<img src="data:image/svg+xml;base64,' + GoToAppAdminSvg + '" height="100%" width="100%">'
+            } else {
+                ButtonGoToApp.addEventListener("click", ()=>{this.GoToApp.bind(this, true)()})
+                ButtonGoToApp.innerHTML = '<img src="data:image/svg+xml;base64,' + GoToAppSvg + '" height="100%" width="100%">'
+            }
+            Div.appendChild(ButtonGoToApp)
+        }
         return Div
     }
     /** Get Css du bouton action */

@@ -19,7 +19,9 @@ class CoreXLogin {
         document.getElementById("LoginLoginValue").addEventListener("keyup", ()=>{self.InputKeyUp(event)})
         document.getElementById("LoginPswValue").addEventListener("keyup", ()=>{self.InputKeyUp(event)})
         document.getElementById("LoginButtonLogin").addEventListener("click", ()=>{self.Login()})
-        //document.getElementById("GoToAdminApp").addEventListener("click", ()=>{self.GoToAdminApp()})
+        if(localStorage.getItem("CoreXApp") == "Admin"){
+            document.getElementById("SwitchApp").addEventListener("click", ()=>{self.SwitchApp()})
+        }
         if (this._AllowSignUp){
             if(localStorage.getItem("CoreXApp") == "App"){
                 document.getElementById("SignUp").addEventListener("click", ()=>{self.RenderSignUpForm()})
@@ -89,8 +91,8 @@ class CoreXLogin {
         this.AddEventListener()
     }
 
-    /* Go To Admin App */
-    GoToAdminApp(){
+    /* Switch App */
+    SwitchApp(){
         let LocalStorageApp = localStorage.getItem("CoreXApp")
         if(LocalStorageApp == "App"){
             localStorage.setItem("CoreXApp", "Admin")
@@ -191,6 +193,7 @@ class CoreXLogin {
         return element
     }
 
+    /** Creation deun account */
     CreateAccount(){
         if (this.InputUserAccountDataValide()){
             let me = this
@@ -222,6 +225,7 @@ class CoreXLogin {
         }
     }
 
+    /** Validation des data pour creer un user */
     InputUserAccountDataValide(){
         document.getElementById("AccountErrorMsg").innerHTML =" "
         let ErrorMessage = ""
@@ -261,7 +265,7 @@ class CoreXLogin {
             <div id="LoginTitre">` + Titre + /*html*/`</div>
             <div style="height: 5vh;"></div>
             <div class="LoginBox" style="text-align: center;">
-                <input id="LoginLoginValue" class="LoginInput" type="text" name="LoginLoginValue" placeholder="Login" autofocus tabindex="1"> <br>
+                <input id="LoginLoginValue" class="LoginInput" type="text" name="LoginLoginValue" placeholder="Email" autofocus tabindex="1"> <br>
                 <input id="LoginPswValue" class="LoginInput" type="password" name="LoginPswValue" placeholder="Password" tabindex="2"> <br>
                 <div style="height: 4vh;"></div>
                 <div id="LoginErrorMsg" class="LoginError"></div>
@@ -277,6 +281,14 @@ class CoreXLogin {
                 `
             }
         }
+        // Ajout d'un lien go to app si on est dans l'app Admin
+        if(localStorage.getItem("CoreXApp") == "Admin"){
+            reponse += `
+            <div style="height:4vh;"></div>
+            <button id="SwitchApp" style="background:none;border:none; color:blue; cursor: pointer; outline: none;" class="LoginText"><U>Go to the App</U></button>
+            `
+        }
+
         return reponse
     }
 

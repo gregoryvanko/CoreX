@@ -15,8 +15,8 @@ class TestCoreXApp{
         this._DivApp.appendChild(Conteneur)
 
         //*** Test RingProgress
-        Conteneur.appendChild(CoreXBuild.ProgressRing({Id:"MyProgressRing", Radius:100, RadiusMobile:50}))
-        GlobalAddActionInList("TestProgressRing", this.TestProgressRing.bind(this))
+        //Conteneur.appendChild(CoreXBuild.ProgressRing({Id:"MyProgressRing", Radius:100, RadiusMobile:50}))
+        //GlobalAddActionInList("TestProgressRing", this.TestProgressRing.bind(this))
 
         //*** Test CoreXBuild InputWithLabel
         //Conteneur.appendChild(CoreXBuild.InputWithLabel("InputBox", "Label Test", "Text", "MyInputTest","", "Input", "text", "placehoder",this.InputOnBlur.bind(this)))

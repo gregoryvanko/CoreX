@@ -130,7 +130,7 @@ class corex {
                 if ((req.body.Version == me.GetAppVersion()) && (req.body.Site == "App")){
                     res.json({Error: false, ErrorMsg:"", CodeAppJS: "", CodeAppCSS: "", Version: req.body.Version})
                 } else {
-                    let MyApp = me.GetAppCode(req.body.Site, "anonymous","anonymous")
+                    let MyApp = me.GetAppCode(req.body.Site, "anonymous","anonymous", false)
                     res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS, Version: me.GetAppVersion()})
                 }
             }
@@ -635,6 +635,7 @@ class corex {
         this._SocketIoFctList.push(apiobject)
     }
 
+    /** Ajout d'un route get par l'application */
     AddRouteGet(RouteName, Fct){
         let object = new Object()
         object.RouteName = RouteName
@@ -889,7 +890,7 @@ class corex {
                     if(Site== "Admin"){
                         if (reponse[0].Admin){
                             this.LogAppliInfo("TokenUserId validé user:" + reponse[0].User, "Server", "Server")
-                            let MyApp = this.GetAppCode(Site, reponse[0].User, Id)
+                            let MyApp = this.GetAppCode(Site, reponse[0].User, Id, reponse[0].Admin)
                             res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS, Version: this.GetAppVersion()})
                         } else {
                             this.LogAppliError("TokenUserId non validé. User not Admin for site Admin", "Server", "Server")
@@ -901,7 +902,7 @@ class corex {
                             res.json({Error: false, ErrorMsg:"", CodeAppJS: "", CodeAppCSS: "", Version: Version})
                             this.LogAppliInfo("App loaded from browser", reponse[0].User, Id)
                         } else {
-                            let MyApp = this.GetAppCode(Site, reponse[0].User, Id)
+                            let MyApp = this.GetAppCode(Site, reponse[0].User, Id, reponse[0].Admin)
                             res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS, Version: this.GetAppVersion()})
                         }
                     }
@@ -919,7 +920,7 @@ class corex {
         })
     }
     /* Recuperer le code de l'App */
-    GetAppCode(Site, User="null", UserId="null"){
+    GetAppCode(Site, User="null", UserId="null", Admin=false){
         let MyApp = new Object()
         MyApp.JS = ""
         MyApp.CSS = ""
@@ -935,6 +936,10 @@ class corex {
         MyApp.JS += `
             // Creation de l'application
             let MyApp = new CoreXApp(`+this._AppIsSecured+`,`+ this._Usesocketio +`)
+            // Fonction globale Admin is user
+            function GlobalIsAdminUser(){
+                return `+ Admin +`
+            }
             // Fonction globale GlobalClearActionList
             function GlobalClearActionList() {
                 MyApp.ClearActionList()
@@ -989,20 +994,79 @@ class corex {
 
         return MyApp
     }
+
+    /* Creation d'un nouvel account */
     CreateAccount(res, Email, FirstName, LastName, Password){
         if (this._AllowSignUp){
-            let DataToDb = { [this._MongoVar.LoginUserItem]: Email, [this._MongoVar.LoginFirstNameItem]: FirstName, [this._MongoVar.LoginLastNameItem]: LastName, [this._MongoVar.LoginPassItem]: Password, [this._MongoVar.LoginConfirmPassItem]: Password, [this._MongoVar.LoginAdminItem]: false}
-            // Insert de type Promise de Mongo
-            this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.UserCollection).then((reponse)=>{
-                // ToDo get Toket
-                res.json({Error: false, ErrorMsg: "User added in DB", Token: null})
-            },(erreur)=>{
-                this.LogAppliError("CreateAccount DB error : " + erreur, "Server", "Server")
-                res.json({Error: true, ErrorMsg:"CreateAccount Db Error", Token: ""})
-            })
+            // Validation des inputs
+            if (this.IsDataValideForAccountCreation(Email, FirstName, LastName, Password)){
+                // Check if Email exist in DB
+                const Query = { [this._MongoVar.LoginUserItem]: Email}
+                const Projection = {}
+                this._Mongo.FindPromise(Query,Projection, this._MongoVar.UserCollection).then((reponse)=>{
+                    if(reponse.length == 0){
+                        // Cet Email n'existe pas => creer le nouveau compte
+                        let DataToDb = { [this._MongoVar.LoginUserItem]: Email, [this._MongoVar.LoginFirstNameItem]: FirstName, [this._MongoVar.LoginLastNameItem]: LastName, [this._MongoVar.LoginPassItem]: Password, [this._MongoVar.LoginConfirmPassItem]: Password, [this._MongoVar.LoginAdminItem]: false}
+                        this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.UserCollection).then((reponse)=>{
+                            let TheReponse = new Object()
+                            TheReponse._id = reponse.insertedId
+                            TheReponse.User = Email
+                            TheReponse.Admin = false
+                            let MyToken = new Object()
+                            MyToken.UserData = TheReponse
+                            res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(MyToken)})
+                        },(erreur)=>{
+                            this.LogAppliError("CreateAccount DB error : " + erreur, "Server", "Server")
+                            res.json({Error: true, ErrorMsg:"CreateAccount Db Error", Token: ""})
+                        })
+                    } else {
+                        // Cet email existe dejao
+                        this.LogAppliError("Create Account Error: this email already exist", "Server", "Server")
+                        res.json({Error: true, ErrorMsg:"Create Account Error: this email already exist", Token: ""})
+                    }
+                },(erreur)=>{
+                    this.LogAppliError("CreateAccount DB error : " + erreur, "Server", "Server")
+                    res.json({Error: true, ErrorMsg:"CreateAccount DB Error", Token: ""})
+                })
+            } else {
+                this.LogAppliError("Create Account Error: Data not valide for Account creation", "Server", "Server")
+                res.json({Error: true, ErrorMsg:"CreateAccount Error: Data not valide for Account creation", Token: ""})
+            }
         } else {
+            this.LogAppliError("Create Account Error: not allow to sign up", "Server", "Server")
             res.json({Error: true, ErrorMsg:"CreateAccount Error: not allow to sign up", Token: ""})
         }
+    }
+
+    IsDataValideForAccountCreation(Email, FirstName, LastName, Password){
+        let ErrorMessage = ""
+        let IsValide = true
+        if (Email.length > 1){
+            const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if(! re.test(String(Email).toLowerCase())){
+                ErrorMessage += "Enter a valid Email - ";
+                IsValide = false;
+            }
+        } else {
+            ErrorMessage += "Enter a longer Email - ";
+            IsValide = false;
+        }
+        if (FirstName < 3){
+            ErrorMessage += "Enter a longer First Name - ";
+            IsValide = false;
+        }
+        if (LastName.length < 3){
+            ErrorMessage += "Enter a longer Last Name - ";
+            IsValide = false;
+        }
+        if (Password.length < 7){
+            ErrorMessage += "Enter a longer Password";
+            IsValide = false;
+        }
+        if(!IsValide){
+            this.LogAppliError("IsDataValideForAccountCreation Error: " + ErrorMessage, "Server", "Server")
+        }
+        return IsValide
     }
 
     /**

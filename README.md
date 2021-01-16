@@ -275,6 +275,9 @@ GlobalCoreXAddApp(AppTitre, AppSrc, AppStart)
 /** Get html id du content de l'application */
 GlobalCoreXGetAppContentId()
 
+/** Return true if user is Admin */
+GlobalIsAdminUser()
+
 /** Envoie d'un message avec SocketIo */
 // ModuleName: est le nom (string) du module qui apelle le serveur via SocketIo
 // Action: est l'action a effectuer
