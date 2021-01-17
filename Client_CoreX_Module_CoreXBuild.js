@@ -124,7 +124,7 @@ class CoreXBuild{
         only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
         screen and (max-width: 700px)
         {
-            .CoreXActionMenuLeftButton{font-size: calc(3vw * 1.5);height: 10VW; width: 10VW;}
+            .CoreXActionMenuLeftButton{font-size: calc(3vw * 1.5);height: 10VW; width: 10VW; left: 4px; }
         }
         @media screen and (min-width: 1200px)
         {
@@ -173,7 +173,7 @@ class CoreXBuild{
         only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
         screen and (max-width: 700px)
         {
-            .CoreXActionMenuLeftBottomButton{font-size: calc(3vw * 1.5);height: 38px; width: 38px; top: calc(100vh - 54px); left: 4px; }
+            .CoreXActionMenuLeftBottomButton{font-size: calc(3vw * 1.5); height: 10VW; width: 10VW; top: calc(100vh - 60px); left: 4px; }
         }
         @media screen and (min-width: 1200px)
         {

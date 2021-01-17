@@ -97,6 +97,12 @@ class CoreXLoader {
                     background: white; 
                     display: none;
                     margin: 1vh;
+                    outline: none;
+                }
+                @media (hover: hover) {
+                    .LoadingButton:hover:enabled{
+                        box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+                    }
                 }
                 @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
                 only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
