@@ -58,7 +58,7 @@ class CoreXAdminUserApp{
             // Creation des box pour chaque User
             Users.forEach(User => {
                 let divuser = CoreXBuild.Div(User._id, "CoreXAdminUserUserConteneur CoreXAdminUserFlexColumnCenterSpaceAround", "")
-                divuser.onclick = this.LoadViewCallForUserData.bind(this,User._id)
+                divuser.onclick = this.LoadViewCallForUserData.bind(this,User._id, User.User)
                 divuser.appendChild(CoreXBuild.DivTexte(User.User,"","CoreXAdminUserText",""))
                 document.getElementById("ListOfUser").appendChild(divuser)
             })
@@ -106,11 +106,11 @@ class CoreXAdminUserApp{
         document.getElementById("ButtonCancel").style.display = "inline"
     }
     /* Load de la vue qui structure la liste des donnees d'un user */
-    LoadViewCallForUserData(UserId){
+    LoadViewCallForUserData(UserId, UserLogin){
         this.ClearView()
         // Ajout des des action a ActionButton
         GlobalAddActionInList("Save User", this.UpdateUser.bind(this,UserId))
-        GlobalAddActionInList("Delete User", this.DeleteUser.bind(this,UserId))
+        GlobalAddActionInList("Delete User", this.DeleteUser.bind(this,UserId, UserLogin))
 
         this._DivApp.appendChild(CoreXBuild.DivTexte("User information", "CoreXAdminUserTitre", "", "margin-top:4%"))
         let divdatastruct = CoreXBuild.Div("ListOfUserData", "CoreXAdminUserFlexColumnCenterSpaceAround CoreXAdminUserDivListOfUserData")
@@ -235,7 +235,7 @@ class CoreXAdminUserApp{
         }
     }
     /* Delete d'un user */
-    DeleteUser(UserId){
+    DeleteUser(UserId, UserLogin){
         if (confirm('Are you sure you want to Dete this User?')){
             document.getElementById("ErrorOfUserData").innerHTML = ""
             document.getElementById("ListOfUserData").innerHTML=""
@@ -245,6 +245,7 @@ class CoreXAdminUserApp{
             // Data for the api Call
             let DataCall = new Object()
             DataCall.UsesrId = UserId
+            DataCall.UserLogin = UserLogin
             // Call delete user
             GlobalCallApiPromise("DeleteUser", DataCall).then((reponse)=>{
                 this.Start()

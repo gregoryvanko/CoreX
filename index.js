@@ -24,6 +24,7 @@ class corex {
         this._ApiFctList = []
         this._SocketIoFctList = []
         this._RouteGetList = []
+        this._OnDeleteUser = null
 
         // Varaible interne MongoDB
         let MongoR = require('./Mongo.js').Mongo
@@ -53,7 +54,7 @@ class corex {
 
         // Fonction API Admin
         let ApiAdminR = require('./Api_Admin.js').ApiAdmin
-        this._ApiAdmin = new ApiAdminR(this.LogAppliInfo.bind(this), this.LogAppliError.bind(this), this._Mongo, this._MongoVar)
+        this._ApiAdmin = new ApiAdminR(this.LogAppliInfo.bind(this), this.LogAppliError.bind(this), this._Mongo, this._MongoVar, this._OnDeleteUser)
 
         // Variable Interne SocketIO
         this._RoomName = "CoreX"
@@ -77,6 +78,7 @@ class corex {
     set ClientAppFolder(val){this._ClientAppFolder = val}
     set AdminAppFolder(val){this._AdminAppFolder = val}
     set CommonAppFolder(val){this._CommonAppFolder = val}
+    set OnDeleteUser(val){this._OnDeleteUser = val}
 
     get AppName(){return this._AppName}
     get MongoUrl(){return this._MongoUrl}

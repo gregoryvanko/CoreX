@@ -1,9 +1,10 @@
 class ApiAdmin{
-    constructor(LogAppliInfoFct, LogAppliErrorFct, MongoFct, MongoVar){
+    constructor(LogAppliInfoFct, LogAppliErrorFct, MongoFct, MongoVar, OnDeleteUser){
         this.LogAppliInfo = LogAppliInfoFct
         this.LogAppliError = LogAppliErrorFct
         this._Mongo = MongoFct
         this._MongoVar = MongoVar
+        this._OnDeleteUser = OnDeleteUser
     }
 
     /* Get list of all user via l'ApiAdmin */
@@ -52,19 +53,42 @@ class ApiAdmin{
 
     /* Delete d'un user via l'ApiAdmin */
     DeleteUser(Data, res, User, UserId){
+        // Log
         this.LogAppliInfo("Call ApiAdmin DeleteUser, Data: " + JSON.stringify(Data), User, UserId)
-        // Delete de type Promise de Mongo
-        this._Mongo.DeleteByIdPromise(Data.UsesrId, this._MongoVar.UserCollection).then((reponse)=>{
-            if (reponse.deletedCount==1) {
-                res.json({Error: false, ErrorMsg: "User deleted in DB", Data: null})
+        // Execute action before delete the user
+        if (this._OnDeleteUser){
+            let DeleteActionDone = this._OnDeleteUser(Data.UsesrId, Data.UserLogin, User, UserId)
+            if ((DeleteActionDone == true) || (DeleteActionDone == undefined)){
+                // Delete de type Promise de Mongo
+                this._Mongo.DeleteByIdPromise(Data.UsesrId, this._MongoVar.UserCollection).then((reponse)=>{
+                    if (reponse.deletedCount==1) {
+                        res.json({Error: false, ErrorMsg: "User deleted in DB", Data: null})
+                    } else {
+                        this.LogAppliError("User not found in DB", User, UserId)
+                        res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
+                    }
+                },(erreur)=>{
+                    this.LogAppliError("ApiAdminDeleteUser DB error : " + erreur, User, UserId)
+                    res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+                })
             } else {
-                this.LogAppliError("User not found in DB", User, UserId)
-                res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
+                this.LogAppliError("ApiAdminDeleteUser error during OnDeleteUser function", User, UserId)
+                res.json({Error: true, ErrorMsg: "Error during OnDeleteUser function", Data: null})
             }
-        },(erreur)=>{
-            this.LogAppliError("ApiAdminDeleteUser DB error : " + erreur, User, UserId)
-            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
-        })
+        } else {
+            // Delete de type Promise de Mongo
+            this._Mongo.DeleteByIdPromise(Data.UsesrId, this._MongoVar.UserCollection).then((reponse)=>{
+                if (reponse.deletedCount==1) {
+                    res.json({Error: false, ErrorMsg: "User deleted in DB", Data: null})
+                } else {
+                    this.LogAppliError("User not found in DB", User, UserId)
+                    res.json({Error: true, ErrorMsg: "User not found in DB", Data: null})
+                }
+            },(erreur)=>{
+                this.LogAppliError("ApiAdminDeleteUser DB error : " + erreur, User, UserId)
+                res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+            })
+        }
     }
 
     /* Update d'un user (meme fonction pour Api et ApiAdmin) */

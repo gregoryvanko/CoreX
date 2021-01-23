@@ -102,6 +102,8 @@ class MyAppCoreX{
         this._MyServeurApp.CommonAppFolder = __dirname + "/TestCommon"
         // Chemin relatif de l'icone
         this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
+        // Delete function to execute when a user is deleted
+        this._MyServeurApp.OnDeleteUser = this.TestOnDeleteUser
 
         // Add serveur api for FctName = Test
         this._MyServeurApp.AddApiFct("Test", this.TestApiCallForFctTest.bind(this), false)
@@ -132,6 +134,10 @@ class MyAppCoreX{
     }
     TestRouteGet(req, res){
         res.send("OK, coucou")
+    }
+    TestOnDeleteUser(DeleteUsesrId, DeleteUserLogin, User, UserId){
+        console.log(`le user: ${User}, avec un id: ${UserId}, delete le user avec un id: ${DeleteUsesrId} et un login:${DeleteUserLogin}`)
+        return true // Doit retourner true ou false
     }
 }
 
