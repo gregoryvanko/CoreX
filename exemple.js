@@ -84,8 +84,11 @@ class ServeurTestCoreX{
         res.send("OK, coucou")
     }
     TestOnDeleteUser(DeleteUsesrId, DeleteUserLogin, User, UserId){
-        console.log(`le user: ${User}, avec un id: ${UserId}, delete le user avec un id: ${DeleteUsesrId} et un login:${DeleteUserLogin}`)
-        return true
+        return new Promise((resolve, reject) => {
+            console.log(`le user: ${User}, avec un id: ${UserId}, delete le user avec un id: ${DeleteUsesrId} et un login:${DeleteUserLogin}`)
+            resolve()
+            //reject()     
+        })
     }
 }
 

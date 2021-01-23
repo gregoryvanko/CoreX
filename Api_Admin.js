@@ -57,8 +57,7 @@ class ApiAdmin{
         this.LogAppliInfo("Call ApiAdmin DeleteUser, Data: " + JSON.stringify(Data), User, UserId)
         // Execute action before delete the user
         if (this._OnDeleteUser){
-            let DeleteActionDone = this._OnDeleteUser(Data.UsesrId, Data.UserLogin, User, UserId)
-            if ((DeleteActionDone == true) || (DeleteActionDone == undefined)){
+            this._OnDeleteUser(Data.UsesrId, Data.UserLogin, User, UserId).then(()=>{
                 // Delete de type Promise de Mongo
                 this._Mongo.DeleteByIdPromise(Data.UsesrId, this._MongoVar.UserCollection).then((reponse)=>{
                     if (reponse.deletedCount==1) {
@@ -71,10 +70,10 @@ class ApiAdmin{
                     this.LogAppliError("ApiAdminDeleteUser DB error : " + erreur, User, UserId)
                     res.json({Error: true, ErrorMsg: "DB Error", Data: null})
                 })
-            } else {
+            }, ()=>{
                 this.LogAppliError("ApiAdminDeleteUser error during OnDeleteUser function", User, UserId)
                 res.json({Error: true, ErrorMsg: "Error during OnDeleteUser function", Data: null})
-            }
+            })
         } else {
             // Delete de type Promise de Mongo
             this._Mongo.DeleteByIdPromise(Data.UsesrId, this._MongoVar.UserCollection).then((reponse)=>{
