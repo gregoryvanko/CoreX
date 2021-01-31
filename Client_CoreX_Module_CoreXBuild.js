@@ -279,7 +279,7 @@ class CoreXBuild{
         return element
     }
 
-    static InputWithLabel(BoxClass=null, Label=null, LabelClass=null, Id="Input", InputValue="", InputClass="", InputType="text", InputPlaceholder="", OnBlur=null){
+    static InputWithLabel(BoxClass=null, Label=null, LabelClass=null, Id="Input", InputValue="", InputClass="", InputType="text", InputPlaceholder="", OnBlur=null, StopAutoComplete = false){
         let element = document.createElement("div")
         if ((BoxClass!=null)&&(BoxClass!="")){element.setAttribute("Class", BoxClass)}
         if ((Label!=null)&&(Label!="")){
@@ -289,12 +289,13 @@ class CoreXBuild{
                 element.appendChild(CoreXBuild.DivTexte(Label,"","","width: 100%;"))
             }
         }
-        let inputStyle="box-sizing: border-box; outline: none; margin: 0; background: #fafafa; -webkit-box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); -moz-box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #666;"
+        let inputStyle="box-sizing: border-box; outline: none; margin: 0; -webkit-box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); -moz-box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); box-shadow: inset 0 1px 3px 0 rgba(0,0,0,.08); -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #666;"
         let InputProgramName = CoreXBuild.Input(Id,InputValue,InputClass,inputStyle,InputType,Id,InputPlaceholder)
         InputProgramName.onfocus = function(){InputProgramName.placeholder = ""}
         if (OnBlur!=null){
             InputProgramName.onblur = OnBlur
         }
+        if (StopAutoComplete){InputProgramName.setAttribute("autocomplete", "off")}
         element.appendChild(InputProgramName)
         return element
     }
@@ -344,7 +345,7 @@ class CoreXBuild{
     }
 }
 
-/**Custome element */
+/**Custome element build by CoreXBuild*/
 class ProgressRing extends HTMLElement {
     constructor() {
         super();
@@ -389,7 +390,6 @@ class ProgressRing extends HTMLElement {
           </style>
         `;
     }
-    //<text x="50%" y="50%" text-anchor="middle" alignment-baseline="middle" fill="${textcolor}" font-size="30px">0%</text>
     setProgress(percent) {
         const offset = this._circumference - (percent / 100 * this._circumference);
         const circle = this._root.querySelector('circle');
@@ -397,11 +397,9 @@ class ProgressRing extends HTMLElement {
         const Txt = this._root.getElementById('number');
         Txt.innerHTML = percent
     }
-      
     static get observedAttributes() {
         return [ 'progress' ];
     }
-      
     attributeChangedCallback(name, oldValue, newValue) {
         if (name === 'progress') {
           this.setProgress(newValue);

@@ -19,7 +19,7 @@ class TestCoreXApp{
         //GlobalAddActionInList("TestProgressRing", this.TestProgressRing.bind(this))
 
         //*** Test CoreXBuild InputWithLabel
-        //Conteneur.appendChild(CoreXBuild.InputWithLabel("InputBox", "Label Test", "Text", "MyInputTest","", "Input", "text", "placehoder",this.InputOnBlur.bind(this)))
+        Conteneur.appendChild(CoreXBuild.InputWithLabel("InputBox", "Label Test", "Text", "MyInputTest","", "Input", "text", "placehoder",this.InputOnBlur.bind(this), true))
         
         //*** Test Video
         //Conteneur.appendChild(CoreXBuild.Video("/video?name=testsmall.mov","","Video",""))
