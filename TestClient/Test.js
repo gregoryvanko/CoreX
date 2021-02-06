@@ -75,8 +75,16 @@ class TestCoreXApp{
 
 // Creation de l'application 1
 let App1 = new TestCoreXApp()
-GlobalCoreXAddApp(App1.GetTitre(), App1.GetImgSrc(),App1.Start.bind(App1))
+GlobalCoreXAddApp("Mon permier grand titre encore plus grand", App1.GetImgSrc(),App1.Start.bind(App1))
 
 //*** Ajout de l'application 2
-//let App2 = new TestCoreXApp()
-//GlobalCoreXAddApp("", "",App2.Start.bind(App2))
+let App2 = new TestCoreXApp()
+GlobalCoreXAddApp("Titre 2", "",App2.Start.bind(App2))
+
+//*** Ajout de l'application 2
+//let App3 = new TestCoreXApp()
+//GlobalCoreXAddApp("Titre 2", "",App3.Start.bind(App3))
+
+//*** Ajout de l'application 2
+//let App4 = new TestCoreXApp()
+//GlobalCoreXAddApp("Titre App 4", "",App4.Start.bind(App4))
