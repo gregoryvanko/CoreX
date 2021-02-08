@@ -9,6 +9,7 @@ class CoreXAdminLogApp{
         this._LogDate = ""
         this._LogHeure = ""
     }
+    
     /** Start de l'application */
     Start(){
         // Initialisation des variables de type Log
@@ -32,7 +33,25 @@ class CoreXAdminLogApp{
         // Liste of log
         let ListOflog = CoreXBuild.Div("ListOfLog", "CoreXAdminLogFlexColumnCenterSpaceAround", "")
         this._DivApp.appendChild(ListOflog)
+        // Waiting text
+        ListOflog.appendChild(CoreXBuild.DivTexte("Get Data...", "", "CoreXAdminLogText",""))
+        // Get All User
+        GlobalCallApiPromise("GetAllUser", "").then((reponse)=>{
+            let ListOfUsers = []
+            if (reponse != null){ListOfUsers = reponse}
+            this.LoadView(ListOfUsers)
+        },(erreur)=>{
+            // Ajout des des action a ActionButton
+            GlobalClearActionList()
+            GlobalAddActionInList("Refresh", this.Start.bind(this))
+            document.getElementById("ListOfLog").innerHTML=""
+            document.getElementById("ListOfLog").appendChild(CoreXBuild.DivTexte(erreur,"","CoreXAdminLogText","color:red;"))
+        })
+    }
 
+    LoadView(ListOfUsers){
+        let ListOflog = document.getElementById("ListOfLog")
+        ListOflog.innerHTML = ""
         // Box config search
         let DivBox = CoreXBuild.Div("","CoreXAdminLogBox")
         ListOflog.appendChild(DivBox)
@@ -64,6 +83,27 @@ class CoreXAdminLogApp{
 
         // User
         DivBox.appendChild(CoreXBuild.InputWithLabel("CoreXAdminLogInputBox", "User", "CoreXAdminLogText CoreXAdminLogMarginTxt", "CoreXAdminLogInputUser","", "CoreXAdminLogInput", "text", "All"))
+        CoreXAdminLogInputUser.setAttribute("autocomplete", "off")
+        // AutoComplete
+        autocomplete({
+            input: document.getElementById("CoreXAdminLogInputUser"),
+            minLength: 1,
+            emptyMsg: 'No suggestion',
+            fetch: function(text, update) {
+                let suggestions = []
+                text = text.toLowerCase();
+                var GroupFiltred = ListOfUsers.filter(n => n.User.toLowerCase().startsWith(text))
+                GroupFiltred.forEach(element => {
+                    var MyObject = new Object()
+                    MyObject.label = element.User
+                    suggestions.push(MyObject)
+                });
+                update(suggestions);
+            },
+            onSelect: function(item) {
+                document.getElementById("CoreXAdminLogInputUser").value = item.label;
+            }
+        });
         // Message
         DivBox.appendChild(CoreXBuild.InputWithLabel("CoreXAdminLogInputBox", "Message", "CoreXAdminLogText CoreXAdminLogMarginTxt", "CoreXAdminLogInputMsg","", "CoreXAdminLogInput", "text", "All"))
         let DivFlex = CoreXBuild.DivFlexRowStart("")
@@ -80,6 +120,7 @@ class CoreXAdminLogApp{
         // Boutton
         ListOflog.appendChild(CoreXBuild.Button("Search",this.CliclOnSearch.bind(this),"CoreXAdminLogButton", "ButtonSearch"))
     }
+
     GetTitre(){
         return "Log"
     }

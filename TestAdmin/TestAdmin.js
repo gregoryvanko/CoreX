@@ -3,6 +3,7 @@ class TestCoreXAdminApp{
         this._HtmlId = HtmlId
         this._DivApp = null
     }
+    
     /** Start de l'application */
     Start(){
         // Clear view

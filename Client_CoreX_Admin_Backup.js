@@ -4,6 +4,7 @@ class CoreXAdminBackupApp{
         this._JobScheduleHour = null
         this._JobScheduleMinute = null
     }
+    
     /** Start de l'application */
     Start(){
         // Clear view

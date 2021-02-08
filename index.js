@@ -942,9 +942,13 @@ class corex {
             function GlobalIsAdminUser(){
                 return `+ Admin +`
             }
+            // Fonction globale GlobalStart
+            function GlobalStart(){
+                MyApp.Start()
+            }
             // Fonction globale GlobalClearActionList
-            function GlobalClearActionList() {
-                MyApp.ClearActionList()
+            function GlobalClearActionList(ExecuteBeforeQuit = null) {
+                MyApp.ClearActionList(ExecuteBeforeQuit)
             }
             // Fonction gloable AddActionInList
             function GlobalAddActionInList(Titre, Action) {
@@ -1136,6 +1140,8 @@ class corex {
         let fs = require('fs')
         let path = require('path')
         let os = require('os')
+        MyApp.CSS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Autocomplete.css", 'utf8') + os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Autocomplete.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Backup.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_User.js", 'utf8') + os.EOL

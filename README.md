@@ -271,6 +271,8 @@ GlobalGetToken()
 
 /** Vider la liste des action de l'application */
 GlobalClearActionList()
+/** Vider la liste des action de l'application  et ajoute une fonction a executer (ExecuteBeforeQuit) avant de faire un Go to Home (Go ti Home uniquement disponible lorsqu'il y a plus d'un module)*/
+GlobalClearActionList(ExecuteBeforeQuit = null)
 
 /** Ajouter une action a la liste des actions de l'application */
 GlobalAddActionInList(Titre, Action) 
@@ -286,6 +288,9 @@ GlobalCoreXGetAppContentId()
 
 /** Return true if user is Admin */
 GlobalIsAdminUser()
+
+/** Start App */
+GlobalStart()
 
 /** Envoie d'un message avec SocketIo */
 // ModuleName: est le nom (string) du module qui apelle le serveur via SocketIo
@@ -375,10 +380,14 @@ class PlayProgram{
     /** Clear view */
     ClearView(){
         // Global action
-        GlobalClearActionList()
+        GlobalClearActionList(this.ExecuteBeforeQuit.bind(this))
         GlobalAddActionInList("Refresh", this.Start.bind(this))
         // Clear view
         this._DivApp.innerHTML=""
+    }
+
+    ExecuteBeforeQuit(){
+        console.log("Quit")
     }
 
     /** Get Titre de l'application */

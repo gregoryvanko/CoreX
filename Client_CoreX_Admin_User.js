@@ -2,6 +2,7 @@ class CoreXAdminUserApp{
     constructor(HtmlId){
         this._DivApp = document.getElementById(HtmlId)
     }
+    
     /** Start de l'application */
     Start(){
         // Clear view

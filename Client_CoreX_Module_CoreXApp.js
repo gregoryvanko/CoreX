@@ -119,14 +119,13 @@ class CoreXApp{
             border: 1px solid black;
             border-radius: 5px;
             width: 14vw;
-            height: 35vh;
+            height: 32vh;
             cursor: pointer;
             padding: 1vh;
             margin: 1vh;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, .2); 
         }
-        .CoreXAppImageConteneur:hover{
-                box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
-            }
+        
         .CoreXAppImgAppCard{
             max-width: 100%;
             max-height: 100%;
@@ -162,11 +161,18 @@ class CoreXApp{
     }
 
     /** Clear ActionList */
-    ClearActionList(){
+    ClearActionList(ExecuteBeforeQuit = null){
         this._MyCoreXActionButton.ClearActionList()
         if(this._ListApplications.length >=2){
-            this.AddActionInList("Home", this.Start.bind(this))
+            this.AddActionInList("Home", this.ClickOnHome.bind(this, ExecuteBeforeQuit))
         }
+    }
+
+    ClickOnHome(ExecuteBeforeQuit){
+        if (ExecuteBeforeQuit != null){
+            ExecuteBeforeQuit()
+        }
+        this.Start()
     }
 
     /** Add Action in ActionList */

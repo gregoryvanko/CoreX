@@ -5,8 +5,11 @@ class TestCoreXApp{
         this._test = "test-Value"
         this.SocketIo = null
     }
+    
     /** Start de l'application */
     Start(){
+        GlobalClearActionList(this.ExecuteBeforeQuit.bind(this))
+
         //*** Test CoreXBuild
         this._DivApp.appendChild(CoreXBuild.DivTexte("Titre Page", "Titre", "", "margin-top:4%"))
         //this._DivApp.appendChild(CoreXBuild.DivTexte("Hi all", "TestCSS", "", ""))
@@ -45,6 +48,10 @@ class TestCoreXApp{
             console.log('Le serveur a un message Ping pour vous : ' + message)
         })
         //GlobalSendSocketIo("Test", "ActionX", "ValueX")
+    }
+
+    ExecuteBeforeQuit(){
+        console.log(this._test)
     }
 
     TestProgressRing(){
