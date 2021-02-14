@@ -37,7 +37,7 @@ class TestCoreXApp{
         //GlobalDisplayAction("Toggle")
 
         //*** Test du boutton action de gauche */
-        Conteneur.appendChild(CoreXBuild.ButtonLeftAction(this.ClickTestButton.bind(this), "ButtonLeft"))
+        Conteneur.appendChild(CoreXBuild.ButtonLeftAction(this.ClickTestButton.bind(this), "ButtonLeft",  "L"))
 
         //*** Test du boutton action de bas gauche */
         Conteneur.appendChild(CoreXBuild.ButtonLeftBottomAction(this.ClickTestButton.bind(this), "Bottom" , "C"))

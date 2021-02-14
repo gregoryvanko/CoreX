@@ -119,7 +119,7 @@ class CoreXApp{
             border: 1px solid black;
             border-radius: 5px;
             width: 14vw;
-            height: 32vh;
+            height: 24vw;
             cursor: pointer;
             padding: 1vh;
             margin: 1vh;
@@ -146,7 +146,7 @@ class CoreXApp{
             .CoreXAppText{font-size: var(--CoreX-Iphone-font-size);}
             .CoreXAppImageConteneur{
                 width: 35vw;
-                height: 23vh;
+                height: 52vw;
             }
             /*.CoreXAppImgAppCard{max-height: 20vw;}*/
         }
@@ -155,7 +155,7 @@ class CoreXApp{
         {
             .CoreXAppTitre{font-size: var(--CoreX-TitreMax-font-size);}
             .CoreXAppText{font-size: var(--CoreX-Max-font-size);}
-            /*.CoreXAppImgAppCard{max-height: 120px;}*/
+            .CoreXAppImageConteneur{height: 22vw;}
         }
         </style>`
     }

@@ -90,7 +90,7 @@ class CoreXBuild{
         return element
     }
 
-    static ButtonLeftAction(OnClick, Id){
+    static ButtonLeftAction(OnClick, Id, InnerHTML){
         let divconent = document.createElement("div")
         if (Id){divconent.setAttribute("id", Id)}
         divconent.setAttribute("style", "display: bloc; z-index: 999")
@@ -134,7 +134,11 @@ class CoreXBuild{
         `
         let Button = document.createElement("button")
         Button.setAttribute("class", "CoreXActionMenuLeftButton")
-        Button.innerHTML = "&#9733"
+        if (InnerHTML){
+            Button.innerHTML = InnerHTML
+        } else {
+            Button.innerHTML = "&#9733"
+        }
         Button.addEventListener("click", OnClick)
         divconent.appendChild(Button)
         return divconent
