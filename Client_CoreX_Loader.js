@@ -134,7 +134,6 @@ class CoreXLoader {
                         let TicTacDelta = me._SplashDuration - (TacTimeSplashScreen - me._TicTimeSplashScreen)
                         Time = (TicTacDelta < 0) ? 1 : TicTacDelta
                     }
-                    console.log(Time)
                     setTimeout(function() {
                         // effacer le contenu du body
                         document.body.innerHTML = ""
