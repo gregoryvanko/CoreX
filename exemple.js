@@ -48,6 +48,10 @@ class ServeurTestCoreX{
         this._MyServeurApp.CommonAppFolder = __dirname + "/TestCommon"
         // Chemin relatif de l'icone
         this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
+
+        // App link
+        this._MyServeurApp.AppLink = "App"
+
         // Delete function to execute when a user is deleted
         this._MyServeurApp.OnDeleteUser = this.TestOnDeleteUser
 
@@ -58,6 +62,9 @@ class ServeurTestCoreX{
 
         // Add SocketIo api
         this._MyServeurApp.AddSocketIoFct("Test", this.Test.bind(this))
+
+        // Add route home
+        this._MyServeurApp.AddRouteGet("", this.RouteGetHome.bind(this))
 
         // Add route
         this._MyServeurApp.AddRouteGet("test", this.TestRouteGet.bind(this))
@@ -79,6 +86,9 @@ class ServeurTestCoreX{
         this._MyServeurApp.LogAppliInfo("Call SocketIo ModuleName: Test, Data.Action: " + Data.Action + " ,Data.Value: " + Data.Value, User, UserId)
         let Io = this._MyServeurApp.Io
         Io.emit("Ping", "Io: Send ping from server")
+    }
+    RouteGetHome(req, res){
+        res.send("Home")
     }
     TestRouteGet(req, res){
         res.send("OK, coucou")

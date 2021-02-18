@@ -102,6 +102,10 @@ class MyAppCoreX{
         this._MyServeurApp.CommonAppFolder = __dirname + "/TestCommon"
         // Chemin relatif de l'icone
         this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
+
+        // App link
+        this._MyServeurApp.AppLink = "App"
+
         // Delete function to execute when a user is deleted
         this._MyServeurApp.OnDeleteUser = this.TestOnDeleteUser
 
@@ -113,8 +117,8 @@ class MyAppCoreX{
         // Add SocketIo api
         this._MyServeurApp.AddSocketIoFct("Test", this.Test.bind(this))
 
-        // Add route
-        this._MyServeurApp.AddRouteGet("test", this.TestRouteGet.bind(this))
+        // Add route home
+        this._MyServeurApp.AddRouteGet("", this.TestRouteGet.bind(this))
 
         // Lancement du module corex
         this._MyServeurApp.Start()
@@ -133,7 +137,7 @@ class MyAppCoreX{
         Io.emit("Ping", "Io: Send ping from server")
     }
     TestRouteGet(req, res){
-        res.send("OK, coucou")
+        res.send("OK, Home")
     }
     TestOnDeleteUser(DeleteUsesrId, DeleteUserLogin, User, UserId){
         return new Promise((resolve, reject) => {

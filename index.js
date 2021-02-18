@@ -25,6 +25,7 @@ class corex {
         this._SocketIoFctList = []
         this._RouteGetList = []
         this._OnDeleteUser = null
+        this._AppLink = ""
 
         // Varaible interne MongoDB
         let MongoR = require('./Mongo.js').Mongo
@@ -79,6 +80,7 @@ class corex {
     set AdminAppFolder(val){this._AdminAppFolder = val}
     set CommonAppFolder(val){this._CommonAppFolder = val}
     set OnDeleteUser(val){this._OnDeleteUser = val}
+    set AppLink(val){this._AppLink = val}
 
     get AppName(){return this._AppName}
     get MongoUrl(){return this._MongoUrl}
@@ -99,7 +101,7 @@ class corex {
 		this._Express.use(bodyParser.urlencoded({ limit: '200mb', extended: true }))
         this._Express.use(bodyParser.json({limit: '200mb'}))
         // Creation d'une route de base pour l'application
-		this._Express.get('/', function(req, res, next){
+		this._Express.get('/' + this._AppLink, function(req, res, next){
             me.LogAppliInfo("Receive Get Start Page", "Server", "Server")
             res.send(me.GetInitialHTML(me._AppIsSecured))
         })
@@ -320,7 +322,8 @@ class corex {
         // Creation de la route 404
         this._Express.use(function(req, res, next) {
             me.LogAppliError('Mauvaise route: ' + req.originalUrl, "Server", "Server")
-            res.status(404).send("Sorry, the route " + req.originalUrl +" doesn't exist");
+            //res.status(404).send("Sorry, the route " + req.originalUrl +" doesn't exist");
+            res.status(404).send(me.ErrorRoute(req.originalUrl));
         })
         // Si on utilise Socket IO, alors on effectue une initialisation de socket io
         if(this._Usesocketio){
@@ -421,10 +424,36 @@ class corex {
             }
         })
         // Lancer le serveur
-		this._http.listen(this._Port, function(){
+    	this._http.listen(this._Port, function(){
 			console.log('listening on *:' + me._Port)
         })
     }
+
+    ErrorRoute(Link){
+        let element = `<div style="width: 100vw; height: 50vh; display: -webkit-flex; display: flex; flex-direction: row; justify-content:space-around; align-content:center; align-items: center;">`
+        element += `
+        <style>
+            .Text {
+                font-size: ${this._CSS.FontSize.TexteNomrale }
+            }
+            @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
+            only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
+            screen and (max-width: 700px)
+            {
+                .Text{font-size: ${this._CSS.FontSize.TexteIphone };}
+            }
+            @media screen and (min-width: 1200px)
+            {
+                .Text{font-size: ${this._CSS.FontSize.TexteMax };}
+            }
+    </style>`
+        element += '<div style="color: red;" class="Text">'
+        element += `Sorry, the route ${Link} doesn't exist`
+        element += `</div>`
+        element += `</div>`
+        return element
+    }
+
     /** Get Application Version */
     GetAppVersion(){
         let version = ""
@@ -650,7 +679,6 @@ class corex {
         let fs = require('fs')
         let os = require('os')
 
-        //{TexteNomrale:"1.5vw", TexteIphone:"3vw", TexteMax:"18px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"}
         let HTMLStart =`
 <!doctype html>
 <html>
