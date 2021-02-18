@@ -50,7 +50,7 @@ class ServeurTestCoreX{
         this._MyServeurApp.IconRelPath = __dirname + "/apple-icon-192x192.png"
 
         // App link
-        this._MyServeurApp.AppLink = "App"
+        //this._MyServeurApp.AppLink = "App"
 
         // Delete function to execute when a user is deleted
         this._MyServeurApp.OnDeleteUser = this.TestOnDeleteUser
@@ -64,7 +64,7 @@ class ServeurTestCoreX{
         this._MyServeurApp.AddSocketIoFct("Test", this.Test.bind(this))
 
         // Add route home
-        this._MyServeurApp.AddRouteGet("", this.RouteGetHome.bind(this))
+        //this._MyServeurApp.AddRouteGet("", this.RouteGetHome.bind(this))
 
         // Add route
         this._MyServeurApp.AddRouteGet("test", this.TestRouteGet.bind(this))

@@ -311,7 +311,8 @@ class corex {
         // Add Route Get
         if (this._RouteGetList.length > 0){
             this._RouteGetList.forEach(element => {
-                this._Express.get('/' + element.RouteName + "*", function (req, res) {
+                let link = (element.RouteName == "") ? '' : element.RouteName + "*"
+                this._Express.get('/' + link, function (req, res) {
                     var url = require("url")
                     var parsed = url.parse(req.url)
                     me.LogAppliInfo("Get request for route: " + parsed.path, "Server", "Server")
