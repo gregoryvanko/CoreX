@@ -1,10 +1,13 @@
 class CoreXLoader {
-    constructor({Color = "rgb(20, 163, 255)", AppIsSecured=true, AllowSignUp=false} = {}){
+    constructor({Color = "rgb(20, 163, 255)", AppIsSecured=true, AllowSignUp=false, SplashScreen=null} = {}){
         // Variable externe indispensable de la class
         this._LoginToken = null
         this._Color = Color
         this._AppIsSecured = AppIsSecured
         this._AllowSignUp = AllowSignUp
+        this._SplashScreen = SplashScreen
+        this._SplashDuration = 1500
+        this._TicTimeSplashScreen = null
         // Variable externe secondaire
         this._Site = null
 
@@ -73,8 +76,100 @@ class CoreXLoader {
 
     /* Start loading application */
     LoadApp(){
-        // afficher le message de loading
-        let LoadingText = /*html*/`
+        // Afficher la vue
+        document.body.innerHTML = this.GetWaintingScreen()      
+        // appeler le serveur
+        let me = this
+        var xhttp = new XMLHttpRequest()
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                let reponse = JSON.parse(this.responseText)
+                if (reponse.Error) {
+                    me.SetErrorMessage(reponse.ErrorMsg)
+                    me._LoginToken = null
+                    localStorage.removeItem(me._DbKeyLogin)
+                } else {
+                    let CSS = document.createElement('style')
+                    let JS = document.createElement('script')
+                    if ((reponse.Version != me.GetVersion()) || (me._Site != "App")){
+                        console.log("From server");
+                        // Save Version number 
+                        if (me._Site == "App"){
+                            localStorage.setItem(me._DBKeyVersion, reponse.Version)
+                        } else {
+                            localStorage.removeItem(me._DBKeyVersion)
+                            localStorage.removeItem(me._DBKeyCodeAppCSS)
+                            localStorage.removeItem(me._DBKeyCodeAppJS)
+                        }
+                        // Load de l'application CSS
+                        CSS.type = 'text/css'
+                        CSS.id = 'CodeCSS'
+                        CSS.innerHTML = reponse.CodeAppCSS
+                        if (me._Site == "App"){
+                            localStorage.setItem(me._DBKeyCodeAppCSS, reponse.CodeAppCSS)
+                        }
+                        // Load de l'application JS
+                        JS.type = 'text/javascript'
+                        JS.id = 'CodeJs'
+                        JS.innerHTML = reponse.CodeAppJS
+                        if (me._Site == "App"){
+                            localStorage.setItem(me._DBKeyCodeAppJS, reponse.CodeAppJS)
+                        }
+                    } else {
+                        console.log("From Browser");
+                        // Load de l'application CSS
+                        CSS.type = 'text/css'
+                        CSS.id = 'CodeCSS'
+                        CSS.innerHTML = localStorage.getItem(me._DBKeyCodeAppCSS)
+                        // Load de l'application JS
+                        JS.type = 'text/javascript'
+                        JS.id = 'CodeJs'
+                        JS.innerHTML = localStorage.getItem(me._DBKeyCodeAppJS)
+                    }
+                    document.getElementsByTagName('head')[0].appendChild(CSS)
+                    //Timeout entre la fin de la progressbar ou du splash et le load de l'application
+                    let Time = 100
+                    if (me._SplashScreen != null){
+                        let TacTimeSplashScreen = new Date().getTime()
+                        let TicTacDelta = me._SplashDuration - (TacTimeSplashScreen - me._TicTimeSplashScreen)
+                        Time = (TicTacDelta < 0) ? 1 : TicTacDelta
+                    }
+                    console.log(Time)
+                    setTimeout(function() {
+                        // effacer le contenu du body
+                        document.body.innerHTML = ""
+                        // Lancement du javascript de l'application
+                        document.getElementsByTagName('head')[0].appendChild(JS)
+                    }, Time)
+                }
+            } else if (this.readyState == 4 && this.status != 200) {
+                me.SetErrorMessage(this.response)
+            }
+        } 
+        if (this._SplashScreen == null){
+            xhttp.onprogress = function (event) {
+                let pourcent = Math.round((event.loaded / event.total)* 100)
+                document.getElementById("ProgressBar").value = pourcent
+            }
+        }
+        xhttp.open("POST", "loadApp", true)
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+        xhttp.send(JSON.stringify({Site:me._Site, Token:me.GetTokenLogin(), Version:me.GetVersion()})) 
+    }
+
+    GetWaintingScreen(){
+        let reponse = ""
+        if(this._SplashScreen != null){
+            this._TicTimeSplashScreen = new Date().getTime()
+            reponse = `<div style="width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; align-content: center;">${this._SplashScreen}</div>`
+        } else {
+            reponse = this.LoadingView()
+        }
+        return reponse
+    }
+
+    LoadingView(){
+        return `
             <style>
                 .Loadingtext{
                     font-size: var(--CoreX-font-size);
@@ -124,91 +219,15 @@ class CoreXLoader {
                 <div id="LoadingErrorMsg" class="LoadingError"></div>
                 <button id="LoadingButton" class="LoadingButton Loadingtext" onclick="location.reload();">Reload</button>
             </div>`
-        document.body.innerHTML = LoadingText
-        // appeler le serveur
-        let me = this
-        var xhttp = new XMLHttpRequest()
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                let reponse = JSON.parse(this.responseText)
-                if (reponse.Error) {
-                    console.log('Loading App Error : ' + reponse.ErrorMsg)
-                    document.getElementById("LoadingErrorMsg").innerHTML=reponse.ErrorMsg
-                    document.getElementById("LoadingButton").style.display= "block"
-                    document.getElementById("DivText").style.display= "none"
-                    document.getElementById("ProgressBar").style.display= "none"
-                    me._LoginToken = null
-                    localStorage.removeItem(me._DbKeyLogin)
-                } else {
-                    if ((reponse.Version != me.GetVersion()) || (me._Site != "App")){
-                        console.log("From server");
-                        // Save Version number 
-                        if (me._Site == "App"){
-                            localStorage.setItem(me._DBKeyVersion, reponse.Version)
-                        } else {
-                            localStorage.removeItem(me._DBKeyVersion)
-                            localStorage.removeItem(me._DBKeyCodeAppCSS)
-                            localStorage.removeItem(me._DBKeyCodeAppJS)
-                        }
-                        // Load de l'application CSS
-                        var CSS = document.createElement('style')
-                        CSS.type = 'text/css'
-                        CSS.id = 'CodeCSS'
-                        CSS.innerHTML = reponse.CodeAppCSS
-                        document.getElementsByTagName('head')[0].appendChild(CSS)
-                        if (me._Site == "App"){
-                            localStorage.setItem(me._DBKeyCodeAppCSS, reponse.CodeAppCSS)
-                        }
-                        // Load de l'application JS
-                        var JS = document.createElement('script')
-                        JS.type = 'text/javascript'
-                        JS.id = 'CodeJs'
-                        JS.innerHTML = reponse.CodeAppJS
-                        if (me._Site == "App"){
-                            localStorage.setItem(me._DBKeyCodeAppJS, reponse.CodeAppJS)
-                        }
-                        // Timeout de 500 milisec entre la fin de la progressbar et le load de l'application
-                        setTimeout(function() {
-                            // effacer le contenu du body
-                            document.body.innerHTML = ""
-                            // Lancement du javascript de l'application
-                            document.getElementsByTagName('head')[0].appendChild(JS)
-                        }, 100)
-                    } else {
-                        console.log("From Browser");
-                        // Load de l'application CSS
-                        var CSS = document.createElement('style')
-                        CSS.type = 'text/css'
-                        CSS.id = 'CodeCSS'
-                        CSS.innerHTML = localStorage.getItem(me._DBKeyCodeAppCSS)
-                        document.getElementsByTagName('head')[0].appendChild(CSS)
-                        // Load de l'application JS
-                        var JS = document.createElement('script')
-                        JS.type = 'text/javascript'
-                        JS.id = 'CodeJs'
-                        JS.innerHTML = localStorage.getItem(me._DBKeyCodeAppJS)
-                        // Timeout de 500 milisec entre la fin de la progressbar et le load de l'application
-                        setTimeout(function() {
-                            // effacer le contenu du body
-                            document.body.innerHTML = ""
-                            // Lancement du javascript de l'application
-                            document.getElementsByTagName('head')[0].appendChild(JS)
-                        }, 100)
-                    }
-                }
-            } else if (this.readyState == 4 && this.status != 200) {
-                document.getElementById("LoadingErrorMsg").innerHTML = this.response;
-                document.getElementById("LoadingButton").style.display= "block"
-                document.getElementById("DivText").style.display= "none"
-                document.getElementById("ProgressBar").style.display= "none"
-            }
-        } 
-        xhttp.onprogress = function (event) {
-            let pourcent = Math.round((event.loaded / event.total)* 100)
-            document.getElementById("ProgressBar").value = pourcent
+    }
+
+    SetErrorMessage(Error){
+        if(this._SplashScreen != null){
+            document.body.innerHTML = this.LoadingView()
         }
-        xhttp.open("POST", "loadApp", true)
-        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-        xhttp.send(JSON.stringify({Site:me._Site, Token:me.GetTokenLogin(), Version:me.GetVersion()})) 
+        document.getElementById("LoadingErrorMsg").innerHTML = Error;
+        document.getElementById("LoadingButton").style.display= "block"
+        document.getElementById("DivText").style.display= "none"
+        document.getElementById("ProgressBar").style.display= "none"
     }
 }

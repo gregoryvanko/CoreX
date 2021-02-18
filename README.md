@@ -106,6 +106,9 @@ class MyAppCoreX{
         // App link
         this._MyServeurApp.AppLink = "App"
 
+        // Splash Screen
+        this._MyServeurApp.SplashScreen = "<div>Splash Screen</div>"
+
         // Delete function to execute when a user is deleted
         this._MyServeurApp.OnDeleteUser = this.TestOnDeleteUser
 
