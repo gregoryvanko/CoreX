@@ -95,9 +95,6 @@ class corex {
         // Initialisation de variable et require
         var fs = require('fs')
         var me = this
-        // Message de demarrage
-        console.log(this.GetDateString(new Date()) + " Application started")
-        this.LogAppliInfo("Application started", "Server", "Server")
         // Initiation de la DB
         this.InitMongoDb()
         // utilistaion de body-parser
@@ -106,40 +103,43 @@ class corex {
         this._Express.use(bodyParser.json({limit: '200mb'}))
         // Creation d'une route de base pour l'application
 		this._Express.get('/' + this._AppLink, function(req, res, next){
-            me.LogAppliInfo("Receive Get Start Page", "Server", "Server")
+            me.LogStat("FirstGet", "Unknown", "Unknown", "Unknown")
             res.send(me.GetInitialHTML(me._AppIsSecured))
         })
         // Creation d'un route pour le login via Post
 		this._Express.post('/login', function (req, res){
-            me.LogAppliInfo("Receive Post Login: " + JSON.stringify(req.body), "Server", "Server")
+            me.LogAppliInfo("Login: " + JSON.stringify(req.body), "Server", "Server")
             // analyse du login en fonction du site
             me.VerifyLogin(res, req.body.Site, req.body.Login, req.body.Pass)
         })
         // Creation d'un route pour creer un account via Post
 		this._Express.post('/CreateAccount', function (req, res){
-            me.LogAppliInfo("Receive Post CreateAccount: " + JSON.stringify(req.body), "Server", "Server")
+            me.LogAppliInfo("CreateAccount: " + JSON.stringify(req.body), "Server", "Server")
             // analyse du login en fonction du site
             me.CreateAccount(res, req.body.Email, req.body.FirstName, req.body.LastName, req.body.Password)
         })
         // Creation d'une route pour loader l'application
 		this._Express.post('/loadApp', function(req, res, next){
-            me.LogAppliInfo("Receive Post loadApp", "Server", "Server")
             if (me._AppIsSecured){
+                me.LogAppliInfo("LoadApp", "Server", "Server")
                 // validation du Token
                 let DecryptTokenReponse = me.DecryptDataToken(req.body.Token)
                 if (DecryptTokenReponse.TokenValide) {
                     // vérification que le UserId du Token existe en DB et envoie de l'app
                     me.CheckTokenUserIdAndSendApp(req.body.Site, req.body.Version, DecryptTokenReponse.TokenData.data.UserData._id, res)
                 } else {
+                    me.LogStat("UserNotConnected", "Unknown", "Unknown", "Unknown")
                     me.LogAppliError("Token non valide", "Server", "Server")
                     res.json({Error: true, ErrorMsg:"Token non valide"})
                 }
             } else {
+                me.LogStat("UserConnected", req.body.Site, "anonymous", "anonymous")
+                me.LogAppliInfo("LoadApp", "anonymous", "anonymous")
                 if ((req.body.Version == me.GetAppVersion()) && (req.body.Site == "App")){
                     res.json({Error: false, ErrorMsg:"", CodeAppJS: "", CodeAppCSS: "", Version: req.body.Version})
                 } else {
                     let MyApp = me.GetAppCode(req.body.Site, "anonymous","anonymous", false)
-                    res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS, Version: me.GetAppVersion()})
+                    res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS, CodeAppCSS: MyApp.CSS, Version: me.GetAppVersion()})
                 }
             }
         })
@@ -489,9 +489,9 @@ class corex {
     /** Log applicatif de type info dans la DB */
     LogAppliInfo(Valeur= "undefined", User= "undefined", UserId= "undefined"){
         var now = new Date()
+        this.LogDebug(this.GetDateString(now) + " Info " + User + " " + Valeur)
         const DataToDb = { [this._MongoVar.LogAppliNow]: now, [this._MongoVar.LogAppliType]: "Info", [this._MongoVar.LogAppliValeur]: Valeur, [this._MongoVar.LogAppliUser]: User, [this._MongoVar.LogAppliUserId]: UserId}
         this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.LogAppliCollection).then((reponse)=>{
-            this.LogDebug(this.GetDateString(now) + " Info " + User + " " + Valeur)
         },(erreur)=>{
             this.LogDebug("LogAppliInfo DB error : " + erreur)
         })
@@ -499,11 +499,24 @@ class corex {
     /** Log applicatif de type error dans la DB */
     LogAppliError(Valeur= "undefined", User= "undefined", UserId= "undefined"){
         var now = new Date()
+        this.LogDebug(this.GetDateString(now) + " Error " + User + " " + Valeur)
         const DataToDb = { [this._MongoVar.LogAppliNow]: now, [this._MongoVar.LogAppliType]: "Error", [this._MongoVar.LogAppliValeur]: Valeur, [this._MongoVar.LogAppliUser]: User, [this._MongoVar.LogAppliUserId]: UserId}
         this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.LogAppliCollection).then((reponse)=>{
-            this.LogDebug(this.GetDateString(now) + " Error " + User + " " + Valeur)
         },(erreur)=>{
             this.LogDebug("LogAppliError DB error : " + erreur)
+        })
+    }
+    /** Log Statistique */
+    LogStat(Type= "undefined", App= "undefined", User= "undefined", UserId= "undefined"){
+        var now = new Date()
+        this.LogDebug(this.GetDateString(now) + " Stat " + Type + " " + App + " " + User)
+        let Stat = new Object()
+        Stat.Type = Type
+        Stat.App = App
+        const DataToDb = { [this._MongoVar.LogAppliNow]: now, [this._MongoVar.LogAppliType]: "Stat", [this._MongoVar.LogAppliValeur]: Stat, [this._MongoVar.LogAppliUser]: User, [this._MongoVar.LogAppliUserId]: UserId}
+        this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.LogAppliCollection).then((reponse)=>{
+        },(erreur)=>{
+            this.LogDebug("LogAppliInfo DB error : " + erreur)
         })
     }
     /** Get Date Formated */
@@ -834,33 +847,35 @@ class corex {
             const Projection = { projection:{ _id: 1, [this._MongoVar.LoginPassItem]: 1, [this._MongoVar.LoginUserItem]: 1, [this._MongoVar.LoginAdminItem]: 1}}
             this._Mongo.FindPromise(Query,Projection, this._MongoVar.UserCollection).then((reponse)=>{
                 if(reponse.length == 0){
+                    this.LogStat("UserNotConnected", "Unknown", "Unknown", "Unknown")
                     this.LogAppliError("Login non valide, pas de row en db pour ce user", "Server", "Server")
                     res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
                 } else if (reponse.length == 1){
                     if (reponse[0][this._MongoVar.LoginPassItem] == Pass){
                         if (Site == "Admin"){
                             if (reponse[0][this._MongoVar.LoginAdminItem] == true){
-                                this.LogAppliInfo("Login valide for site:" + Site, "Server", "Server")
                                 delete reponse[0][this._MongoVar.LoginPassItem]
                                 let MyToken = new Object()
                                 MyToken.UserData = reponse[0]
                                 res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(MyToken)})
                             } else {
+                                this.LogStat("UserNotConnected", "Unknown", "Unknown", "Unknown")
                                 this.LogAppliError("Login non valide, User not Admin for site Admin", "Server", "Server")
                                 res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
                             }
                         } else {
-                            this.LogAppliInfo("Login valide for site:" + Site, "Server", "Server")
                             delete reponse[0][this._MongoVar.LoginPassItem]
                             let MyToken = new Object()
                             MyToken.UserData = reponse[0]
                             res.json({Error: false, ErrorMsg:"", Token: this.EncryptDataToken(MyToken)})
                         }
                     } else {
+                        this.LogStat("UserNotConnected", "Unknown", "Unknown", "Unknown")
                         this.LogAppliError("Login non valide, le Pass est different du password en db", "Server", "Server")
                         res.json({Error: true, ErrorMsg:"Login Error", Token: ""})
                     }
                 } else {
+                    this.LogStat("UserNotConnected", "Unknown", "Unknown", "Unknown")
                     this.LogAppliError("Login non valide, trop de row en db pour ce user", "Server", "Server")
                     res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
                 }
@@ -869,6 +884,7 @@ class corex {
                 res.json({Error: true, ErrorMsg:"DB Error", Token: ""})
             })
         } else {
+            this.LogStat("UserNotConnected", "Unknown", "Unknown", "Unknown")
             this.LogAppliError("Site not know: " + Site, "Server", "Server")
             res.json({Error: true, ErrorMsg:"Site not know: " + Site, Token: ""})
         }
@@ -932,14 +948,17 @@ class corex {
                 this._Mongo.FindPromise(Query, Projection, this._MongoVar.UserCollection).then((reponse)=>{
                     if(Site== "Admin"){
                         if (reponse[0].Admin){
+                            this.LogStat("UserConnected", Site, reponse[0].User, Id)
                             this.LogAppliInfo("TokenUserId validé user:" + reponse[0].User, "Server", "Server")
                             let MyApp = this.GetAppCode(Site, reponse[0].User, Id, reponse[0].Admin)
                             res.json({Error: false, ErrorMsg:"", CodeAppJS: MyApp.JS,CodeAppCSS: MyApp.CSS, Version: this.GetAppVersion()})
                         } else {
+                            this.LogStat("UserNotConnected", Site, "Unknown", "Unknown")
                             this.LogAppliError("TokenUserId non validé. User not Admin for site Admin", "Server", "Server")
                             res.json({Error: true, ErrorMsg:"Token non valide"})
                         }
                     } else {
+                        this.LogStat("UserConnected", Site, reponse[0].User, Id)
                         this.LogAppliInfo("TokenUserId validé user:" + reponse[0].User, "Server", "Server")
                         if ((Version == this.GetAppVersion()) && (Site == "App")){
                             res.json({Error: false, ErrorMsg:"", CodeAppJS: "", CodeAppCSS: "", Version: Version})
@@ -954,10 +973,12 @@ class corex {
                     res.json({Error: true, ErrorMsg:"Token non valide : DB error"})
                 })
             } else {
+                this.LogStat("UserNotConnected", Site, "Unknown", "Unknown")
                 this.LogAppliError("TokenUserId non validé. Nombre d'Id trouvéen DB: " + reponse, "Server", "Server")
                 res.json({Error: true, ErrorMsg:"Token non valide"})
             }
         },(erreur)=>{
+            this.LogStat("UserNotConnected", Site, "Unknown", "Unknown")
             this.LogAppliError("TokenUserId validation => DB error : " + erreur, "Server", "Server")
             res.json({Error: true, ErrorMsg:"Token non valide"})
         })
