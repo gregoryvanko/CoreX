@@ -53,7 +53,9 @@ class ServeurTestCoreX{
         //this._MyServeurApp.AppLink = "App"
 
         // Splash Screen
-        this._MyServeurApp.SplashScreen = `<div style="width: 100vw; height: 100vh; background-color: black; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; align-content: center;"><div style="font-size: 3vh;">Splash Screen</div></div>`
+        this._MyServeurApp.SplashScreen = `<div style="width: 100vw; height: 100vh; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; align-content: center;"><div style="font-size: 3vh;">Splash Screen</div></div>`
+        // Splash Screen Background color
+        this._MyServeurApp.SplashScreenBackgroundColor = "Black"
 
         // Delete function to execute when a user is deleted
         this._MyServeurApp.OnDeleteUser = this.TestOnDeleteUser

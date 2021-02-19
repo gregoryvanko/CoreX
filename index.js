@@ -12,6 +12,7 @@ class corex {
         this._AppIsSecured = true
         this._AllowSignUp = false
         this._SplashScreen = null
+        this._SplashScreenBackgroundColor = null
         this._CSS = {
             FontSize:{TexteNomrale:"1.5vw", TexteIphone:"3vw", TexteMax:"18px",TitreNormale:"4vw", TitreIphone:"7vw", TitreMax:"50px"},
             Color:{Normale:"rgb(20, 163, 255)"},
@@ -83,6 +84,7 @@ class corex {
     set OnDeleteUser(val){this._OnDeleteUser = val}
     set AppLink(val){this._AppLink = val}
     set SplashScreen(val){this._SplashScreen = val}
+    set SplashScreenBackgroundColor(val){this._SplashScreenBackgroundColor = val}
 
     get AppName(){return this._AppName}
     get MongoUrl(){return this._MongoUrl}
@@ -802,9 +804,13 @@ class corex {
         if (this._SplashScreen != null){
             MySplashScreen = `'` + this._SplashScreen + `'`
         }
+        let MySplashScreenBackgroundColor = null
+        if (this._SplashScreenBackgroundColor != null){
+            MySplashScreenBackgroundColor = `'` + this._SplashScreenBackgroundColor + `'`
+        }
         let LoadScript = ` 
         <script>
-            let OptionCoreXLoader = {Color: "`+ this._CSS.Color.Normale +`", AppIsSecured: "`+ AppIsSecured +`", AllowSignUp:`+ this._AllowSignUp +`, SplashScreen: `+ MySplashScreen +`}
+            let OptionCoreXLoader = {Color: "`+ this._CSS.Color.Normale +`", AppIsSecured: "`+ AppIsSecured +`", AllowSignUp:`+ this._AllowSignUp +`, SplashScreen: `+ MySplashScreen +`, SplashScreenBackgroundColor: `+ MySplashScreenBackgroundColor +`}
             var MyCoreXLoader = new CoreXLoader(OptionCoreXLoader)
             function GlobalLogout(){MyCoreXLoader.LogOut()}
             function GlobalGetToken(){return MyCoreXLoader.GetTokenLogin()}

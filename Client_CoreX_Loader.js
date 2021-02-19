@@ -1,11 +1,12 @@
 class CoreXLoader {
-    constructor({Color = "rgb(20, 163, 255)", AppIsSecured=true, AllowSignUp=false, SplashScreen=null} = {}){
+    constructor({Color = "rgb(20, 163, 255)", AppIsSecured=true, AllowSignUp=false, SplashScreen=null, SplashScreenBackgroundColor=null} = {}){
         // Variable externe indispensable de la class
         this._LoginToken = null
         this._Color = Color
         this._AppIsSecured = AppIsSecured
         this._AllowSignUp = AllowSignUp
         this._SplashScreen = SplashScreen
+        this._SplashScreenBackgroundColor = SplashScreenBackgroundColor
         this._SplashDuration = 1500
         this._TicTimeSplashScreen = null
         // Variable externe secondaire
@@ -135,6 +136,10 @@ class CoreXLoader {
                         Time = (TicTacDelta < 0) ? 1 : TicTacDelta
                     }
                     setTimeout(function() {
+                        // Set background wite
+                        if (me._SplashScreenBackgroundColor != null){
+                            document.body.style.backgroundColor = "white"
+                        }
                         // effacer le contenu du body
                         document.body.innerHTML = ""
                         // Lancement du javascript de l'application
@@ -159,6 +164,9 @@ class CoreXLoader {
     GetWaintingScreen(){
         let reponse = ""
         if(this._SplashScreen != null){
+            if (this._SplashScreenBackgroundColor != null){
+                document.body.style.backgroundColor = this._SplashScreenBackgroundColor
+            }
             this._TicTimeSplashScreen = new Date().getTime()
             reponse = `<div style="width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; align-content: center;">${this._SplashScreen}</div>`
         } else {

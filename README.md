@@ -108,6 +108,8 @@ class MyAppCoreX{
 
         // Splash Screen
         this._MyServeurApp.SplashScreen = "<div>Splash Screen</div>"
+        // Splash Screen Background color
+        this._MyServeurApp.SplashScreenBackgroundColor = "Black"
 
         // Delete function to execute when a user is deleted
         this._MyServeurApp.OnDeleteUser = this.TestOnDeleteUser
