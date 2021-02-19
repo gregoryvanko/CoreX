@@ -92,6 +92,7 @@ class corex {
 
     /* Start du Serveur de l'application */
     Start(){
+        this.LogAppliInfo("Start App", "Server", "Server")
         // Initialisation de variable et require
         var fs = require('fs')
         var me = this
@@ -332,7 +333,7 @@ class corex {
         })
         // Si on utilise Socket IO, alors on effectue une initialisation de socket io
         if(this._Usesocketio){
-            this.LogAppliInfo("SocketIo is used", "Server", "Server")
+            console.log("SocketIo is used")
             // Creation de socket io
             this._io= require('socket.io')(this._http, {pingTimeout: 60000})
 
@@ -542,7 +543,7 @@ class corex {
         }
         let DoneCallbackUserCollection = (Data) => {
             if(Data){
-                this.LogAppliInfo("La collection suivante existe : " + this._MongoVar.UserCollection, "Server", "Server")
+                console.log("La collection suivante existe : " + this._MongoVar.UserCollection)
             } else {
                 const DataToDb = { [this._MongoVar.LoginUserItem]: "Admin", [this._MongoVar.LoginFirstNameItem]: "Admin First Name", [this._MongoVar.LoginLastNameItem]: "Admin Last Name", [this._MongoVar.LoginPassItem]: "Admin", [this._MongoVar.LoginConfirmPassItem]: "Admin", [this._MongoVar.LoginAdminItem]: true}
                 this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.UserCollection).then((reponse)=>{
@@ -555,7 +556,7 @@ class corex {
         }
         let DoneCallbackConfigCollection = (Data) => {
             if(Data){
-                this.LogAppliInfo("La collection suivante existe : " + this._MongoVar.ConfigCollection, "Server", "Server")
+                console.log("La collection suivante existe : " + this._MongoVar.ConfigCollection)
                 // Start du Backup
                 this.StartJobScheduleBackup()
             } else {
@@ -599,7 +600,7 @@ class corex {
                         if((reponse.GoogleKey != "") && (reponse.Folder != "")){
                             let credentials = JSON.parse(reponse.GoogleKey)
                             let folder = reponse.Folder
-                            this.LogAppliInfo("Start JobScheduleBackup", "Server", "Server")
+                            console.log("Start JobScheduleBackup")
                             var schedule = require('node-schedule')
                             let options = {minute: BackupScheduler.JobScheduleMinute, hour: BackupScheduler.JobScheduleHour}
                             var me = this
@@ -623,7 +624,7 @@ class corex {
                     this.LogAppliError("JobScheduler already exist", "Server", "Server")
                 }
             } else {
-                this.LogAppliInfo("JobScheduleBackup not started", "Server", "Server")
+                console.log("JobScheduleBackup not started")
             }
         },(erreur)=>{
             this.LogAppliError("StartJobScheduleBackup: " + erreur, "Server", "Server")
