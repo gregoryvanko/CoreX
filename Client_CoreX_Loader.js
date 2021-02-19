@@ -136,7 +136,7 @@ class CoreXLoader {
                         Time = (TicTacDelta < 0) ? 1 : TicTacDelta
                     }
                     setTimeout(function() {
-                        // Set background wite
+                        // Set background white
                         if (me._SplashScreenBackgroundColor != null){
                             document.body.style.backgroundColor = "white"
                         }
@@ -231,6 +231,10 @@ class CoreXLoader {
     SetErrorMessage(Error){
         if(this._SplashScreen != null){
             document.body.innerHTML = this.LoadingView()
+        }
+        // Set background white
+        if (this._SplashScreenBackgroundColor != null){
+            document.body.style.backgroundColor = "white"
         }
         document.getElementById("LoadingErrorMsg").innerHTML = Error;
         document.getElementById("LoadingButton").style.display= "block"
