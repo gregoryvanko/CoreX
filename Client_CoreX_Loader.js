@@ -168,7 +168,7 @@ class CoreXLoader {
                 document.body.style.backgroundColor = this._SplashScreenBackgroundColor
             }
             this._TicTimeSplashScreen = new Date().getTime()
-            reponse = `<div style="width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; align-content: center;">${this._SplashScreen}</div>`
+            reponse = `<div style="width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; align-content: center;">${this._SplashScreen}</div>`
         } else {
             reponse = this.LoadingView()
         }
