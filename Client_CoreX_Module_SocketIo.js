@@ -39,6 +39,10 @@ class CoreXSocketIo{
             console.log(me.GetTime() + ' SocketIo.on connect')
         })
         
+        this._SocketIo.on("connect_error", (err) => {
+            console.log(me.GetTime() + ' SocketIo.on connect_error ' + err.message + " " + err.data)
+        });
+        
         // Init des messages disconnect socket io
         this._SocketIo.on('disconnect', (reason) => {
             console.log(me.GetTime() + ' SocketIo.on disconnect, reason : ' + reason)

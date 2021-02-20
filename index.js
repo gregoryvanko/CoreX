@@ -337,10 +337,6 @@ class corex {
             // Creation de socket io
             this._io= require('socket.io')(this._http, {pingTimeout: 60000})
 
-            // Identification du user
-            let User = "Anonyme"
-            let UserId = "Anonyme"
-            
             // Middleware sur socket io qui analyse la validité du Token genere via le login
             this._io.use(function(socket, next){
                 if (me._AppIsSecured) {
@@ -352,9 +348,9 @@ class corex {
                                 const Query = {'_id': new MongoObjectId(DecryptTokenReponse.TokenData.data.UserData._id)}
                                 me._Mongo.CountPromise(Query, me._MongoVar.UserCollection).then((reponse)=>{
                                     if (reponse==1) {
-                                        User = DecryptTokenReponse.TokenData.data.UserData.User
-                                        UserId = DecryptTokenReponse.TokenData.data.UserData._id
-                                        me.LogAppliInfo("Token valide in soketIo connection", User, UserId)
+                                        me.LogAppliInfo("Token valide in soketIo connection", DecryptTokenReponse.TokenData.data.UserData.User, DecryptTokenReponse.TokenData.data.UserData._id)
+                                        socket.CoreXUser= DecryptTokenReponse.TokenData.data.UserData.User
+                                        socket.CoreXUserId= DecryptTokenReponse.TokenData.data.UserData._id
                                         next()
                                     } else {
                                         me.LogAppliError("SocketIO Token non valide. Nombre d'Id trouvéen DB: " + reponse, "Server", "Server")
@@ -387,36 +383,39 @@ class corex {
                 		next(err)
                 	} 
                 } else {
+                    me.LogAppliInfo("SoketIo connection and App Not Secured", "Anonyme", "Anonyme")
+                    socket.CoreXUser= "Anonyme"
+                    socket.CoreXUserId= "Anonyme"
                     next()
                 }
             })
             
-            this._io.on('connection', function(socket){	
-               // Count user connected
-               me._SocketIoClients ++
-               me.LogDebug(`user connected, nb user : ${me._SocketIoClients}`)
-               // Le socket rejoint la room securisee
-               socket.join(me._RoomName)
+            this._io.on('connection', function(socket){
+                // Count user connected
+                me._SocketIoClients ++
+                me.LogDebug(`user connected, nb user : ${me._SocketIoClients}`)
+                // Le socket rejoint la room securisee
+                socket.join(me._RoomName)
 
-               // Reception du message client de déconnection
-               socket.on('disconnect', () => {
-                   // Count User Connected
-                   me._SocketIoClients --
-                   me.LogDebug(`user disconnected, nb user: ${me._SocketIoClients}`)
-               })
-               // Reception du message client
-               socket.on('api', (Data) => {
-                let FctNotFound = true
-                me._SocketIoFctList.forEach(element => {
-                    if (element.ModuleName == Data.ModuleName){
-                        element.Fct(Data.Data, socket, User, UserId)
-                        FctNotFound = false
+                // Reception du message client de déconnection
+                socket.on('disconnect', () => {
+                    // Count User Connected
+                    me._SocketIoClients --
+                    me.LogDebug(`user disconnected, nb user: ${me._SocketIoClients}`)
+                })
+                // Reception du message client
+                socket.on('api', (Data) => {
+                    let FctNotFound = true
+                    me._SocketIoFctList.forEach(element => {
+                        if (element.ModuleName == Data.ModuleName){
+                            element.Fct(Data.Data, socket, socket.CoreXUser, socket.CoreXUserId)
+                            FctNotFound = false
+                        }
+                    })
+                    if (FctNotFound){
+                        me.LogAppliError("No SocketIo Action defined for action: " + Data.ModuleName, socket.CoreXUser, socket.CoreXUserId)
                     }
                 })
-                if (FctNotFound){
-                    me.LogAppliError("No SocketIo Action defined for action: " + Data.ModuleName, User, UserId)
-                }
-            })
             })
         }
         // Gestion des erreur
