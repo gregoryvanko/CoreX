@@ -300,6 +300,8 @@ class CoreXAdminLogApp{
                     let flex = null
                     if(element.Type == "Error"){
                         flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;")
+                    } else if (element.Type == "Stat"){
+                        flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:blue;")
                     } else {
                         flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%;")
                     }
