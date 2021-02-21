@@ -73,12 +73,16 @@ class CoreXAdminLogApp{
         option2.setAttribute("value", "Info")
         option2.innerHTML = "Info"
         DropDown.appendChild(option2)
-        DivType.appendChild(DropDown)
         // Type Error
         let option3 = document.createElement("option")
         option3.setAttribute("value", "Error")
         option3.innerHTML = "Error"
         DropDown.appendChild(option3)
+        // Type Stat
+        let option4 = document.createElement("option")
+        option4.setAttribute("value", "Stat")
+        option4.innerHTML = "Stat"
+        DropDown.appendChild(option4)
         DivType.appendChild(DropDown)
 
         // User
@@ -243,6 +247,8 @@ class CoreXAdminLogApp{
                 let flex = null
                 if(element.Type == "Error"){
                     flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;")
+                } else if (element.Type == "Stat"){
+                    flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:blue;")
                 } else {
                     flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%;")
                 }
@@ -310,11 +316,13 @@ class CoreXAdminLogApp{
 
     /** Efface le log en db */
     CleanLog(){
-        GlobalCallApiPromise("CleanLog", "").then((reponse)=>{
-            alert("Log cleaned")
-        },(erreur)=>{
-            alert(erreur)
-        })
+        if (confirm("Do you want to delete log?")){
+            GlobalCallApiPromise("CleanLog", "").then((reponse)=>{
+                alert("Log cleaned")
+            },(erreur)=>{
+                alert(erreur)
+            })
+        }
     }
 
     /** Css de l'application */

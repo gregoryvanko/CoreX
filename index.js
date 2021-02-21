@@ -513,7 +513,7 @@ class corex {
         let Stat = new Object()
         Stat.Type = Type
         Stat.App = App
-        const DataToDb = { [this._MongoVar.LogAppliNow]: now, [this._MongoVar.LogAppliType]: "Stat", [this._MongoVar.LogAppliValeur]: Stat, [this._MongoVar.LogAppliUser]: User, [this._MongoVar.LogAppliUserId]: UserId}
+        const DataToDb = { [this._MongoVar.LogAppliNow]: now, [this._MongoVar.LogAppliType]: "Stat", [this._MongoVar.LogAppliValeur]: JSON.stringify(Stat), [this._MongoVar.LogAppliUser]: User, [this._MongoVar.LogAppliUserId]: UserId}
         this._Mongo.InsertOnePromise(DataToDb, this._MongoVar.LogAppliCollection).then((reponse)=>{
         },(erreur)=>{
             this.LogDebug("LogAppliInfo DB error : " + erreur)
