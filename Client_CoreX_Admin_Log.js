@@ -39,6 +39,8 @@ class CoreXAdminLogApp{
         GlobalCallApiPromise("GetAllUser", "").then((reponse)=>{
             let ListOfUsers = []
             if (reponse != null){ListOfUsers = reponse}
+            // Ajout du user Server
+            ListOfUsers.push({_id: null, User: "Server"})
             this.LoadView(ListOfUsers)
         },(erreur)=>{
             // Ajout des des action a ActionButton
@@ -246,11 +248,11 @@ class CoreXAdminLogApp{
                 this._LogIdListe.push(element._id)
                 let flex = null
                 if(element.Type == "Error"){
-                    flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;")
+                    flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "color:red;")
                 } else if (element.Type == "Stat"){
-                    flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:blue;")
+                    flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "color:blue;")
                 } else {
-                    flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%;")
+                    flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "")
                 }
                 Liste.appendChild(flex)
 
@@ -258,6 +260,7 @@ class CoreXAdminLogApp{
                 flex.appendChild(CoreXBuild.DivTexte(element.User,"", "CoreXAdminLogText CoreXAdminLogUser CoreXAdminLogTextSelect", ""))
                 flex.appendChild(CoreXBuild.DivTexte(element.Valeur,"", "CoreXAdminLogText CoreXAdminLogValeur CoreXAdminLogTextSelect", "overflow-wrap:break-word"))
             })
+
             let DivButton = CoreXBuild.Div("", "CoreXAdminLogFlexRowCenterspacearound", "width:90%; border-top: 1px solid black; margin-top:1%;")
             document.getElementById("ListOfLog").appendChild(DivButton)
             DivButton.appendChild(CoreXBuild.Button("Next",this.GetNextLog.bind(this),"CoreXAdminLogButton", "ButtonNext"))
@@ -299,11 +302,11 @@ class CoreXAdminLogApp{
                     this._LogIdListe.push(element._id)
                     let flex = null
                     if(element.Type == "Error"){
-                        flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:red;")
+                        flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "color:red;")
                     } else if (element.Type == "Stat"){
-                        flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%; color:blue;")
+                        flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "color:blue;")
                     } else {
-                        flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "width:100%; border-top: 1px solid black; padding-top: 1%; margin-top:1%;")
+                        flex = CoreXBuild.Div("", "CoreXAdminLogFlexRowStartCenter", "")
                     }
                     document.getElementById("Liste").appendChild(flex)
 
@@ -364,6 +367,10 @@ class CoreXAdminLogApp{
                 justify-content: flex-start;
                 align-content: center;
                 align-items: center;
+                flex-wrap: wrap;
+                width:100%; 
+                border-top: 1px solid black; 
+                padding: 0.5vh;
             }
             .CoreXAdminLogButton{
                 margin: 4vh 0vh 8vh 0vh;
@@ -468,9 +475,9 @@ class CoreXAdminLogApp{
                 #CoreXAdminLogTitre{font-size: var(--CoreX-TitreIphone-font-size);}
                 .CoreXAdminLogText{font-size: var(--CoreX-Iphone-font-size);}
                 .CoreXAdminLogButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
-                .CoreXAdminLogDate{width:22%;}
-                .CoreXAdminLogUser{width:16%;}
-                .CoreXAdminLogValeur{width:60%; font-size: calc(var(--CoreX-Iphone-font-size)*0.8);}
+                .CoreXAdminLogDate{width:100%;}
+                .CoreXAdminLogUser{width:100%;}
+                .CoreXAdminLogValeur{width:100%; font-size: calc(var(--CoreX-Iphone-font-size)*0.8);}
                 .CoreXAdminLogBox{width: 90%;}
                 .CoreXAdminLogInput{font-size: var(--CoreX-Iphone-font-size);}
             }
