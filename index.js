@@ -1207,12 +1207,13 @@ class corex {
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Backup.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_User.js", 'utf8') + os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Stat.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Start.js", 'utf8') + os.EOL
         // Load du folder Admin
         if(this._AdminAppFolder != null){
             MyApp = this.LoadAppFilesFromFolder(this._AdminAppFolder, MyApp)
         } else {
-            this.LogAppliError("Admin folder not defined (=null)", "Server", "Server")
+            this.LogAppliInfo("Admin folder is not defined", "Server", "Server")
         }
         // Load du folder common
         if (this._CommonAppFolder != null){
