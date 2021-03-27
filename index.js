@@ -235,6 +235,10 @@ class corex {
                             res.json({Error: true, ErrorMsg:"No personal data for application not secured"})
                         }
                         break
+                    case "Stat":
+                        //Api Admin
+                        me.ApiAdminCheckUser(me._ApiAdmin.Stat.bind(me), DecryptTokenReponse, req, res, User, UserId)
+                        break
                     default:
                         let FctNotFound = true
                         me._ApiFctList.forEach(element => {

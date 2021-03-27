@@ -513,6 +513,54 @@ class ApiAdmin{
         if(seconde<10) {seconde='0'+seconde}
         return yyyy + "-" + mm + "-" + dd + " " + heure + ":" + minute + ":" + seconde
     }
+
+    Stat(Data, res, User, UserId){
+        this.LogAppliInfo("Call ApiAdmin get Stat, type: " + JSON.stringify(Data), User, UserId)
+        const Query = {[this._MongoVar.LogAppliType]: "Stat"}
+        const Projection = {}
+        const Sort = {[this._MongoVar.LogAppliNow]: 1}
+        this._Mongo.FindSortPromise(Query,Projection, Sort, this._MongoVar.LogAppliCollection).then((reponse)=>{
+            if(reponse.length == 0){
+                res.json({Error: false, ErrorMsg: "No stat in DB", Data: null})
+            } else {
+                if (Data == "Connections"){
+                    let ReponseConnections = new Object()
+                    ReponseConnections.FirstConnections = new Object()
+                    ReponseConnections.FirstConnections.month = []
+                    let date = new Date()
+                    date.setHours(1,0,0,0)
+                    date.setDate( date.getDate() - 29 )
+                    //date.setFullYear( date.getFullYear() - 1 )
+
+                    for (let index = 0; index <= 29; index++) {
+                        let value = 0
+                        for (let indexstat = 0; indexstat<reponse.length; indexstat++){
+                            let tempstat = reponse[indexstat]
+                            if ((date.getFullYear() === tempstat.Now.getFullYear()) && (date.getMonth() === tempstat.Now.getMonth()) && (date.getDate() === tempstat.Now.getDate())){
+                                const Valeur = JSON.parse(tempstat.Valeur)
+                                if (Valeur.Type == "FirstGet"){
+                                    value +=1
+                                }
+                            } else if (tempstat.Now.getTime()>date.getTime()){
+                                indexstat = reponse.length
+                            }
+                        }
+                        let NewElement = new Object()
+                        NewElement.Date = new Date(date.getTime())
+                        NewElement.Value = value
+                        ReponseConnections.FirstConnections.month.push(NewElement)
+                        date.setDate( date.getDate() +1 )
+                    }
+                    res.json({Error: false, ErrorMsg: "Stat in DB", Data: ReponseConnections})
+                } else {
+                    res.json({Error: true, ErrorMsg: "Stat type not correct", Data: null})
+                }
+            }
+        },(erreur)=>{
+            this.LogAppliError("ApiAdmin Stat DB error : " + erreur, User, UserId)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+        })
+    }
 }
 
 module.exports.ApiAdmin = ApiAdmin

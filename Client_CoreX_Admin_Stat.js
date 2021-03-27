@@ -5,13 +5,47 @@ class CoreXAdminStatApp{
 
     /** Start de l'application */
     Start(){
+        // Add refresh action
+        GlobalClearActionList()
+        GlobalAddActionInList("Refresh", this.Start.bind(this))
         // Clear view
         this._DivApp.innerHTML=""
         // Add CSS
         this._DivApp.innerHTML = this.GetCss()
         // Titre
-        this._DivApp.appendChild(CoreXBuild.DivTexte("Statistics", "CoreXAdminStatTitre", "", "margin-top:4%"))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Statistics", "CoreXAdminStatTitre", "", "margin-top:4%")) 
+        // Liste Stat
+        let Content = CoreXBuild.Div("Content", "CoreXAdminStatFlexColumnCenterSpaceAround", "")
+        this._DivApp.appendChild(Content)
+        // Button Stat connection
+        Content.appendChild(CoreXBuild.Button("Connections", this.StatConnectionStart.bind(this), "CoreXAdminStatButtonLarge"))
+
     }
+
+    StatConnectionStart(){
+        let Content = document.getElementById("Content")
+        Content.innerHTML=""
+        Content.appendChild(CoreXBuild.DivTexte("Get Data...", "", "CoreXAdminStatText",""))
+        // Get All connection data
+        GlobalCallApiPromise("Stat", "Connections").then((reponse)=>{
+            this.StatConnectionLoadGraph(reponse)
+        },(erreur)=>{
+            Content.innerHTML=""
+            Content.appendChild(CoreXBuild.DivTexte(erreur,"","CoreXAdminStatText","color:red;"))
+        })
+    }
+    StatConnectionLoadGraph(Data){
+        let Content = document.getElementById("Content")
+        Content.innerHTML=""
+        if (Data == null){
+            Content.appendChild(CoreXBuild.DivTexte("No stat data...", "", "CoreXAdminStatText",""))
+        } else {
+            // ToDo
+            debugger
+            Content.appendChild(CoreXBuild.DivTexte("Show data", "", "CoreXAdminStatText",""))
+        }
+    }
+
     GetTitre(){
         return "Stat"
     }
@@ -60,7 +94,7 @@ class CoreXAdminStatApp{
                 border-top: 1px solid black; 
                 padding: 0.5vh;
             }
-            .CoreXAdminStatButton{
+            .CoreXAdminStatButtonLarge{
                 margin: 4vh 0vh 8vh 0vh;
                 padding: 1vh 2vh 1vh 2vh;
                 cursor: pointer;
@@ -73,9 +107,12 @@ class CoreXAdminStatApp{
                 color: rgb(44,1,21);
                 background: white;
                 outline: none;
+                width: 20%;
             }
-            .CoreXAdminStatButton:hover{
-                box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+            @media (hover: hover) {
+                .CoreXAdminStatButtonLarge:hover:enabled{
+                    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+                }
             }
 
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
@@ -84,13 +121,13 @@ class CoreXAdminStatApp{
             {
                 #CoreXAdminStatTitre{font-size: var(--CoreX-TitreIphone-font-size);}
                 .CoreXAdminStatText{font-size: var(--CoreX-Iphone-font-size);}
-                .CoreXAdminStatButton{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px;}
+                .CoreXAdminStatButtonLarge{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px; width: 40%;}
             }
             @media screen and (min-width: 1200px)
             {
                 #CoreXAdminStatTitre{font-size: var(--CoreX-TitreMax-font-size);}
                 .CoreXAdminStatText{font-size: var(--CoreX-Max-font-size);}
-                .CoreXAdminStatButton{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
+                .CoreXAdminStatButtonLarge{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
             }
         </style>`
     }
