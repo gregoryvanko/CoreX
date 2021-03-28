@@ -10,6 +10,7 @@ class CoreXAdminStatApp{
         GlobalAddActionInList("Refresh", this.Start.bind(this))
         // Clear view
         this._DivApp.innerHTML=""
+        this._DivApp.style.width = "96%"
         // Add CSS
         this._DivApp.innerHTML = this.GetCss()
         // Titre
