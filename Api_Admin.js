@@ -574,7 +574,7 @@ class ApiAdmin{
                                 ReponseConnections[index].Error +=1
                             }
                         } else if (element.Now.getTime()<ReponseDate.getTime()){
-                            index = reponse.length
+                            index = ReponseConnections.length
                         }
                     }
                 });
@@ -631,7 +631,7 @@ class ApiAdmin{
                                 ReponseConnections[index].Error +=1
                             }
                         } else if (element.Now.getTime()<ReponseDate.getTime()){
-                            index = reponse.length
+                            index = ReponseConnections.length
                         }
                     }
                 });
@@ -679,7 +679,7 @@ class ApiAdmin{
                                 ReponseConnections[index].Admin +=1
                             }
                         } else if (element.Now.getTime()<ReponseDate.getTime()){
-                            index = reponse.length
+                            index = ReponseConnections.length
                         }
                     }
                 });
@@ -728,7 +728,7 @@ class ApiAdmin{
                                 ReponseConnections[index].Admin +=1
                             }
                         } else if (element.Now.getTime()<ReponseDate.getTime()){
-                            index = reponse.length
+                            index = ReponseConnections.length
                         }
                     }
                 });
