@@ -524,33 +524,45 @@ class ApiAdmin{
                 res.json({Error: false, ErrorMsg: "No stat in DB", Data: null})
             } else {
                 if (Data == "Connections"){
-                    let ReponseConnections = new Object()
-                    ReponseConnections.FirstConnections = new Object()
-                    ReponseConnections.FirstConnections.month = []
+                    let ReponseConnections = []
                     let date = new Date()
                     date.setHours(1,0,0,0)
                     date.setDate( date.getDate() - 29 )
                     //date.setFullYear( date.getFullYear() - 1 )
 
                     for (let index = 0; index <= 29; index++) {
-                        let value = 0
-                        for (let indexstat = 0; indexstat<reponse.length; indexstat++){
-                            let tempstat = reponse[indexstat]
-                            if ((date.getFullYear() === tempstat.Now.getFullYear()) && (date.getMonth() === tempstat.Now.getMonth()) && (date.getDate() === tempstat.Now.getDate())){
-                                const Valeur = JSON.parse(tempstat.Valeur)
-                                if (Valeur.Type == "FirstGet"){
-                                    value +=1
-                                }
-                            } else if (tempstat.Now.getTime()>date.getTime()){
-                                indexstat = reponse.length
-                            }
-                        }
                         let NewElement = new Object()
                         NewElement.Date = new Date(date.getTime())
-                        NewElement.Value = value
-                        ReponseConnections.FirstConnections.month.push(NewElement)
+                        NewElement.FirstGet = 0
+                        NewElement.App = 0
+                        NewElement.Admin = 0
+                        NewElement.Error = 0
+                        ReponseConnections.push(NewElement)
                         date.setDate( date.getDate() +1 )
                     }
+                    let startindexreponse = 0
+                    reponse.forEach(element => {
+                        for (let index = startindexreponse; index<ReponseConnections.length; index++){
+                            let ReponseDate = ReponseConnections[index].Date
+                            if ((ReponseDate.getFullYear() === element.Now.getFullYear()) && (ReponseDate.getMonth() === element.Now.getMonth()) && (ReponseDate.getDate() === element.Now.getDate())){
+                                startindexreponse = index
+                                const Valeur = JSON.parse(element.Valeur)
+                                if (Valeur.Type == "FirstGet"){
+                                    ReponseConnections[index].FirstGet +=1
+                                } else if (Valeur.Type == "UserConnected"){
+                                    if (Valeur.App == "App"){
+                                        ReponseConnections[index].App +=1
+                                    } else if (Valeur.App == "Admin"){
+                                        ReponseConnections[index].Admin +=1
+                                    }
+                                } else if (Valeur.Type == "UserNotConnected"){
+                                    ReponseConnections[index].Error +=1
+                                }
+                            } else if (element.Now.getTime()<ReponseDate.getTime()){
+                                index = reponse.length
+                            }
+                        }
+                    });
                     res.json({Error: false, ErrorMsg: "Stat in DB", Data: ReponseConnections})
                 } else {
                     res.json({Error: true, ErrorMsg: "Stat type not correct", Data: null})

@@ -1208,6 +1208,7 @@ class corex {
         let os = require('os')
         MyApp.CSS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Autocomplete.css", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Autocomplete.js", 'utf8') + os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Chart.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Backup.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Log.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_User.js", 'utf8') + os.EOL
