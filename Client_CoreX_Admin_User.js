@@ -8,7 +8,7 @@ class CoreXAdminUserApp{
         // Clear view
         this.ClearView()
         // Titre
-        this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of Users", "CoreXAdminUserTitre", "", "margin-top:4%"))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of Users", "CoreXAdminUserTitre", "", ""))
         // Liste of User
         let ListOfUser = CoreXBuild.Div("ListOfUser", "CoreXAdminUserFlexRowCenterspacearound", "")
         this._DivApp.appendChild(ListOfUser)

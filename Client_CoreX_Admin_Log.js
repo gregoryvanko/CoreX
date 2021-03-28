@@ -29,7 +29,7 @@ class CoreXAdminLogApp{
         GlobalAddActionInList("Refresh", this.Start.bind(this))
         GlobalAddActionInList("Clean Log", this.CleanLog.bind(this))
         // Titre
-        this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of logs", "CoreXAdminLogTitre", "", "margin-top:4%"))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Liste of logs", "CoreXAdminLogTitre", "", ""))
         // Liste of log
         let ListOflog = CoreXBuild.Div("ListOfLog", "CoreXAdminLogFlexColumnCenterSpaceAround", "")
         this._DivApp.appendChild(ListOflog)

@@ -15,7 +15,7 @@ class CoreXAdminBackupApp{
         GlobalClearActionList()
         GlobalAddActionInList("Refresh", this.Start.bind(this))
         // Titre
-        this._DivApp.appendChild(CoreXBuild.DivTexte("Backup of DB", "CoreXAdminBackupTitre", "", "margin-top:4%"))
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Backup of DB", "CoreXAdminBackupTitre", "", ""))
         // on ajoute un espace vide
         this._DivApp.appendChild(CoreXBuild.Div("","","height:2vh;"))
         // Content des controles du backup

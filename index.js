@@ -237,7 +237,7 @@ class corex {
                         break
                     case "Stat":
                         //Api Admin
-                        me.ApiAdminCheckUser(me._ApiAdmin.Stat.bind(me), DecryptTokenReponse, req, res, User, UserId)
+                        me.ApiAdminCheckUser(me._ApiAdmin.Stat.bind(me._ApiAdmin), DecryptTokenReponse, req, res, User, UserId)
                         break
                     default:
                         let FctNotFound = true

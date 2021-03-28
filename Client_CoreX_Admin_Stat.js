@@ -13,28 +13,41 @@ class CoreXAdminStatApp{
         // Add CSS
         this._DivApp.innerHTML = this.GetCss()
         // Titre
-        this._DivApp.appendChild(CoreXBuild.DivTexte("Statistics", "CoreXAdminStatTitre", "", "margin-top:4%")) 
+        this._DivApp.appendChild(CoreXBuild.DivTexte("Statistics", "CoreXAdminStatTitre", "", "")) 
         // Liste Stat
         let Content = CoreXBuild.Div("Content", "CoreXAdminStatFlexColumnCenterSpaceAround", "")
         this._DivApp.appendChild(Content)
-        // Button Stat connection
-        Content.appendChild(CoreXBuild.Button("Connections (days)", this.StatConnectionStart.bind(this), "CoreXAdminStatButtonLarge"))
-
+        // Button Stat connection Day
+        Content.appendChild(CoreXBuild.Button("Connections (Days)", this.StatConnectionStart.bind(this, "ConnectionsDay"), "CoreXAdminStatButtonLarge"))
+        // Button Stat connection Month
+        Content.appendChild(CoreXBuild.Button("Connections (Months)", this.StatConnectionStart.bind(this, "ConnectionsMonth"), "CoreXAdminStatButtonLarge"))
+        // Button Stat User Day
+        Content.appendChild(CoreXBuild.Button("User (Days)", this.StatUserStart.bind(this, "UserDay"), "CoreXAdminStatButtonLarge"))
+        // Button Stat User Month
+        Content.appendChild(CoreXBuild.Button("User (Months)", this.StatUserStart.bind(this, "UserMonth"), "CoreXAdminStatButtonLarge"))
     }
 
-    StatConnectionStart(){
+    StatConnectionStart(type){
         let Content = document.getElementById("Content")
         Content.innerHTML=""
         Content.appendChild(CoreXBuild.DivTexte("Get Data...", "", "CoreXAdminStatText",""))
         // Get All connection data
-        GlobalCallApiPromise("Stat", "Connections").then((reponse)=>{
-            this.StatConnectionLoadGraph(reponse)
+        let DataStat = new Object()
+        DataStat.Type = type
+        DataStat.Data = null
+        GlobalCallApiPromise("Stat", DataStat).then((reponse)=>{
+            this.StatConnectionLoadGraph(reponse, type)
         },(erreur)=>{
             Content.innerHTML=""
             Content.appendChild(CoreXBuild.DivTexte(erreur,"","CoreXAdminStatText","color:red;"))
         })
     }
-    StatConnectionLoadGraph(Data){
+
+    StatConnectionLoadGraph(Data, Type){
+        let titre = ""
+        if (Type == "ConnectionsDay"){titre = "Connections per day"}
+        if (Type == "ConnectionsMonth"){titre = "Connections per month"}
+
         let Content = document.getElementById("Content")
         Content.innerHTML=""
         if (Data == null){
@@ -87,6 +100,14 @@ class CoreXAdminStatApp{
                     }]
                 },
                 options: {
+                    title: {
+                        display: true,
+                        text: titre
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    },
                     scales: {
                         xAxes: [{
                             stacked: true
@@ -101,6 +122,142 @@ class CoreXAdminStatApp{
                 }
             });
         }
+        // Button back
+        Content.appendChild(CoreXBuild.Button("Back", this.Start.bind(this), "CoreXAdminStatButtonLarge"))
+    }
+
+    StatUserStart(Type){
+        let Content = document.getElementById("Content")
+        Content.innerHTML=""
+        Content.appendChild(CoreXBuild.DivTexte("Get Users...", "", "CoreXAdminStatText",""))
+        // Get All User
+        GlobalCallApiPromise("GetAllUser", "").then((reponse)=>{
+            let ListOfUsers = []
+            if (reponse != null){ListOfUsers = reponse}
+            this.LoadStatUser(ListOfUsers, Type)
+        },(erreur)=>{
+            Content.innerHTML=""
+            Content.appendChild(CoreXBuild.DivTexte(erreur, "", "CoreXAdminStatText","color:red;"))
+        })
+    }
+
+    LoadStatUser(ListOfUsers, Type){
+        let Content = document.getElementById("Content")
+        Content.innerHTML=""
+        let BoxInput = CoreXBuild.Div("","CoreXAdminStatBox")
+        Content.appendChild(BoxInput)
+        // User
+        BoxInput.appendChild(CoreXBuild.InputWithLabel("CoreXAdminStatInputBox", "Select User", "CoreXAdminStatText CoreXAdminStatMarginTxt", "CoreXAdminStatInputUser","", "CoreXAdminStatInput", "text", "User"))
+        CoreXAdminStatInputUser.setAttribute("autocomplete", "off")
+        // AutoComplete
+        let me = this
+        autocomplete({
+            input: document.getElementById("CoreXAdminStatInputUser"),
+            minLength: 1,
+            emptyMsg: 'No suggestion',
+            fetch: function(text, update) {
+                let suggestions = []
+                text = text.toLowerCase();
+                var GroupFiltred = ListOfUsers.filter(n => n.User.toLowerCase().startsWith(text))
+                GroupFiltred.forEach(element => {
+                    var MyObject = new Object()
+                    MyObject.label = element.User
+                    suggestions.push(MyObject)
+                });
+                update(suggestions);
+            },
+            onSelect: function(item) {
+                document.getElementById("CoreXAdminStatInputUser").value = item.label;
+                me.StatUserGetData(item.label, Type)
+            }
+        });
+        Content.appendChild(CoreXBuild.Div("ContentGraph", "CoreXAdminStatFlexColumnCenterSpaceAround", "width: 100%;"))
+    }
+
+    StatUserGetData(User, Type){
+        // Focus out
+        document.getElementById("CoreXAdminStatInputUser").blur()
+        let Content = document.getElementById("ContentGraph")
+        Content.innerHTML=""
+        Content.appendChild(CoreXBuild.DivTexte("Get Data...", "", "CoreXAdminStatText",""))
+        // Get All connection data
+        let DataStat = new Object()
+        DataStat.Type = Type
+        DataStat.Data = User
+        GlobalCallApiPromise("Stat", DataStat).then((reponse)=>{
+            this.StatUserLoadGraph(reponse, Type)
+        },(erreur)=>{
+            Content.innerHTML=""
+            Content.appendChild(CoreXBuild.DivTexte(erreur,"","CoreXAdminStatText","color:red;"))
+        })
+    }
+
+    StatUserLoadGraph(Data, Type){
+        let titre = ""
+        if (Type == "UserDay"){titre = "Connections per day"}
+        if (Type == "UserMonth"){titre = "Connections per month"}
+
+        let Content = document.getElementById("ContentGraph")
+        Content.innerHTML=""
+        if (Data == null){
+            Content.appendChild(CoreXBuild.DivTexte("No stat data...", "", "CoreXAdminStatText",""))
+        } else {
+            let canvas = document.createElement("canvas")
+            canvas.setAttribute("id", "myChart")
+            Content.appendChild(canvas)
+            // Preparer les data
+            let GraphLabel = []
+            let GraphDataApp = []
+            let GraphDataAdmin = []
+            Data.forEach(element => {
+                let date = element.Jour + "/" + element.Mois 
+                GraphLabel.push(date)
+                GraphDataApp.push(element.App)
+                GraphDataAdmin.push(element.Admin)
+            });
+            // Dessiner le graph
+            let ctx = document.getElementById('myChart').getContext('2d');
+            let myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: GraphLabel,
+                    datasets: [{
+                        label: 'App',
+                        type: "bar",
+                        backgroundColor: "rgba(75, 192, 192, 1)",
+                        data: GraphDataApp,
+                    },{
+                        label: 'Admin',
+                        type: "bar",
+                        backgroundColor: "rgba(255, 206, 86, 1)",
+                        data: GraphDataAdmin,
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: titre
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    },
+                    scales: {
+                        xAxes: [{
+                            stacked: true
+                        }],
+                        yAxes: [{
+                            stacked: true,
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+        // Button back
+        Content.appendChild(CoreXBuild.Button("Back", this.Start.bind(this), "CoreXAdminStatButtonLarge"))
     }
 
     GetTitre(){
@@ -114,7 +271,7 @@ class CoreXAdminStatApp{
         return /*html*/`
         <style>
             #CoreXAdminStatTitre{
-                margin: 1% 1% 4% 1%;
+                margin: 1% 1% 1% 1%;
                 font-size: var(--CoreX-Titrefont-size);
                 color: var(--CoreX-color);
             }
@@ -152,7 +309,7 @@ class CoreXAdminStatApp{
                 padding: 0.5vh;
             }
             .CoreXAdminStatButtonLarge{
-                margin: 4vh 0vh 8vh 0vh;
+                margin: 1vh 0vh 1vh 0vh;
                 padding: 1vh 2vh 1vh 2vh;
                 cursor: pointer;
                 border: 1px solid var(--CoreX-color);
@@ -172,6 +329,34 @@ class CoreXAdminStatApp{
                 }
             }
 
+            .CoreXAdminStatInputBox{
+                margin-bottom: 2vh;
+                width: 90%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .CoreXAdminStatMarginTxt{
+                margin-bottom: 1vh;
+            }
+            .CoreXAdminStatInput {
+                border: solid 1px #dcdcdc;
+                width: 100%;
+                font-size: var(--CoreX-font-size);
+                padding: 1vh;
+            }
+            .CoreXAdminStatInput:focus,
+            .CoreXAdminStatInput.focus {
+                border-color: var(--CoreX-color);
+            }
+            @media (hover: hover) {
+                .CoreXAdminStatInput:hover{
+                    border-color: var(--CoreX-color);
+                }
+            }
+            .CoreXAdminStatBox{
+                width: 45%;
+            }
+
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
             screen and (max-width: 700px)
@@ -179,12 +364,15 @@ class CoreXAdminStatApp{
                 #CoreXAdminStatTitre{font-size: var(--CoreX-TitreIphone-font-size);}
                 .CoreXAdminStatText{font-size: var(--CoreX-Iphone-font-size);}
                 .CoreXAdminStatButtonLarge{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px; width: 40%;}
+                .CoreXAdminStatInput{font-size: var(--CoreX-Iphone-font-size);}
+                .CoreXAdminStatBox{width: 80%;}
             }
             @media screen and (min-width: 1200px)
             {
                 #CoreXAdminStatTitre{font-size: var(--CoreX-TitreMax-font-size);}
                 .CoreXAdminStatText{font-size: var(--CoreX-Max-font-size);}
                 .CoreXAdminStatButtonLarge{font-size: var(--CoreX-Max-font-size); border-radius: 40px;}
+                .CoreXAdminStatInput{font-size: var(--CoreX-Max-font-size);}
             }
         </style>`
     }

@@ -515,7 +515,22 @@ class ApiAdmin{
     }
 
     Stat(Data, res, User, UserId){
-        this.LogAppliInfo("Call ApiAdmin get Stat, type: " + JSON.stringify(Data), User, UserId)
+        this.LogAppliInfo("Call ApiAdmin get Stat, Data: " + JSON.stringify(Data), User, UserId)
+
+        if (Data.Type == "ConnectionsDay"){
+            this.StatConnectionsDay(res, User, UserId)
+        } else if(Data.Type == "ConnectionsMonth"){
+            this.StatConnectionsMonth(res, User, UserId)
+        } else if (Data.Type == "UserDay"){
+            this.StatUserDay(Data.Data, res, User, UserId)
+        } else if (Data.Type == "UserMonth"){
+            this.StatUserMonth(Data.Data, res, User, UserId)
+        } else {
+            res.json({Error: true, ErrorMsg: "Stat type not correct", Data: null})
+        }
+    }
+    
+    StatConnectionsDay(res, User, UserId){
         const Query = {[this._MongoVar.LogAppliType]: "Stat"}
         const Projection = {}
         const Sort = {[this._MongoVar.LogAppliNow]: 1}
@@ -523,58 +538,208 @@ class ApiAdmin{
             if(reponse.length == 0){
                 res.json({Error: false, ErrorMsg: "No stat in DB", Data: null})
             } else {
-                if (Data == "Connections"){
-                    let ReponseConnections = []
-                    let date = new Date()
-                    date.setHours(1,0,0,0)
-                    date.setDate( date.getDate() - 29 )
-                    //date.setFullYear( date.getFullYear() - 1 )
+                let ReponseConnections = []
+                let date = new Date()
+                date.setHours(1,0,0,0)
+                date.setDate( date.getDate() - 29 )
 
-                    for (let index = 0; index <= 29; index++) {
-                        let NewElement = new Object()
-                        NewElement.Date = new Date(date.getTime())
-                        NewElement.Jour = date.getDate()
-                        NewElement.Mois = date.getMonth() + 1
-                        NewElement.FirstGet = 0
-                        NewElement.App = 0
-                        NewElement.Admin = 0
-                        NewElement.Error = 0
-                        ReponseConnections.push(NewElement)
-                        date.setDate( date.getDate() +1 )
-                    }
-                    let startindexreponse = 0
-                    reponse.forEach(element => {
-                        for (let index = startindexreponse; index<ReponseConnections.length; index++){
-                            let ReponseDate = ReponseConnections[index].Date
-                            if ((ReponseDate.getFullYear() === element.Now.getFullYear()) && (ReponseDate.getMonth() === element.Now.getMonth()) && (ReponseDate.getDate() === element.Now.getDate())){
-                                startindexreponse = index
-                                const Valeur = JSON.parse(element.Valeur)
-                                if (Valeur.Type == "FirstGet"){
-                                    ReponseConnections[index].FirstGet +=1
-                                } else if (Valeur.Type == "UserConnected"){
-                                    if (Valeur.App == "App"){
-                                        ReponseConnections[index].App +=1
-                                    } else if (Valeur.App == "Admin"){
-                                        ReponseConnections[index].Admin +=1
-                                    }
-                                } else if (Valeur.Type == "UserNotConnected"){
-                                    ReponseConnections[index].Error +=1
-                                }
-                            } else if (element.Now.getTime()<ReponseDate.getTime()){
-                                index = reponse.length
-                            }
-                        }
-                    });
-                    res.json({Error: false, ErrorMsg: "Stat in DB", Data: ReponseConnections})
-                } else {
-                    res.json({Error: true, ErrorMsg: "Stat type not correct", Data: null})
+                for (let index = 0; index <= 29; index++) {
+                    let NewElement = new Object()
+                    NewElement.Date = new Date(date.getTime())
+                    NewElement.Jour = date.getDate()
+                    NewElement.Mois = date.getMonth() + 1
+                    NewElement.FirstGet = 0
+                    NewElement.App = 0
+                    NewElement.Admin = 0
+                    NewElement.Error = 0
+                    ReponseConnections.push(NewElement)
+                    date.setDate( date.getDate() +1 )
                 }
+                let startindexreponse = 0
+                reponse.forEach(element => {
+                    for (let index = startindexreponse; index<ReponseConnections.length; index++){
+                        let ReponseDate = ReponseConnections[index].Date
+                        if ((ReponseDate.getFullYear() === element.Now.getFullYear()) && (ReponseDate.getMonth() === element.Now.getMonth()) && (ReponseDate.getDate() === element.Now.getDate())){
+                            startindexreponse = index
+                            const Valeur = JSON.parse(element.Valeur)
+                            if (Valeur.Type == "FirstGet"){
+                                ReponseConnections[index].FirstGet +=1
+                            } else if (Valeur.Type == "UserConnected"){
+                                if (Valeur.App == "App"){
+                                    ReponseConnections[index].App +=1
+                                } else if (Valeur.App == "Admin"){
+                                    ReponseConnections[index].Admin +=1
+                                }
+                            } else if (Valeur.Type == "UserNotConnected"){
+                                ReponseConnections[index].Error +=1
+                            }
+                        } else if (element.Now.getTime()<ReponseDate.getTime()){
+                            index = reponse.length
+                        }
+                    }
+                });
+                res.json({Error: false, ErrorMsg: "Stat in DB", Data: ReponseConnections})
             }
         },(erreur)=>{
             this.LogAppliError("ApiAdmin Stat DB error : " + erreur, User, UserId)
             res.json({Error: true, ErrorMsg: "DB Error", Data: null})
         })
     }
+
+    StatConnectionsMonth(res, User, UserId){
+        const Query = {[this._MongoVar.LogAppliType]: "Stat"}
+        const Projection = {}
+        const Sort = {[this._MongoVar.LogAppliNow]: 1}
+        this._Mongo.FindSortPromise(Query,Projection, Sort, this._MongoVar.LogAppliCollection).then((reponse)=>{
+            if(reponse.length == 0){
+                res.json({Error: false, ErrorMsg: "No stat in DB", Data: null})
+            } else {
+                let ReponseConnections = []
+                let date = new Date()
+                date.setHours(1,0,0,0)
+                date.setDate(1)
+                date.setMonth(date.getMonth() - 11)
+
+                for (let index = 0; index <= 11; index++) {
+                    let NewElement = new Object()
+                    NewElement.Date = new Date(date.getTime())
+                    NewElement.Jour = date.getMonth() + 1
+                    NewElement.Mois = date.getFullYear()
+                    NewElement.FirstGet = 0
+                    NewElement.App = 0
+                    NewElement.Admin = 0
+                    NewElement.Error = 0
+                    ReponseConnections.push(NewElement)
+                    date.setMonth( date.getMonth() +1 )
+                }
+                let startindexreponse = 0
+                reponse.forEach(element => {
+                    for (let index = startindexreponse; index<ReponseConnections.length; index++){
+                        let ReponseDate = ReponseConnections[index].Date
+                        if ((ReponseDate.getFullYear() === element.Now.getFullYear()) && (ReponseDate.getMonth() === element.Now.getMonth())){
+                            startindexreponse = index
+                            const Valeur = JSON.parse(element.Valeur)
+                            if (Valeur.Type == "FirstGet"){
+                                ReponseConnections[index].FirstGet +=1
+                            } else if (Valeur.Type == "UserConnected"){
+                                if (Valeur.App == "App"){
+                                    ReponseConnections[index].App +=1
+                                } else if (Valeur.App == "Admin"){
+                                    ReponseConnections[index].Admin +=1
+                                }
+                            } else if (Valeur.Type == "UserNotConnected"){
+                                ReponseConnections[index].Error +=1
+                            }
+                        } else if (element.Now.getTime()<ReponseDate.getTime()){
+                            index = reponse.length
+                        }
+                    }
+                });
+                res.json({Error: false, ErrorMsg: "Stat in DB", Data: ReponseConnections})
+            }
+        },(erreur)=>{
+            this.LogAppliError("ApiAdmin Stat DB error : " + erreur, User, UserId)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+        })
+    }
+
+    StatUserDay(Data, res, User, UserId){
+        const Query = {$and:[{[this._MongoVar.LogAppliType]: "Stat"}, {[this._MongoVar.LogAppliUser]: Data}]}
+        const Projection = {}
+        const Sort = {[this._MongoVar.LogAppliNow]: 1}
+        this._Mongo.FindSortPromise(Query,Projection, Sort, this._MongoVar.LogAppliCollection).then((reponse)=>{
+            if(reponse.length == 0){
+                res.json({Error: false, ErrorMsg: "No stat in DB", Data: null})
+            } else {
+                let ReponseConnections = []
+                let date = new Date()
+                date.setHours(1,0,0,0)
+                date.setDate( date.getDate() - 29 )
+
+                for (let index = 0; index <= 29; index++) {
+                    let NewElement = new Object()
+                    NewElement.Date = new Date(date.getTime())
+                    NewElement.Jour = date.getDate()
+                    NewElement.Mois = date.getMonth() + 1
+                    NewElement.App = 0
+                    NewElement.Admin = 0
+                    ReponseConnections.push(NewElement)
+                    date.setDate( date.getDate() +1 )
+                }
+                let startindexreponse = 0
+                reponse.forEach(element => {
+                    for (let index = startindexreponse; index<ReponseConnections.length; index++){
+                        let ReponseDate = ReponseConnections[index].Date
+                        if ((ReponseDate.getFullYear() === element.Now.getFullYear()) && (ReponseDate.getMonth() === element.Now.getMonth()) && (ReponseDate.getDate() === element.Now.getDate())){
+                            startindexreponse = index
+                            const Valeur = JSON.parse(element.Valeur)
+                            if (Valeur.App == "App"){
+                                ReponseConnections[index].App +=1
+                            } else if (Valeur.App == "Admin"){
+                                ReponseConnections[index].Admin +=1
+                            }
+                        } else if (element.Now.getTime()<ReponseDate.getTime()){
+                            index = reponse.length
+                        }
+                    }
+                });
+                res.json({Error: false, ErrorMsg: "Stat in DB", Data: ReponseConnections})
+            }
+        },(erreur)=>{
+            this.LogAppliError("ApiAdmin Stat DB error : " + erreur, User, UserId)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+        })
+    }
+
+    StatUserMonth(Data, res, User, UserId){
+        const Query = {$and:[{[this._MongoVar.LogAppliType]: "Stat"}, {[this._MongoVar.LogAppliUser]: Data}]}
+        const Projection = {}
+        const Sort = {[this._MongoVar.LogAppliNow]: 1}
+        this._Mongo.FindSortPromise(Query,Projection, Sort, this._MongoVar.LogAppliCollection).then((reponse)=>{
+            if(reponse.length == 0){
+                res.json({Error: false, ErrorMsg: "No stat in DB", Data: null})
+            } else {
+                let ReponseConnections = []
+                let date = new Date()
+                date.setHours(1,0,0,0)
+                date.setDate(1)
+                date.setMonth(date.getMonth() - 11)
+
+                for (let index = 0; index <= 11; index++) {
+                    let NewElement = new Object()
+                    NewElement.Date = new Date(date.getTime())
+                    NewElement.Jour = date.getMonth() + 1
+                    NewElement.Mois = date.getFullYear()
+                    NewElement.App = 0
+                    NewElement.Admin = 0
+                    ReponseConnections.push(NewElement)
+                    date.setMonth( date.getMonth() +1 )
+                }
+                let startindexreponse = 0
+                reponse.forEach(element => {
+                    for (let index = startindexreponse; index<ReponseConnections.length; index++){
+                        let ReponseDate = ReponseConnections[index].Date
+                        if ((ReponseDate.getFullYear() === element.Now.getFullYear()) && (ReponseDate.getMonth() === element.Now.getMonth())){
+                            startindexreponse = index
+                            const Valeur = JSON.parse(element.Valeur)
+                            if (Valeur.App == "App"){
+                                ReponseConnections[index].App +=1
+                            } else if (Valeur.App == "Admin"){
+                                ReponseConnections[index].Admin +=1
+                            }
+                        } else if (element.Now.getTime()<ReponseDate.getTime()){
+                            index = reponse.length
+                        }
+                    }
+                });
+                res.json({Error: false, ErrorMsg: "Stat in DB", Data: ReponseConnections})
+            }
+        },(erreur)=>{
+            this.LogAppliError("ApiAdmin Stat DB error : " + erreur, User, UserId)
+            res.json({Error: true, ErrorMsg: "DB Error", Data: null})
+        })
+    }
+
 }
 
 module.exports.ApiAdmin = ApiAdmin
