@@ -18,7 +18,7 @@ class CoreXAdminStatApp{
         let Content = CoreXBuild.Div("Content", "CoreXAdminStatFlexColumnCenterSpaceAround", "")
         this._DivApp.appendChild(Content)
         // Button Stat connection
-        Content.appendChild(CoreXBuild.Button("Connections", this.StatConnectionStart.bind(this), "CoreXAdminStatButtonLarge"))
+        Content.appendChild(CoreXBuild.Button("Connections (days)", this.StatConnectionStart.bind(this), "CoreXAdminStatButtonLarge"))
 
     }
 
@@ -42,39 +42,57 @@ class CoreXAdminStatApp{
         } else {
             let canvas = document.createElement("canvas")
             canvas.setAttribute("id", "myChart")
-            canvas.setAttribute("width", "400")
-            canvas.setAttribute("height", "400")
             Content.appendChild(canvas)
-            let ctx = canvas.getContext('2d');
+            // Preparer les data
+            let GraphLabel = []
+            let GraphDataFirstConnection = []
+            let GraphDataApp = []
+            let GraphDataAdmin = []
+            let GraphDataError = []
+            Data.forEach(element => {
+                let date = element.Jour + "/" + element.Mois 
+                GraphLabel.push(date)
+                GraphDataFirstConnection.push(element.FirstGet)
+                GraphDataApp.push(element.App)
+                GraphDataAdmin.push(element.Admin)
+                GraphDataError.push(element.Error)
+            });
+            // Dessiner le graph
+            let ctx = document.getElementById('myChart').getContext('2d');
             let myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                    labels: GraphLabel,
                     datasets: [{
-                        label: '# of Votes',
-                        data: [12, 19, 3, 5, 2, 3],
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
+                        label: 'Connection',
+                        type: "line",
+                        borderColor: "rgba(54, 162, 235, 1)",
+                        fill: false,
+                        data: GraphDataFirstConnection,
+                    },{
+                        label: 'App',
+                        type: "bar",
+                        backgroundColor: "rgba(75, 192, 192, 1)",
+                        data: GraphDataApp,
+                    },{
+                        label: 'Admin',
+                        type: "bar",
+                        backgroundColor: "rgba(255, 206, 86, 1)",
+                        data: GraphDataAdmin,
+                    },{
+                        label: 'Error',
+                        type: "bar",
+                        backgroundColor: "rgba(255, 99, 132, 1)",
+                        data: GraphDataError,
                     }]
                 },
                 options: {
                     scales: {
+                        xAxes: [{
+                            stacked: true
+                        }],
                         yAxes: [{
+                            stacked: true,
                             ticks: {
                                 beginAtZero: true
                             }

@@ -533,6 +533,8 @@ class ApiAdmin{
                     for (let index = 0; index <= 29; index++) {
                         let NewElement = new Object()
                         NewElement.Date = new Date(date.getTime())
+                        NewElement.Jour = date.getDate()
+                        NewElement.Mois = date.getMonth() + 1
                         NewElement.FirstGet = 0
                         NewElement.App = 0
                         NewElement.Admin = 0
