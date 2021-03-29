@@ -1020,6 +1020,10 @@ class corex {
             function GlobalAddActionInList(Titre, Action) {
                 MyApp.AddActionInList(Titre, Action)
             }
+            // Fonction globale to Execute Before Quit a module
+            function GlobalExecuteBeforeQuit (Fct){
+                MyApp.ExecuteBeforeQuit = Fct
+            }
             // Fonction globale GetSocketIo
             function GlobalGetSocketIo(){
                 return MyApp.SocketIo

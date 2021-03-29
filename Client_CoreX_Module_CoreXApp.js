@@ -4,7 +4,7 @@ class CoreXApp{
         this._AppIsSecured = AppIsSecured
         this._Usesocketio = Usesocketio
         this._ContentAppId = "CoreXAppContent"
-        this._MyCoreXActionButton = new CoreXActionButton(this._AppIsSecured)
+        this._MyCoreXActionButton = new CoreXActionButton(this._AppIsSecured, this.ClickOnHome.bind(this))
         this._MyCoreXActionButton.Start()
         this._ListApplications = new Array()
         document.body.appendChild(CoreXBuild.Div(this._ContentAppId,"CoreXAppContent"))
@@ -14,12 +14,15 @@ class CoreXApp{
             this._CoreXSocketIo = new CoreXSocketIo()
             this._CoreXSocketIo.Init()
         }
+        // Fonction to execute befor quit a module
+        this._ExecuteBeforeQuit = null
     }
 
     /** Get Set */
     get ContentAppId(){return this._ContentAppId}
     set ContentAppId(NewContentAppId){this._ContentAppId = NewContentAppId}
     get SocketIo(){return this._CoreXSocketIo.SocketIo}
+    set ExecuteBeforeQuit(fct){this._ExecuteBeforeQuit = fct}
 
     /** Vider la vue actuelle */
     ClearView(){
@@ -63,6 +66,8 @@ class CoreXApp{
                 })
             }
         }
+        // Clear function execute before quit
+        this._ExecuteBeforeQuit = null
     }
     /** Build AppCard */
     BuildAppCard(Titre, Src, Start){
@@ -161,16 +166,13 @@ class CoreXApp{
     }
 
     /** Clear ActionList */
-    ClearActionList(ExecuteBeforeQuit = null){
+    ClearActionList(){
         this._MyCoreXActionButton.ClearActionList()
-        if(this._ListApplications.length >=2){
-            this.AddActionInList("Home", this.ClickOnHome.bind(this, ExecuteBeforeQuit))
-        }
     }
 
-    ClickOnHome(ExecuteBeforeQuit){
-        if (ExecuteBeforeQuit != null){
-            ExecuteBeforeQuit()
+    ClickOnHome(){
+        if (this._ExecuteBeforeQuit != null){
+            this._ExecuteBeforeQuit()
         }
         this.Start()
     }

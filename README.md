@@ -280,7 +280,8 @@ GlobalGetToken()
 
 /** Vider la liste des action de l'application */
 GlobalClearActionList()
-/** Vider la liste des action de l'application  et ajoute une fonction a executer (ExecuteBeforeQuit) avant de faire un Go to Home (Go ti Home uniquement disponible lorsqu'il y a plus d'un module)*/
+
+/** Executer une fonction lorsque l'on quitte un module.  ExecuteBeforeQuit est le nom de la fonction a executer*/
 GlobalClearActionList(ExecuteBeforeQuit = null)
 
 /** Ajouter une action a la liste des actions de l'application */

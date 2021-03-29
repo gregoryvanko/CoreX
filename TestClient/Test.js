@@ -8,7 +8,9 @@ class TestCoreXApp{
     
     /** Start de l'application */
     Start(){
-        GlobalClearActionList(this.ExecuteBeforeQuit.bind(this))
+        //GlobalClearActionList(this.ExecuteBeforeQuit.bind(this))
+        //*** function before quit
+        GlobalExecuteBeforeQuit(this.ExecuteBeforeQuit.bind(this))
 
         //*** Test CoreXBuild
         this._DivApp.appendChild(CoreXBuild.DivTexte("Titre Page", "Titre", "", "margin-top:4%"))
@@ -24,12 +26,9 @@ class TestCoreXApp{
         //*** Test CoreXBuild InputWithLabel
         Conteneur.appendChild(CoreXBuild.InputWithLabel("InputBox", "Label Test", "Text", "MyInputTest","", "Input", "text", "placehoder",this.InputOnBlur.bind(this), true))
         
-        //*** Test Video
-        //Conteneur.appendChild(CoreXBuild.Video("/video?name=testsmall.mov","","Video",""))
-        //Conteneur.appendChild(CoreXBuild.Video("/video/testsmall.mov?token=" + GlobalGetToken(),"","Video",""))
         
         //*** Test ActionList
-        //GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
+        GlobalAddActionInList("Test 1", this.ClickTestButton.bind(this))
 
         //*** Test affichage action button
         //GlobalDisplayAction("On")
