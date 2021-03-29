@@ -281,8 +281,8 @@ GlobalGetToken()
 /** Vider la liste des action de l'application */
 GlobalClearActionList()
 
-/** Executer une fonction lorsque l'on quitte un module.  ExecuteBeforeQuit est le nom de la fonction a executer*/
-GlobalClearActionList(ExecuteBeforeQuit = null)
+/** Executer une fonction lorsque l'on quitte un module. ExecuteBeforeQuit est le nom de la fonction a executer */
+GlobalExecuteBeforeQuit(ExecuteBeforeQuit = null)
 
 /** Ajouter une action a la liste des actions de l'application */
 GlobalAddActionInList(Titre, Action) 
@@ -374,6 +374,8 @@ class PlayProgram{
     }
     /** Start de l'application */
     Start(){
+        // Fonction to execute before quit module
+        GlobalExecuteBeforeQuit(this.ExecuteBeforeQuit.bind(this))
         // Clear view
         this.ClearView()
         // Titre
@@ -390,7 +392,7 @@ class PlayProgram{
     /** Clear view */
     ClearView(){
         // Global action
-        GlobalClearActionList(this.ExecuteBeforeQuit.bind(this))
+        GlobalClearActionList()
         GlobalAddActionInList("Refresh", this.Start.bind(this))
         // Clear view
         this._DivApp.innerHTML=""
