@@ -180,20 +180,23 @@ class ApiAdmin{
             Query = {$and:[{[this._MongoVar.LogAppliType]:{$regex:".*" + LogfInfoType + ".*"}},{[this._MongoVar.LogAppliUser]:{$regex:".*" + LogUser + ".*"}},{[this._MongoVar.LogAppliValeur]:{$regex:".*" + LogMessage + ".*"}}]}
         } else {
             if(Data.LogDate != ""){
-                let jour = Data.LogDate.substring(0, 2)
-                let mois = Data.LogDate.substring(3,5)
-                let annee = Data.LogDate.substring(6)
+                let Ijour = parseInt(Data.LogDate.substring(0, 2))
+                let Imois = parseInt(Data.LogDate.substring(3,5))-1
+                let Iannee = parseInt(Data.LogDate.substring(6))
+                //let jour = Data.LogDate.substring(0, 2)
+                //let mois = Data.LogDate.substring(3,5)
+                //let annee = Data.LogDate.substring(6)
                 let date = ""
                 if (Data.LogHeure == ""){
-                    date = { $gte:new Date(annee+'-' + mois + '-' + jour +'T00:00:00.000Z'), $lt:new Date(annee+'-' + mois + '-' + jour +'T23:59:59.999Z') }
+                    let isoDate1 = new Date(Iannee, Imois, Ijour, 0, 0, 0, 0).toISOString()
+                    let isoDate2 = new Date(Iannee, Imois, Ijour, 23, 59, 59, 999).toISOString()
+                    date = { $gte:new Date(isoDate1), $lt:new Date(isoDate2) }
+                    //date = { $gte:new Date(annee+'-' + mois + '-' + jour +'T00:00:00.000Z'), $lt:new Date(annee+'-' + mois + '-' + jour +'T23:59:59.999Z') }
                 } else {
-                    let Ijour = parseInt(Data.LogDate.substring(0, 2))
-                    let Imois = parseInt(Data.LogDate.substring(3,5))-1
-                    let Iannee = parseInt(Data.LogDate.substring(6))
                     let Iheure = parseInt(Data.LogHeure.substring(0, 2))
                     let Iminute = parseInt(Data.LogHeure.substring(3))
-                    var isoDate1 = new Date(Iannee, Imois, Ijour, Iheure, Iminute, 0, 0).toISOString()
-                    var isoDate2 = new Date(Iannee, Imois, Ijour, Iheure, Iminute, 59, 999).toISOString()
+                    let isoDate1 = new Date(Iannee, Imois, Ijour, Iheure, Iminute, 0, 0).toISOString()
+                    let isoDate2 = new Date(Iannee, Imois, Ijour, Iheure, Iminute, 59, 999).toISOString()
                     date = { $gte:new Date(isoDate1), $lt:new Date(isoDate2) }
                     //date = { $gte:new Date(annee+'-' + mois + '-' + jour +'T' + heure +':' + minute +':00.000Z'), $lt:new Date(annee+'-' + mois + '-' + jour +'T' + heure +':' + minute +':59.999Z') }
                 }

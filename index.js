@@ -1038,8 +1038,8 @@ class corex {
                 return MyApp.ContentAppId
             }
             // Fonction globale Add App in CoreXApp
-            function GlobalCoreXAddApp(AppTitre, AppSrc, AppStart) {
-                MyApp.AddApp(AppTitre, AppSrc, AppStart)
+            function GlobalCoreXAddApp(AppTitre, AppSrc, AppStart, StartWithThisModule = false) {
+                MyApp.AddApp(AppTitre, AppSrc, AppStart, StartWithThisModule)
             }
             // Fonction globale Get User Data
             function GlobalGetUserDataPromise(){
@@ -1066,7 +1066,7 @@ class corex {
                 MyApp = this.LoadAppFilesFromClientFolder(MyApp)
                 break
         }
-        MyApp.JS += " MyApp.Start()"
+        MyApp.JS += " MyApp.Start(true)"
 
         return MyApp
     }

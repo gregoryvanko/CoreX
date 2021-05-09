@@ -16,6 +16,8 @@ class CoreXApp{
         }
         // Fonction to execute befor quit a module
         this._ExecuteBeforeQuit = null
+        // Start in one module
+        this._StartWithOneModule = null
     }
 
     /** Get Set */
@@ -31,7 +33,7 @@ class CoreXApp{
     }
 
     /** Load de la vue Start de l'application */
-    Start(){
+    Start(FirstAppStart = false){
         // Si on utilise les SocketIo, on efface tous les message listener
         if(this._Usesocketio){
             let SocketIo = GlobalGetSocketIo()
@@ -57,13 +59,18 @@ class CoreXApp{
         if (this._ListApplications.length == 0){
             DivFlexContainerCommand.appendChild(CoreXBuild.DivTexte("No Application defined","", "CoreXAppText", ""))
         } else {
-            // si il y a une seule application, on la demarre
-            if (this._ListApplications.length ==1){
-                this.ClickAppCard(this._ListApplications[0].Start)
+            // Si on doit commencer dans un module
+            if ((this._StartWithOneModule != null) && (FirstAppStart)){
+                this.ClickAppCard(this._StartWithOneModule)
             } else {
-                this._ListApplications.forEach(element => {
-                    DivFlexContainerCommand.appendChild(this.BuildAppCard(element.Titre, element.ImgSrc, element.Start))
-                })
+                // si il y a une seule application, on la demarre
+                if (this._ListApplications.length ==1){
+                    this.ClickAppCard(this._ListApplications[0].Start)
+                } else {
+                    this._ListApplications.forEach(element => {
+                        DivFlexContainerCommand.appendChild(this.BuildAppCard(element.Titre, element.ImgSrc, element.Start))
+                    })
+                }
             }
         }
         // Clear function execute before quit
@@ -93,12 +100,15 @@ class CoreXApp{
     }
 
     /** Add une application*/
-    AddApp(Titre, ImgSrc, Start){
+    AddApp(Titre, ImgSrc, Start, StartWithThisModule = false){
         let App = new Object()
         App.Titre = Titre
         App.ImgSrc = ImgSrc
         App.Start = Start
         this._ListApplications.push(App)
+        if (StartWithThisModule){
+            this._StartWithOneModule = Start
+        }
     }
 
     /** Set Display Action Button */

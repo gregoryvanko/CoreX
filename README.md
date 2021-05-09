@@ -290,8 +290,8 @@ GlobalAddActionInList(Titre, Action)
 /** Get de l'object SocketIo */
 GlobalGetSocketIo()
 
-/** Ajouter une application */
-GlobalCoreXAddApp(AppTitre, AppSrc, AppStart)
+/** Ajouter une application. StartWithThisModule = true/false */
+GlobalCoreXAddApp(AppTitre, AppSrc, AppStart, [StartWithThisModule])
 
 /** Get html id du content de l'application */
 GlobalCoreXGetAppContentId()
@@ -415,8 +415,8 @@ class PlayProgram{
 // Creation de l'application 1
 let PlayProgramApp = new PlayProgram()
 
-// Ajout de l'application 1
-GlobalCoreXAddApp(PlayProgramApp.GetTitre(), PlayProgramApp.GetImgSrc(),PlayProgramApp.Start.bind(PlayProgramApp))
+// Ajout de l'application 1 qui se lance au demarrate
+GlobalCoreXAddApp(PlayProgramApp.GetTitre(), PlayProgramApp.GetImgSrc(),PlayProgramApp.Start.bind(PlayProgramApp), true)
 ```
 
 ## Une application basée sur CoreX: la partie Admin
