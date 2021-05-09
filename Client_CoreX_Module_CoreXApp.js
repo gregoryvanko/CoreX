@@ -67,8 +67,6 @@ class CoreXApp{
                 }
             }
         }
-        // Clear function execute before quit
-        this._ExecuteBeforeQuit = null
     }
 
     /** Reset de l'application CoreX */
@@ -195,6 +193,7 @@ class CoreXApp{
         if (this._ExecuteBeforeQuit != null){
             this._ExecuteBeforeQuit()
         }
+        this._ExecuteBeforeQuit = null
         this.Start()
     }
 
