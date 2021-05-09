@@ -302,6 +302,9 @@ GlobalIsAdminUser()
 /** Start App */
 GlobalStart()
 
+/** Reset de l'application */
+GlobalReset()
+
 /** Envoie d'un message avec SocketIo */
 // ModuleName: est le nom (string) du module qui apelle le serveur via SocketIo
 // Action: est l'action a effectuer

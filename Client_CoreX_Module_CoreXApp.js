@@ -34,14 +34,8 @@ class CoreXApp{
 
     /** Load de la vue Start de l'application */
     Start(FirstAppStart = false){
-        // Si on utilise les SocketIo, on efface tous les message listener
-        if(this._Usesocketio){
-            let SocketIo = GlobalGetSocketIo()
-            SocketIo.off()
-            this._CoreXSocketIo.InitSocketIoMessage()
-        }
-        // Clear de la page start
-        this.ClearView()
+        // Reset de l'app
+        this.ResetCoreXApp()
         // Ajout du CSS
         document.getElementById(this._ContentAppId).innerHTML = this.GetCss()
         // Div content de la page start
@@ -76,6 +70,23 @@ class CoreXApp{
         // Clear function execute before quit
         this._ExecuteBeforeQuit = null
     }
+
+    /** Reset de l'application CoreX */
+    ResetCoreXApp(){
+        if (this._ExecuteBeforeQuit != null){
+            this._ExecuteBeforeQuit()
+        }
+        this._ExecuteBeforeQuit = null
+        // Si on utilise les SocketIo, on efface tous les message listener
+        if(this._Usesocketio){
+            let SocketIo = GlobalGetSocketIo()
+            SocketIo.off()
+            this._CoreXSocketIo.InitSocketIoMessage()
+        }
+        // Clear de la page start
+        this.ClearView()
+    }
+
     /** Build AppCard */
     BuildAppCard(Titre, Src, Start){
         if(!Titre){Titre = "No Name"}

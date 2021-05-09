@@ -1012,6 +1012,10 @@ class corex {
             function GlobalStart(){
                 MyApp.Start()
             }
+            // Fonction global reset de l'application
+            function GlobalReset(){
+                MyApp.ResetCoreXApp()
+            }
             // Fonction globale GlobalClearActionList
             function GlobalClearActionList(ExecuteBeforeQuit = null) {
                 MyApp.ClearActionList(ExecuteBeforeQuit)
