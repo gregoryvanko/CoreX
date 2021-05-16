@@ -1197,6 +1197,11 @@ class corex {
      * @param {object} MyApp Objet contenant le code js et css
      */
     LoadAppFilesFromClientFolder(MyApp){
+        let fs = require('fs')
+        let os = require('os')
+        MyApp.CSS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Autocomplete.css", 'utf8') + os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Autocomplete.js", 'utf8') + os.EOL
+        MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Chart.js", 'utf8') + os.EOL
         // Load du folder client
         MyApp = this.LoadAppFilesFromFolder(this._ClientAppFolder, MyApp)
         // Load du folder common
@@ -1212,7 +1217,6 @@ class corex {
      */
     LoadAppFilesFromAdminFolder(MyApp){
         let fs = require('fs')
-        let path = require('path')
         let os = require('os')
         MyApp.CSS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Autocomplete.css", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Autocomplete.js", 'utf8') + os.EOL
