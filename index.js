@@ -1202,12 +1202,13 @@ class corex {
         MyApp.CSS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Autocomplete.css", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Autocomplete.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Helper_Chart.js", 'utf8') + os.EOL
-        // Load du folder client
-        MyApp = this.LoadAppFilesFromFolder(this._ClientAppFolder, MyApp)
         // Load du folder common
         if (this._CommonAppFolder != null){
             MyApp = this.LoadAppFilesFromFolder(this._CommonAppFolder, MyApp)
         }
+        // Load du folder client
+        MyApp = this.LoadAppFilesFromFolder(this._ClientAppFolder, MyApp)
+        
         return MyApp
     }
 
@@ -1226,16 +1227,17 @@ class corex {
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_User.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Stat.js", 'utf8') + os.EOL
         MyApp.JS += fs.readFileSync(__dirname + "/Client_CoreX_Admin_Start.js", 'utf8') + os.EOL
+        // Load du folder common
+        if (this._CommonAppFolder != null){
+            MyApp = this.LoadAppFilesFromFolder(this._CommonAppFolder, MyApp)
+        }
         // Load du folder Admin
         if(this._AdminAppFolder != null){
             MyApp = this.LoadAppFilesFromFolder(this._AdminAppFolder, MyApp)
         } else {
             this.LogAppliInfo("Admin folder is not defined", "Server", "Server")
         }
-        // Load du folder common
-        if (this._CommonAppFolder != null){
-            MyApp = this.LoadAppFilesFromFolder(this._CommonAppFolder, MyApp)
-        }
+        
         return MyApp
     }
     /**
