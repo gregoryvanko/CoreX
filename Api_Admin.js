@@ -544,9 +544,9 @@ class ApiAdmin{
                 let ReponseConnections = []
                 let date = new Date()
                 date.setHours(1,0,0,0)
-                date.setDate( date.getDate() - 29 )
+                date.setDate( date.getDate() - 30 )
 
-                for (let index = 0; index <= 29; index++) {
+                for (let index = 0; index <= 30; index++) {
                     let NewElement = new Object()
                     NewElement.Date = new Date(date.getTime())
                     NewElement.Jour = date.getDate()
@@ -601,9 +601,9 @@ class ApiAdmin{
                 let date = new Date()
                 date.setHours(1,0,0,0)
                 date.setDate(1)
-                date.setMonth(date.getMonth() - 11)
+                date.setMonth(date.getMonth() - 12)
 
-                for (let index = 0; index <= 11; index++) {
+                for (let index = 0; index <= 12; index++) {
                     let NewElement = new Object()
                     NewElement.Date = new Date(date.getTime())
                     NewElement.Jour = date.getMonth() + 1
@@ -657,9 +657,9 @@ class ApiAdmin{
                 let ReponseConnections = []
                 let date = new Date()
                 date.setHours(1,0,0,0)
-                date.setDate( date.getDate() - 29 )
+                date.setDate( date.getDate() - 30 )
 
-                for (let index = 0; index <= 29; index++) {
+                for (let index = 0; index <= 30; index++) {
                     let NewElement = new Object()
                     NewElement.Date = new Date(date.getTime())
                     NewElement.Jour = date.getDate()
@@ -706,9 +706,9 @@ class ApiAdmin{
                 let date = new Date()
                 date.setHours(1,0,0,0)
                 date.setDate(1)
-                date.setMonth(date.getMonth() - 11)
+                date.setMonth(date.getMonth() - 12)
 
-                for (let index = 0; index <= 11; index++) {
+                for (let index = 0; index <= 12; index++) {
                     let NewElement = new Object()
                     NewElement.Date = new Date(date.getTime())
                     NewElement.Jour = date.getMonth() + 1

@@ -54,9 +54,13 @@ class CoreXAdminStatApp{
         if (Data == null){
             Content.appendChild(CoreXBuild.DivTexte("No stat data...", "", "CoreXAdminStatText",""))
         } else {
+            let chartdiv = document.createElement("div")
+            chartdiv.setAttribute("Class", "CoreXAdminStatChart")
+            Content.appendChild(chartdiv)
             let canvas = document.createElement("canvas")
             canvas.setAttribute("id", "myChart")
-            Content.appendChild(canvas)
+            chartdiv.appendChild(canvas)
+            
             // Preparer les data
             let GraphLabel = []
             let GraphDataFirstConnection = []
@@ -101,6 +105,7 @@ class CoreXAdminStatApp{
                     }]
                 },
                 options: {
+                    maintainAspectRatio: false,
                     title: {
                         display: true,
                         text: titre
@@ -116,7 +121,8 @@ class CoreXAdminStatApp{
                         yAxes: [{
                             stacked: true,
                             ticks: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                precision: 0
                             }
                         }]
                     }
@@ -203,9 +209,12 @@ class CoreXAdminStatApp{
         if (Data == null){
             Content.appendChild(CoreXBuild.DivTexte("No stat data...", "", "CoreXAdminStatText",""))
         } else {
+            let chartdiv = document.createElement("div")
+            chartdiv.setAttribute("Class", "CoreXAdminStatChart")
+            Content.appendChild(chartdiv)
             let canvas = document.createElement("canvas")
             canvas.setAttribute("id", "myChart")
-            Content.appendChild(canvas)
+            chartdiv.appendChild(canvas)
             // Preparer les data
             let GraphLabel = []
             let GraphDataApp = []
@@ -235,6 +244,7 @@ class CoreXAdminStatApp{
                     }]
                 },
                 options: {
+                    maintainAspectRatio: false,
                     title: {
                         display: true,
                         text: titre
@@ -250,7 +260,8 @@ class CoreXAdminStatApp{
                         yAxes: [{
                             stacked: true,
                             ticks: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                precision: 0
                             }
                         }]
                     }
@@ -358,6 +369,11 @@ class CoreXAdminStatApp{
                 width: 45%;
             }
 
+            .CoreXAdminStatChart{
+                height:65vh; 
+                width:94vw;
+            }
+
             @media only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait),
             only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3) and (orientation: portrait),
             screen and (max-width: 700px)
@@ -367,6 +383,7 @@ class CoreXAdminStatApp{
                 .CoreXAdminStatButtonLarge{font-size: var(--CoreX-Iphone-font-size); border-radius: 40px; width: 40%;}
                 .CoreXAdminStatInput{font-size: var(--CoreX-Iphone-font-size);}
                 .CoreXAdminStatBox{width: 80%;}
+                .CoreXAdminStatChart{height:30vh; width:94vw;}
             }
             @media screen and (min-width: 1200px)
             {
