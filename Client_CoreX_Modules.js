@@ -342,7 +342,7 @@ class CoreXWindow{
             }
             @media screen and (min-width: 1200px)
             {
-                #CoreXWindowScreen{width: 500px;}
+                #CoreXWindowScreen{width: 610px;}
                 .CoreXWindowCloseButton{width:25px;}
             }
             </style>`
