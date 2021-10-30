@@ -1,4 +1,5 @@
 class Mongo {
+    
     constructor(MongoUrl, MongoDbName){
         this._MongoDbName = MongoDbName
         this._Url = MongoUrl+ "/" + MongoDbName
